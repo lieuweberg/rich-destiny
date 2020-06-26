@@ -1,0 +1,19 @@
+package main
+
+type configuration struct {
+	ClientID string
+	ClientSecret string
+	RedirectURI string
+}
+
+// Config is the struct holding the configuration
+var Config *configuration
+
+func init() {
+	Config = &configuration{
+		ClientID: "CLIENTID",
+		ClientSecret: "CLIENTSECRET",
+		RedirectURI: "REDIRECTURI",
+		APIKey: "APIKEY",
+	}
+}
