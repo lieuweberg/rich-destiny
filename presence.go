@@ -58,7 +58,15 @@ func updatePresence() {
 	isLaunching := true
 	for _, d := range ca.Response.CharacterActivities.Data {
 		if d.CurrentActivityHash != 0 {
-			isLaunching = false
+			if isLaunching {
+				isLaunching = false
+			}
+
+			newActivity := richgo.Activity{
+				LargeImage: "destinylogo",
+				Details: "Launching the game...",
+			}
+
 			var (
 				fetchedCurrentActivity *currentActivityDefinition
 				fetchedCurrentActivityMode *currentActivityModeDefinition
@@ -66,33 +74,36 @@ func updatePresence() {
 			err = getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &fetchedCurrentActivity)
 			err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &fetchedCurrentActivityMode)
 			if err != nil {
-				log.Printf("Orbit")
-				
-				return
-			}
-			var (
-				fetchedPlace *placeDefinition
-			)
-			err = getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
-
-			newActivity := richgo.Activity{
-				LargeImage: "destinylogo",
-				LargeText: "Destiny 2",
-				Details: fmt.Sprintf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name),
-			}
-			// if previousActivity == richgo.Activity{} || previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State {
-				// previousActivity = newActivity
-				err = richgo.SetActivity(newActivity)
-				if err != nil {
-					log.Print("Error setting activity: " + err.Error())
+				newActivity.Details = "In orbit"
+				newActivity.LargeImage = "destinylogo"
+			} else {
+				var (
+					fetchedPlace *placeDefinition
+				)
+				err = getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
+				if err == nil {
+					newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
+					newActivity.State = fetchedCurrentActivity.DisplayProperties.Name
 				}
-			// }
 
-			log.Printf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
+				if previousActivity.Details != newActivity.Details {
+					r, _ := json.Marshal(fetchedCurrentActivity)
+					log.Print(string(r))
+					r, _ = json.Marshal(fetchedCurrentActivityMode)
+					log.Print(string(r))
+					r, _ = json.Marshal(fetchedPlace)
+					log.Print(string(r))
+				}
+			}
+
+			setActivity(newActivity)
 		}
 	}
 	if isLaunching {
-		log.Printf("Launching the game")
+		setActivity(richgo.Activity{
+			LargeImage: "destinylogo",
+			Details: "Launching the game",
+		})
 	}
 }
 
@@ -105,4 +116,21 @@ func getHashFromTable(table string, hash int64, v interface{}) (err error) {
 	}
 	err = json.Unmarshal([]byte(d), &v)
 	return
+}
+
+func setActivity(newActivity richgo.Activity) {
+	if previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State {
+		previousActivity = newActivity
+		now := time.Now()
+		newActivity.Timestamps = &richgo.Timestamps{
+			Start: &now,
+		}
+		newActivity.LargeText = "rich destiny"
+
+		err := richgo.SetActivity(newActivity)
+		if err != nil {
+			log.Print("Error setting activity: " + err.Error())
+		}
+		log.Println(newActivity.Details, newActivity.State)
+	}
 }
