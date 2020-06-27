@@ -74,8 +74,8 @@ func updatePresence() {
 				fetchedCurrentActivity *currentActivityDefinition
 				fetchedCurrentActivityMode *currentActivityModeDefinition
 			)
-			err = getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &fetchedCurrentActivity)
-			err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &fetchedCurrentActivityMode)
+			_, err = getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &fetchedCurrentActivity)
+			activityModeHash, err := getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &fetchedCurrentActivityMode)
 			if err != nil {
 				newActivity.Details = "In orbit"
 				newActivity.LargeImage = "destinylogo"
@@ -83,7 +83,7 @@ func updatePresence() {
 				var (
 					fetchedPlace *placeDefinition
 				)
-				err = getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
+				_, err = getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
 				if err == nil {
 					newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
 					newActivity.State = fetchedCurrentActivity.DisplayProperties.Name
@@ -99,21 +99,22 @@ func updatePresence() {
 				}
 			}
 
-			setActivity(newActivity, d.DateActivityStarted)
+			setActivity(newActivity, d.DateActivityStarted, activityModeHash)
 		}
 	}
 	if isLaunching {
 		setActivity(richgo.Activity{
 			LargeImage: "destinylogo",
 			Details: "Launching the game",
-		}, "")
+		}, "", 0)
 	}
 }
 
-func getHashFromTable(table string, hash int64, v interface{}) (err error) {
+func getHashFromTable(table string, hash int64, v interface{}) (newHash int32, err error) {
 	u := uint32(hash)
+	newHash = int32(u)
 	var d string
-	err = manifest.QueryRow(fmt.Sprintf("SELECT json FROM %s WHERE id=$2", table), int32(u)).Scan(&d)
+	err = manifest.QueryRow(fmt.Sprintf("SELECT json FROM %s WHERE id=$2", table), newHash).Scan(&d)
 	if err != nil {
 		return
 	}
@@ -122,7 +123,7 @@ func getHashFromTable(table string, hash int64, v interface{}) (err error) {
 }
 
 // setActivity sets the rich presence status. If there is no specific st (start time), pass an empty string.
-func setActivity(newActivity richgo.Activity, st string) {
+func setActivity(newActivity richgo.Activity, st string, activityModeHash int32) {
 	if previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State {
 		previousActivity = newActivity
 		var startTime time.Time
@@ -135,6 +136,10 @@ func setActivity(newActivity richgo.Activity, st string) {
 			Start: &startTime,
 		}
 		newActivity.LargeText = "rich destiny"
+
+		if activityModeHash != 0 {
+			
+		}
 
 		err := richgo.SetActivity(newActivity)
 		if err != nil {
