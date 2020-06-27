@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"os/exec"
 	"strings"
@@ -14,7 +15,6 @@ import (
 )
 
 var auth *authResponse
-var browserOpened bool
 
 // requestAccessToken requests an access token from bungie.
 // code is the ?code param if refresh is false.
@@ -123,6 +123,8 @@ func getAuth() (ar *authResponse, err error) {
 	return
 }
 
+var browserOpened bool
+
 // makeOauthTab tries to open the browser with /login (redirects to bungie).
 // This uses the localhost path for convenience.
 func makeOauthTab() {
@@ -131,6 +133,7 @@ func makeOauthTab() {
 		if err != nil {
 			printErr(err)
 		}
+		browserOpened = true
 		log.Printf("Opened Oauth in browser")
 	}
 }
@@ -150,9 +153,25 @@ func getManifestData() (d *manifestData, err error) {
 	return
 }
 
-// requestComponents is a helper function to request an endpoint/componenent from the bungie api,
+var httpClient *http.Client
+
+// requestComponents is a helper function to request an endpoint/componenent from the bungie api.
+// You MUST make sure that auth is populated.
 // url MUST start with a '/'!
 func requestComponents(url string, responseStruct interface{}) (err error) {
+	if httpClient == nil {
+		cookieJar, err := cookiejar.New(nil)
+		if err == nil {
+			httpClient = &http.Client{
+				Jar: cookieJar,
+			}
+		} else {
+			httpClient = &http.Client{}
+			log.Print("Couldn't create cookie jar, resolving to http client without it. This can cause some \"stuttery\" presence.")
+			printErr(err)
+		}
+	}
+
 	url = "https://bungie.net/Platform" + url
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -161,7 +180,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 	req.Header.Add("X-API-Key", config.APIKey)
 	req.Header.Add("Authorization", "Bearer " + auth.AccessToken)
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return
 	}

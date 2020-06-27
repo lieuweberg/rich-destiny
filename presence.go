@@ -27,10 +27,13 @@ func initPresence() {
 						err := richgo.Login("726090012877258762")
 						if err != nil {
 							log.Print("Couldn't connect to Discord: " + err.Error())
-							return
+							break
 						}
 
 						getAuth()
+						if auth == nil {
+							break
+						}
 						updatePresence()
 					}
 					// } else if isPlaying {
@@ -96,14 +99,14 @@ func updatePresence() {
 				}
 			}
 
-			setActivity(newActivity)
+			setActivity(newActivity, d.DateActivityStarted)
 		}
 	}
 	if isLaunching {
 		setActivity(richgo.Activity{
 			LargeImage: "destinylogo",
 			Details: "Launching the game",
-		})
+		}, "")
 	}
 }
 
@@ -118,12 +121,18 @@ func getHashFromTable(table string, hash int64, v interface{}) (err error) {
 	return
 }
 
-func setActivity(newActivity richgo.Activity) {
+// setActivity sets the rich presence status. If there is no specific st (start time), pass an empty string.
+func setActivity(newActivity richgo.Activity, st string) {
 	if previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State {
 		previousActivity = newActivity
-		now := time.Now()
+		var startTime time.Time
+		if t, err := time.Parse(time.RFC3339, st); err == nil {
+			startTime = t
+		} else {
+			startTime = time.Now()
+		}
 		newActivity.Timestamps = &richgo.Timestamps{
-			Start: &now,
+			Start: &startTime,
 		}
 		newActivity.LargeText = "rich destiny"
 
