@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	richgo "github.com/hugolgst/rich-go/client"
@@ -15,7 +16,7 @@ var quitExeCheckTicker chan(struct{})
 func initPresence() {
 	exeCheckTicker := time.NewTicker(15 * time.Second)
 	quitExeCheckTicker = make(chan struct{})
-	// isPlaying := false
+	isPlaying := false
 	go func() {
 		for {
 			select {
@@ -23,7 +24,7 @@ func initPresence() {
 				pl, _ := ps.Processes()
 				for _, p := range pl {
 					if p.Executable() == "destiny2.exe" {
-						// isPlaying = true
+						isPlaying = true
 						err := richgo.Login("726090012877258762")
 						if err != nil {
 							log.Print("Couldn't connect to Discord: " + err.Error())
@@ -35,11 +36,10 @@ func initPresence() {
 							break
 						}
 						updatePresence()
+					} else if isPlaying {
+						isPlaying = false
+						richgo.Logout()
 					}
-					// } else if isPlaying {
-					// 	isPlaying = false
-					// 	richgo.Logout()
-					// }
 				}
 			case <- quitExeCheckTicker:
 				exeCheckTicker.Stop()
@@ -49,17 +49,18 @@ func initPresence() {
 }
 
 var previousActivity richgo.Activity
+var previousGuardian guardianIcon
 
 func updatePresence() {
 	var ca *characterActivitiesDefinition
-	err := requestComponents(fmt.Sprintf("/Destiny2/3/Profile/%s?components=1000,204", auth.ActualMSID), &ca)
+	err := requestComponents(fmt.Sprintf("/Destiny2/3/Profile/%s?components=204,200", auth.ActualMSID), &ca)
 	if err != nil || ca.ErrorStatus != "Success" {
 		log.Print(err)
 		return
 	}
 
 	isLaunching := true
-	for _, d := range ca.Response.CharacterActivities.Data {
+	for id, d := range ca.Response.CharacterActivities.Data {
 		if d.CurrentActivityHash != 0 {
 			if isLaunching {
 				isLaunching = false
@@ -88,25 +89,22 @@ func updatePresence() {
 					newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
 					newActivity.State = fetchedCurrentActivity.DisplayProperties.Name
 				}
-
-				if previousActivity.Details != newActivity.Details {
-					r, _ := json.Marshal(fetchedCurrentActivity)
-					log.Print(string(r))
-					r, _ = json.Marshal(fetchedCurrentActivityMode)
-					log.Print(string(r))
-					r, _ = json.Marshal(fetchedPlace)
-					log.Print(string(r))
-				}
 			}
 
-			setActivity(newActivity, d.DateActivityStarted, activityModeHash)
+			class := classImageMap[ca.Response.Characters.Data[id].ClassType]
+			newGuardian := guardianIcon{
+				Class: class,
+				DisplayText: strings.Title(fmt.Sprintf("%s - %d", class, ca.Response.Characters.Data[id].Light)),
+			}
+
+			setActivity(newActivity, newGuardian, d.DateActivityStarted, activityModeHash)
 		}
 	}
 	if isLaunching {
 		setActivity(richgo.Activity{
 			LargeImage: "destinylogo",
 			Details: "Launching the game",
-		}, "", 0)
+		}, guardianIcon{}, "", 0)
 	}
 }
 
@@ -123,9 +121,10 @@ func getHashFromTable(table string, hash int64, v interface{}) (newHash int32, e
 }
 
 // setActivity sets the rich presence status. If there is no specific st (start time), pass an empty string.
-func setActivity(newActivity richgo.Activity, st string, activityModeHash int32) {
-	if previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State {
+func setActivity(newActivity richgo.Activity, newGuardian guardianIcon, st string, activityModeHash int32) {
+	if previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State || previousGuardian.DisplayText != newGuardian.DisplayText {
 		previousActivity = newActivity
+		previousGuardian = newGuardian
 		var startTime time.Time
 		if t, err := time.Parse(time.RFC3339, st); err == nil {
 			startTime = t
@@ -137,14 +136,29 @@ func setActivity(newActivity richgo.Activity, st string, activityModeHash int32)
 		}
 		newActivity.LargeText = "rich destiny"
 
-		if activityModeHash != 0 {
-			
+		if activityModeHash != 0 && newActivity.LargeImage == "destinylogo" {
+			for image, hashes := range largeImageMap {
+				for _, h := range hashes {
+					if activityModeHash == h {
+						newActivity.LargeImage = image
+						break
+					}
+				}
+				if newActivity.LargeImage != "destinylogo" {
+					break
+				}
+			}
+		}
+
+		if newGuardian.DisplayText != "" {
+			newActivity.SmallImage = newGuardian.Class
+			newActivity.SmallText = newGuardian.DisplayText
 		}
 
 		err := richgo.SetActivity(newActivity)
 		if err != nil {
 			log.Print("Error setting activity: " + err.Error())
 		}
-		log.Println(newActivity.Details, newActivity.State)
+		log.Print(newActivity.Details + " | " + newActivity.State)
 	}
 }

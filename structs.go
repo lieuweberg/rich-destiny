@@ -49,15 +49,16 @@ type lPProfile struct {
 
 
 type characterActivitiesDefinition struct {
-	Response        caDefReponse  `json:"Response"`
-	ErrorCode       int64       `json:"ErrorCode"`
-	ThrottleSeconds int64       `json:"ThrottleSeconds"`
-	ErrorStatus     string      `json:"ErrorStatus"`
-	Message         string      `json:"Message"`
+	Response        caDefReponse  	`json:"Response"`
+	ErrorCode       int64       	`json:"ErrorCode"`
+	ThrottleSeconds int64       	`json:"ThrottleSeconds"`
+	ErrorStatus     string      	`json:"ErrorStatus"`
+	Message         string      	`json:"Message"`
 }
 
 type caDefReponse struct {
 	CharacterActivities caDefActivities `json:"characterActivities"`
+	Characters 			clDefCharacters `json:"characters"`
 }
 
 type caDefActivities struct {
@@ -74,22 +75,22 @@ type caDefCharacter struct {
 
 type currentActivityDefinition struct {
 	DisplayProperties         caDefDisplay       	`json:"displayProperties"`
-	OriginalDisplayProperties caDefDisplay       	`json:"originalDisplayProperties"`
-	ReleaseIcon               string             	`json:"releaseIcon"`
-	ReleaseTime               int64              	`json:"releaseTime"`
-	ActivityLevel             int64              	`json:"activityLevel"`
-	CompletionUnlockHash      int64              	`json:"completionUnlockHash"`
-	ActivityLightLevel        int64              	`json:"activityLightLevel"`
-	DestinationHash           int64              	`json:"destinationHash"`
+	// OriginalDisplayProperties caDefDisplay       	`json:"originalDisplayProperties"`
+	// ReleaseIcon               string             	`json:"releaseIcon"`
+	// ReleaseTime               int64              	`json:"releaseTime"`
+	// ActivityLevel             int64              	`json:"activityLevel"`
+	// CompletionUnlockHash      int64              	`json:"completionUnlockHash"`
+	// ActivityLightLevel        int64              	`json:"activityLightLevel"`
+	// DestinationHash           int64              	`json:"destinationHash"`
 	PlaceHash                 int64              	`json:"placeHash"`
 	ActivityTypeHash          int64              	`json:"activityTypeHash"`
-	Tier                      int64              	`json:"tier"`
-	Modifiers                 []interface{}      	`json:"modifiers"`
-	IsPlaylist                bool               	`json:"isPlaylist"`
-	Matchmaking               caDefMatchmaking   	`json:"matchmaking"`
-	IsPVP                     bool               	`json:"isPvP"`
-	ActivityLocationMappings  []caDefLocationMap	`json:"activityLocationMappings"`
-	Blacklisted               bool               	`json:"blacklisted"`
+	// Tier                      int64              	`json:"tier"`
+	// Modifiers                 []interface{}      	`json:"modifiers"`
+	// IsPlaylist                bool               	`json:"isPlaylist"`
+	// Matchmaking               caDefMatchmaking   	`json:"matchmaking"`
+	// IsPVP                     bool               	`json:"isPvP"`
+	// ActivityLocationMappings  []caDefLocationMap	`json:"activityLocationMappings"`
+	// Blacklisted               bool               	`json:"blacklisted"`
 }
 
 type caDefLocationMap struct {
@@ -140,7 +141,7 @@ type camDefDisplay struct {
 
 
 type placeDefinition struct {
-	DisplayProperties placeDefDisplay `json:"displayProperties"`
+	DisplayProperties placeDefDisplay	`json:"displayProperties"`
 	Hash              int64             `json:"hash"`             
 	Index             int64             `json:"index"`            
 	Redacted          bool              `json:"redacted"`         
@@ -152,4 +153,31 @@ type placeDefDisplay struct {
 	Name        string `json:"name"`       
 	Icon        string `json:"icon"`       
 	HasIcon     bool   `json:"hasIcon"`    
+}
+
+
+type characterDefiniton struct {
+	DisplayProperties	cDefDisplay	`json:"displayProperties"`
+}
+
+type cDefDisplay struct {
+	Name    string `json:"name"`
+}
+
+
+type guardianIcon struct {
+	DisplayText string
+	Class string
+}
+
+
+type clDefCharacters struct {
+	Data    map[string]clDefDatum `json:"data"`
+}
+
+type clDefDatum struct {
+	CharacterID              string           `json:"characterId"`
+	Light                    int64            `json:"light"`
+	// RaceType                 int64            `json:"raceType"`
+	ClassType                int64            `json:"classType"`
 }
