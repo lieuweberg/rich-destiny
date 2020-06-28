@@ -16,19 +16,23 @@ var quitExeCheckTicker chan(struct{})
 func initPresence() {
 	exeCheckTicker := time.NewTicker(15 * time.Second)
 	quitExeCheckTicker = make(chan struct{})
-	isPlaying := false
+	loggedIn := false
 	go func() {
 		for {
 			select {
 			case <- exeCheckTicker.C:
+				exeFound := false
 				pl, _ := ps.Processes()
 				for _, p := range pl {
 					if p.Executable() == "destiny2.exe" {
-						isPlaying = true
-						err := richgo.Login("726090012877258762")
-						if err != nil {
-							log.Print("Couldn't connect to Discord: " + err.Error())
-							break
+						exeFound = true
+						if !loggedIn {
+							err := richgo.Login("726090012877258762")
+							if err != nil {
+								log.Print("Couldn't connect to Discord: " + err.Error())
+								break
+							}
+							loggedIn = true
 						}
 
 						getAuth()
@@ -36,10 +40,13 @@ func initPresence() {
 							break
 						}
 						updatePresence()
-					} else if isPlaying {
-						isPlaying = false
-						richgo.Logout()
+						break
 					}
+				}
+				if loggedIn && !exeFound {
+					richgo.Logout()
+					loggedIn = false
+					log.Print("No longer playing, logged ipc out")
 				}
 			case <- quitExeCheckTicker:
 				exeCheckTicker.Stop()
@@ -86,7 +93,6 @@ func updatePresence() {
 				)
 				_, err = getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
 				if err == nil {
-					log.Print(activityModeHash, activityHash)
 					if forge, ok := forgeHashMap[activityHash]; ok { // Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - Earth | FORGENAME Forge'
 						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivity.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
 						newActivity.State = fmt.Sprintf("%s Forge", forge)
