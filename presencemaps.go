@@ -1,6 +1,6 @@
 package main
 
-// Maps collective name to ActivityModeHash
+// Maps collective name (large images) to []ActivityModeHash
 var largeImageMap = map[string][]int32{
 	"control": {-1270265980, -1095868816, -621632665, 1340118533}, // Private Matches Control, Control, Control: Quickplay, Control: Competitive
 	// Survival, Competitive PvP, Showdown, Momentum, Quickplay PvP, Salvage, Breakthrough, Clash: Competitive, Elimination, Rumble,
@@ -10,7 +10,7 @@ var largeImageMap = map[string][]int32{
 	"doubles": {-473465279, 946648766, 1703282980}, // Doubles, Crimson Doubles, All Doubles
 	"dungeon": {608898761}, // Dungeon
 	"explore": {-797199657}, // Explore
-	"forge": {803838459}, // Forge
+	"forge": {803838459},
 	"gambit": {1418469392, 1848252830}, // Gambit Prime, Gambit
 	// Iron Banner Control, Iron Banner Clash, Iron Banner Supremacy, Iron Banner Salvage, Iron Banner
 	"ironbanner": {-1451282428, -815750908, -82084646, 1317961215, 1826469369},
@@ -29,8 +29,16 @@ var largeImageMap = map[string][]int32{
 	"vexoffensive": {1963485238}, // Vex Offensive
 }
 
-// Maps class to ClassHash
-var classImageMap = map[int64]string {
+// Maps ActivityHash to Forge name (because they are seen as story)
+var forgeHashMap = map[int32]string{
+	10898844: "Bergusia",
+	1019949956: "Volundr",
+	1483179969: "Gofannon",
+	1878615566: "Izanami",
+}
+
+// Maps classID to class name
+var classImageMap = map[int64]string{
 	0: "titan",
 	1: "hunter",
 	2: "warlock",

@@ -75,9 +75,9 @@ func updatePresence() {
 				fetchedCurrentActivity *currentActivityDefinition
 				fetchedCurrentActivityMode *currentActivityModeDefinition
 			)
-			_, err = getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &fetchedCurrentActivity)
+			activityHash, err := getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &fetchedCurrentActivity)
 			activityModeHash, err := getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &fetchedCurrentActivityMode)
-			if err != nil {
+			if err != nil { // Error indicates orbit. Seems to have been working reliably.
 				newActivity.Details = "In orbit"
 				newActivity.LargeImage = "destinylogo"
 			} else {
@@ -86,8 +86,15 @@ func updatePresence() {
 				)
 				_, err = getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
 				if err == nil {
-					newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
-					newActivity.State = fetchedCurrentActivity.DisplayProperties.Name
+					log.Print(activityModeHash, activityHash)
+					if forge, ok := forgeHashMap[activityHash]; ok { // Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - Earth | FORGENAME Forge'
+						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivity.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
+						newActivity.State = fmt.Sprintf("%s Forge", forge)
+						newActivity.LargeImage = "forge"
+					} else {
+						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
+						newActivity.State = fetchedCurrentActivity.DisplayProperties.Name
+					}
 				}
 			}
 
@@ -156,6 +163,8 @@ func setActivity(newActivity richgo.Activity, newGuardian guardianIcon, st strin
 		}
 
 		err := richgo.SetActivity(newActivity)
+		marshalled, _ := json.Marshal(newActivity)
+		log.Print(string(marshalled))
 		if err != nil {
 			log.Print("Error setting activity: " + err.Error())
 		}
