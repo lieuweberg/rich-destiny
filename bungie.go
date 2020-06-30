@@ -66,8 +66,9 @@ func setAuth(data []byte) (err error) {
 	if err != nil {
 		return
 	}
-	auth.RefreshAt = time.Now().Unix() + auth.ExpiresIn
-	auth.ReAuthAt = time.Now().Unix() + auth.RefreshExpiresIn
+	// Subtracting five to make sure tokens are refreshed on-time, and not a few milliseconds late (sometimes causing 401's)
+	auth.RefreshAt = time.Now().Unix() + auth.ExpiresIn - 5
+	auth.ReAuthAt = time.Now().Unix() + auth.RefreshExpiresIn - 5
 	if auth.ActualMSID == "" {
 		var lp *linkedProfiles
 		err = requestComponents(fmt.Sprintf("/Destiny2/254/Profile/%s/LinkedProfiles/", auth.BungieMSID), &lp)

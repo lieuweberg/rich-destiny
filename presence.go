@@ -66,16 +66,31 @@ func updatePresence() {
 		return
 	}
 
+	newActivity := richgo.Activity{
+		LargeImage: "destinylogo",
+		Details: "Launching the game...",
+	}
+
+	var newGuardian guardianIcon
+	var activityModeHash int32
+	var dateActivityStarted time.Time
+
 	isLaunching := true
 	for id, d := range ca.Response.CharacterActivities.Data {
 		if d.CurrentActivityHash != 0 {
-			if isLaunching {
-				isLaunching = false
+			if t, err := time.Parse(time.RFC3339, d.DateActivityStarted); err == nil {
+				if t.Unix() > dateActivityStarted.Unix() {
+					dateActivityStarted = t
+					newActivity = richgo.Activity{
+						LargeImage: "destinylogo",
+					}
+				} else {
+					break;
+				}
 			}
 
-			newActivity := richgo.Activity{
-				LargeImage: "destinylogo",
-				Details: "Launching the game...",
+			if isLaunching {
+				isLaunching = false
 			}
 
 			var (
@@ -83,7 +98,7 @@ func updatePresence() {
 				fetchedCurrentActivityMode *currentActivityModeDefinition
 			)
 			activityHash, err := getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &fetchedCurrentActivity)
-			activityModeHash, err := getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &fetchedCurrentActivityMode)
+			activityModeHash, err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &fetchedCurrentActivityMode)
 			if err != nil { // Error indicates orbit. Seems to have been working reliably.
 				newActivity.Details = "In orbit"
 				newActivity.LargeImage = "destinylogo"
@@ -91,12 +106,15 @@ func updatePresence() {
 				var (
 					fetchedPlace *placeDefinition
 				)
-				_, err = getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
+				placeHash, err := getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
 				if err == nil {
 					if forge, ok := forgeHashMap[activityHash]; ok { // Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - Earth | FORGENAME Forge'
 						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivity.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
 						newActivity.State = fmt.Sprintf("%s Forge", forge)
 						newActivity.LargeImage = "forge"
+					} else if placeHash == 2096719558 { // ... 'Normal Strikes - The Menagerie | The Menagerie'. Still unsure why it thinks it's a strike.
+						newActivity.Details = "The Menagerie - Nessus Orbit"
+						newActivity.LargeImage = "menagerie"
 					} else {
 						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
 						newActivity.State = fetchedCurrentActivity.DisplayProperties.Name
@@ -105,19 +123,19 @@ func updatePresence() {
 			}
 
 			class := classImageMap[ca.Response.Characters.Data[id].ClassType]
-			newGuardian := guardianIcon{
+			newGuardian = guardianIcon{
 				Class: class,
 				DisplayText: strings.Title(fmt.Sprintf("%s - %d", class, ca.Response.Characters.Data[id].Light)),
 			}
-
-			setActivity(newActivity, newGuardian, d.DateActivityStarted, activityModeHash)
 		}
 	}
 	if isLaunching {
 		setActivity(richgo.Activity{
 			LargeImage: "destinylogo",
 			Details: "Launching the game",
-		}, guardianIcon{}, "", 0)
+		}, guardianIcon{}, time.Now(), 0)
+	} else {
+		setActivity(newActivity, newGuardian, dateActivityStarted, activityModeHash)
 	}
 }
 
@@ -134,20 +152,22 @@ func getHashFromTable(table string, hash int64, v interface{}) (newHash int32, e
 }
 
 // setActivity sets the rich presence status. If there is no specific st (start time), pass an empty string.
-func setActivity(newActivity richgo.Activity, newGuardian guardianIcon, st string, activityModeHash int32) {
+func setActivity(newActivity richgo.Activity, newGuardian guardianIcon, st time.Time, activityModeHash int32) {
 	if previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State || previousGuardian.DisplayText != newGuardian.DisplayText {
 		previousActivity = newActivity
 		previousGuardian = newGuardian
-		var startTime time.Time
-		if t, err := time.Parse(time.RFC3339, st); err == nil {
-			startTime = t
-		} else {
-			startTime = time.Now()
+
+		if st.IsZero() {
+			st = time.Now()
 		}
 		newActivity.Timestamps = &richgo.Timestamps{
-			Start: &startTime,
+			Start: &st,
 		}
-		newActivity.LargeText = "rich destiny"
+		newActivity.LargeText = "rich-destiny"
+		if newGuardian.DisplayText != "" {
+			newActivity.SmallImage = newGuardian.Class
+			newActivity.SmallText = newGuardian.DisplayText
+		}
 
 		if activityModeHash != 0 && newActivity.LargeImage == "destinylogo" {
 			for image, hashes := range largeImageMap {
@@ -163,17 +183,10 @@ func setActivity(newActivity richgo.Activity, newGuardian guardianIcon, st strin
 			}
 		}
 
-		if newGuardian.DisplayText != "" {
-			newActivity.SmallImage = newGuardian.Class
-			newActivity.SmallText = newGuardian.DisplayText
-		}
-
 		err := richgo.SetActivity(newActivity)
-		marshalled, _ := json.Marshal(newActivity)
-		log.Print(string(marshalled))
 		if err != nil {
 			log.Print("Error setting activity: " + err.Error())
 		}
-		log.Print(newActivity.Details + " | " + newActivity.State)
+		log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newGuardian.DisplayText)
 	}
 }

@@ -33,7 +33,7 @@ type manifestData struct {
 }
 
 type manifestResponse struct {
-	MobileWorldContentPaths        manifestWorldContentPaths       `json:"mobileWorldContentPaths"`
+	MobileWorldContentPaths	manifestWorldContentPaths	`json:"mobileWorldContentPaths"`
 }
 
 type manifestWorldContentPaths struct {
@@ -115,10 +115,10 @@ type currentActivityDefinition struct {
 // }
 
 // type caDefMatchmaking struct {
-// 	IsMatchmade          bool  `json:"isMatchmade"`         
-// 	MinParty             int64 `json:"minParty"`            
-// 	MaxParty             int64 `json:"maxParty"`            
-// 	MaxPlayers           int64 `json:"maxPlayers"`          
+// 	IsMatchmade          bool  `json:"isMatchmade"`
+// 	MinParty             int64 `json:"minParty"`
+// 	MaxParty             int64 `json:"maxParty"`
+// 	MaxPlayers           int64 `json:"maxPlayers"`
 // 	RequiresGuardianOath bool  `json:"requiresGuardianOath"`
 // }
 
