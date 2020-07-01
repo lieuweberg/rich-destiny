@@ -58,10 +58,10 @@ func main() {
 		if err != nil {
 			log.Printf("Something went wrong: %s", err)
 		} else {
-			log.Print("Program installed.")
+			log.Print("Program installed. The service should automatically start :D (check the installation directory for new files)")
 			s.Start()
 		}
-		log.Print("Press ENTER to close this window. The service should automatically start :D")
+		log.Print("Press ENTER to close this window.")
 		fmt.Scanln()
 	} else {
 		err = s.Run()
