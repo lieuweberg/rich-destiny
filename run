@@ -1,2 +1,2 @@
 #!/bin/bash
-go build -o temp.exe && ./temp.exe
+go build -o rich-destiny.exe && ./rich-destiny.exe

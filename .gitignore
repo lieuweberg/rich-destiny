@@ -1,4 +1,5 @@
 config.go
-temp.exe
+*.exe
 *.db
 assets/
+logs/

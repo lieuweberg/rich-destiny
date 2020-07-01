@@ -2,7 +2,6 @@ package main
 
 import (
 	"archive/zip"
-	"context"
 	"database/sql"
 	"fmt"
 	"io"
@@ -10,18 +9,75 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
+	"path/filepath"
+
 	"time"
 
+	"github.com/kardianos/service"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var generatedState string
 var db *sql.DB
 var manifest *sql.DB
+var server = &http.Server{Addr: ":35893", Handler: nil}
+var currentDirectory string
 
-func init() {
+type program struct{}
+
+func (p *program) Start(s service.Service) (err error) {
+	go p.run()
+	return
+}
+
+func (p *program) Stop(s service.Service) (err error) {
+	log.Print("OS termination received")
+	db.Close()
+	manifest.Close()
+	server.Close()
+	close(quitExeCheckTicker)
+	log.Print("Gracefully exited, bye bye")
+	return
+}
+
+func main() {
+	svcConfig := &service.Config{
+		Name: "rich-destiny",
+		Description: "Discord rich presence tool for Destiny 2",
+	}
+	prg := &program{}
+
+	s, err := service.New(prg, svcConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if service.Interactive() {
+		log.Print("Detected that this program is being run manually, installing into the service manager...")
+		err = s.Install()
+		if err != nil {
+			log.Printf("Something went wrong: %s", err)
+		} else {
+			log.Print("Program installed.")
+			s.Start()
+		}
+		log.Print("Press ENTER to close this window. The service should automatically start :D")
+		fmt.Scanln()
+	} else {
+		err = s.Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func (p *program) run() {
+	exe, err := os.Executable()
+	if err != nil {
+		log.Fatalf("Couldn't find current path: %s", err)
+	}
+	currentDirectory = filepath.Dir(exe);
+
 	// State query param
 	rand.Seed(time.Now().UnixNano())
 	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -32,8 +88,7 @@ func init() {
 	generatedState = string(b)
 
 	// Open the storage db (access token, etc.)
-	var err error
-	db, err = sql.Open("sqlite3", "./storage.db")
+	db, err = sql.Open("sqlite3", makePath("storage.db"))
 	if err != nil {
 		printErr(err)
 	}
@@ -56,7 +111,7 @@ func init() {
 	}
 	var lastManifestURL string
 	db.QueryRow("SELECT value FROM data WHERE key='lastManifestURL'").Scan(&lastManifestURL)
-	if _, err := os.Stat("./manifest.db"); os.IsNotExist(err) ||  manifestRes.Response.MobileWorldContentPaths.En != lastManifestURL {
+	if _, err := os.Stat(makePath("manifest.db")); os.IsNotExist(err) ||  manifestRes.Response.MobileWorldContentPaths.En != lastManifestURL {
 		if os.IsNotExist(err) {
 			log.Print("Manifest doesn't exist, downloading one...")
 		} else {
@@ -68,7 +123,7 @@ func init() {
 			printErr(err)
 			return
 		}
-		out, err := os.Create("manifest.zip")
+		out, err := os.Create(makePath("manifest.zip"))
 		if err != nil {
 			printErr(err)
 			return
@@ -90,7 +145,7 @@ func init() {
 				printErr(err)
 				break
 			}
-			out, err := os.Create("manifest.db")
+			out, err := os.Create(makePath("manifest.db"))
 			if err != nil {
 				printErr(err)
 				break
@@ -111,7 +166,7 @@ func init() {
 		}
 		log.Print("Manifest downloaded and unzipped!")
 
-		err = os.Remove("manifest.zip")
+		err = os.Remove(makePath("manifest.zip"))
 		if err != nil {
 			printErr(err)
 			return
@@ -125,17 +180,19 @@ func init() {
 		}
 	}
 
-	manifest, err = sql.Open("sqlite3", "./manifest.db")
+	manifest, err = sql.Open("sqlite3", makePath("manifest.db"))
 	if err != nil {
 		printErr(err)
 		return
 	}
 
+	startWebServer()
 	initPresence()
 }
 
-func main() {
+func startWebServer() {
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
+		enableCors(&res)
 		fmt.Fprint(res, "{message: \"hello\"}")
 	})
 
@@ -162,7 +219,6 @@ func main() {
 		browserOpened = false
 	})
 
-	server := &http.Server{Addr: ":35893", Handler: nil}
 	go func() {
 		log.Print("If no further errors, listening on port http://localhost:35893")
 		if err := server.ListenAndServe(); err != nil {
@@ -173,15 +229,14 @@ func main() {
 			printErr(err)
 		}
 	}()
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGTERM, syscall.SIGINT, os.Interrupt, os.Kill)
-	<-sc
-	log.Print("OS termination received")
-	server.Shutdown(context.Background())
-	db.Close()
-	manifest.Close()
-	close(quitExeCheckTicker)
-	log.Print("Gracefully exited, bye bye")
+}
+
+func makePath(e string) string {
+	return filepath.Join(currentDirectory, e)
+}
+
+func enableCors(res *http.ResponseWriter) {
+	(*res).Header().Set("Access-Control-Allow-Origin", "http://localhost:5500")
 }
 
 func printErr(err error) {
