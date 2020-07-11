@@ -67,16 +67,16 @@ func main() {
 		if err != nil {
 			log.Printf("Something went wrong: %s", err)
 			return
-		} else {
-			log.Print("Program installed. The service should automatically start (check the installation directory for new files).")
-			err = s.Start()
-			if err != nil {
-				log.Printf("Error starting service: %s", err)
-				return
-			}
-			log.Print("Assuming this is first-time installation; this program will now attempt to open a browser tab to log in with Bungie.net.")
-			openOauthTab()
 		}
+		log.Print("Program installed. The service should automatically start (check the installation directory for new files).")
+		err = s.Start()
+		if err != nil {
+			log.Printf("Error starting service, aborting further execution: %s", err)
+			return
+		}
+		log.Print("Assuming this is first-time installation; this program will now attempt to open a browser tab to log in with Bungie.net.")
+		openOauthTab()
+		
 		log.Print("Press ENTER to close this window.")
 		fmt.Scanln()
 	} else {
