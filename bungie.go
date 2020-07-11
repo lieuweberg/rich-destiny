@@ -35,26 +35,26 @@ func requestAccessToken(code string, refresh bool) (err error) {
 
 	authReq, err := http.NewRequest("POST", "https://www.bungie.net/platform/app/oauth/token", strings.NewReader(data.Encode()))
 	if err != nil {
-		printErr(err)
+		log.Printf("Trouble making NewRequest to get an access token: %s", err)
 		return
 	}
 	authReq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	authRes, err := http.DefaultClient.Do(authReq)
 	if err != nil {
-		printErr(err)
+		log.Printf("http client failed to do request: %s", err)
 		return
 	}
 	body, err := ioutil.ReadAll(authRes.Body)
 	if err != nil {
-		printErr(err)
+		log.Printf("Error reading response body: %s", err)
 		return
 	}
 	authRes.Body.Close()
 
 	err = setAuth(body)
 	if err != nil {
-		printErr(err)
+		log.Printf("Error setting auth details: %s", err)
 	}
 
 	return
@@ -102,7 +102,7 @@ func getAuth() (ar *authResponse, err error) {
 		var r string
 		err = db.QueryRow("SELECT value FROM data WHERE key='auth'").Scan(&r)
 		if err == sql.ErrNoRows {
-			makeOauthTab()
+			openOauthTab()
 			err = nil
 			return
 		} else if err != nil {
@@ -114,25 +114,24 @@ func getAuth() (ar *authResponse, err error) {
 		}
 		ar, err = getAuth()
 	} else if time.Now().Unix() >= auth.ReAuthAt {
-		makeOauthTab()
+		openOauthTab()
 		return
 	} else if time.Now().Unix() >= auth.RefreshAt {
 		requestAccessToken(auth.RefreshToken, true)
 	}
 
-	ar = auth
-	return
+	return auth, nil
 }
 
 var browserOpened bool
 
 // makeOauthTab tries to open the browser with /login (redirects to bungie).
 // This uses the localhost path for convenience.
-func makeOauthTab() {
+func openOauthTab() {
 	if !browserOpened {
 		err := exec.Command("rundll32", "url.dll,FileProtocolHandler", "http://localhost:35893/login").Start()
 		if err != nil {
-			printErr(err)
+			log.Printf("Error executing browser open command: %s", err)
 		}
 		browserOpened = true
 		log.Printf("Opened Oauth in browser")
@@ -140,7 +139,7 @@ func makeOauthTab() {
 }
 
 // getManifestData gets the manifest info url
-func getManifestData() (d *manifestData, err error) {
+func getManifestData() (d manifestData, err error) {
 	res, err := http.Get("https://www.bungie.net/Platform/Destiny2/Manifest/")
 	if err != nil {
 		return
@@ -168,8 +167,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 			}
 		} else {
 			httpClient = &http.Client{}
-			log.Print("Couldn't create cookie jar, resolving to http client without it. This can cause some \"stuttery\" presence.")
-			printErr(err)
+			log.Printf("Couldn't create cookie jar, resolving to http client without it. This can cause some \"stuttery\" presence: %s", err)
 		}
 	}
 
@@ -179,7 +177,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 		return
 	}
 	req.Header.Add("X-API-Key", config.APIKey)
-	req.Header.Add("Authorization", "Bearer " + auth.AccessToken)
+	req.Header.Add("Authorization", "Bearer "+auth.AccessToken)
 
 	res, err := httpClient.Do(req)
 	if err != nil {

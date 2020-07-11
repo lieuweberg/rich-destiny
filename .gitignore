@@ -1,5 +1,7 @@
 config.go
 *.exe
 *.db
+*.zip
 assets/
 logs/
+*.syso

@@ -130,10 +130,7 @@ func updatePresence() {
 		}
 	}
 	if isLaunching {
-		setActivity(richgo.Activity{
-			LargeImage: "destinylogo",
-			Details: "Launching the game",
-		}, guardianIcon{}, time.Now(), 0)
+		setActivity(newActivity, guardianIcon{}, time.Now(), 0)
 	} else {
 		setActivity(newActivity, newGuardian, dateActivityStarted, activityModeHash)
 	}

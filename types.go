@@ -18,8 +18,13 @@ type authResponse struct {
 }
 
 type guardianIcon struct {
-	DisplayText string
-	Class string
+	DisplayText	string
+	Class 		string
+}
+
+type programStatusStruct struct {
+	OK		bool
+	Message	string
 }
 
 // API/Manifest structs

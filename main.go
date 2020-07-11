@@ -1,3 +1,4 @@
+//go:generate goversioninfo -64
 package main
 
 import (
@@ -22,6 +23,7 @@ var db *sql.DB
 var manifest *sql.DB
 var server = &http.Server{Addr: ":35893", Handler: nil}
 var currentDirectory string
+var programStatus programStatusStruct
 
 type program struct{}
 
@@ -41,8 +43,15 @@ func (p *program) Stop(s service.Service) (err error) {
 }
 
 func main() {
+	if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
+		err = os.Mkdir(makePath("logs"), os.ModePerm)
+		if err != nil {
+			log.Printf("Couldn't create logs directory: %s", err)
+		}
+	}
+
 	svcConfig := &service.Config{
-		Name: "rich-destiny",
+		Name:        "rich-destiny",
 		Description: "Discord rich presence tool for Destiny 2",
 	}
 	prg := &program{}
@@ -57,9 +66,16 @@ func main() {
 		err = s.Install()
 		if err != nil {
 			log.Printf("Something went wrong: %s", err)
+			return
 		} else {
-			log.Print("Program installed. The service should automatically start :D (check the installation directory for new files)")
-			s.Start()
+			log.Print("Program installed. The service should automatically start (check the installation directory for new files).")
+			err = s.Start()
+			if err != nil {
+				log.Printf("Error starting service: %s", err)
+				return
+			}
+			log.Print("Assuming this is first-time installation; this program will now attempt to open a browser tab to log in with Bungie.net.")
+			openOauthTab()
 		}
 		log.Print("Press ENTER to close this window.")
 		fmt.Scanln()
@@ -72,11 +88,23 @@ func main() {
 }
 
 func (p *program) run() {
+	setPrgStatus(true, "Initialising...")
+	// Wait for a decent computer to have booted, no internet connection means trouble
+	// TODO: Way better way of handling internet connection status, this is pretty terrible
+	time.Sleep(20 * time.Second)
+
 	exe, err := os.Executable()
 	if err != nil {
 		log.Fatalf("Couldn't find current path: %s", err)
 	}
-	currentDirectory = filepath.Dir(exe);
+	currentDirectory = filepath.Dir(exe)
+
+	logFile, err := os.Create(makePath(fmt.Sprintf("logs/%d.log", time.Now().Unix())))
+	if err != nil {
+		log.Printf("Couldn't create log file: %s", err)
+	} else {
+		log.SetOutput(logFile)
+	}
 
 	// State query param
 	rand.Seed(time.Now().UnixNano())
@@ -90,69 +118,75 @@ func (p *program) run() {
 	// Open the storage db (access token, etc.)
 	db, err = sql.Open("sqlite3", makePath("storage.db"))
 	if err != nil {
-		printErr(err)
+		log.Printf("Error opening storage.db: %s", err)
 	}
 
 	if _, err = db.Exec(`CREATE TABLE IF NOT EXISTS data(
 		key		STRING	PRIMARY KEY NOT NULL,
 		value	STRING	NOT NULL
 	)`); err != nil {
-		printErr(err)
+		log.Printf("Error creating storage.db table: %s", err)
 	}
+
 	if _, err = getAuth(); err != nil {
-		printErr(err)
+		log.Printf("Error getting auth: %s", err)
+		setPrgStatus(false, "Unable to get auth.")
 	}
 
 	// Check if a new manifest has to be downloaded, if so do that, then open the db
 	manifestRes, err := getManifestData()
 	if err != nil {
-		printErr(err)
-		return
+		log.Printf("Error getting manifest data: %s", err)
+		setPrgStatus(false, "Unable to get new manifest.")
 	}
+
+	startWebServer()
+	initPresence()
+
 	var lastManifestURL string
 	db.QueryRow("SELECT value FROM data WHERE key='lastManifestURL'").Scan(&lastManifestURL)
-	if _, err := os.Stat(makePath("manifest.db")); os.IsNotExist(err) ||  manifestRes.Response.MobileWorldContentPaths.En != lastManifestURL {
+	if _, err := os.Stat(makePath("manifest.db"));  (os.IsNotExist(err) || manifestRes.Response.MobileWorldContentPaths.En != lastManifestURL) {
 		if os.IsNotExist(err) {
 			log.Print("Manifest doesn't exist, downloading one...")
 		} else {
 			log.Print("Manifest is outdated, downloading a new one...")
 		}
 
-		res, err := http.Get("https://bungie.net" + manifestRes.Response.MobileWorldContentPaths.En);
+		res, err := http.Get("https://bungie.net" + manifestRes.Response.MobileWorldContentPaths.En)
 		if err != nil {
-			printErr(err)
+			log.Printf("Error getting manifest database: %s", err)
 			return
 		}
 		out, err := os.Create(makePath("manifest.zip"))
 		if err != nil {
-			printErr(err)
+			log.Printf("Error creating manifest.zip: %s", err)
 			return
 		}
 		_, err = io.Copy(out, res.Body)
 		res.Body.Close()
 		log.Print("Manifest downloaded, unzipping...")
-		
+
 		z, err := zip.OpenReader(out.Name())
 		out.Close()
 		if err != nil {
-			printErr(err)
+			log.Printf("Error writing/unzipping manifest.zip: %s", err)
 			return
 		}
 		var success bool
 		for _, f := range z.File {
 			file, err := f.Open()
 			if err != nil {
-				printErr(err)
+				log.Printf("Error opening file: %s", err)
 				break
 			}
 			out, err := os.Create(makePath("manifest.db"))
 			if err != nil {
-				printErr(err)
+				log.Printf("Error creating manifest.db: %s", err)
 				break
 			}
 			_, err = io.Copy(out, file)
 			if err != nil {
-				printErr(err)
+				log.Printf("Error writing manifest.db: %s", err)
 				return
 			}
 			file.Close()
@@ -168,32 +202,29 @@ func (p *program) run() {
 
 		err = os.Remove(makePath("manifest.zip"))
 		if err != nil {
-			printErr(err)
+			log.Printf("Error deleting manifest.zip: %s", err)
 			return
 		}
 		log.Print("Deleted temporary file manifest.zip")
 
 		_, err = db.Exec("INSERT OR REPLACE INTO data(key, value) VALUES('lastManifestURL', $1)", manifestRes.Response.MobileWorldContentPaths.En)
 		if err != nil {
-			printErr(err)
+			log.Printf("Error setting lastManifestURL to storage.db: %s", err)
 			return
 		}
 	}
 
 	manifest, err = sql.Open("sqlite3", makePath("manifest.db"))
 	if err != nil {
-		printErr(err)
+		log.Printf("Error opening manifest.db: %s", err)
 		return
 	}
-
-	startWebServer()
-	initPresence()
 }
 
 func startWebServer() {
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		enableCors(&res)
-		fmt.Fprint(res, "{message: \"hello\"}")
+		fmt.Fprint(res, "{message: \"Hello\"}")
 	})
 
 	http.HandleFunc("/login", func(res http.ResponseWriter, req *http.Request) {
@@ -226,9 +257,14 @@ func startWebServer() {
 				log.Print("http server closed")
 				return
 			}
-			printErr(err)
+			log.Printf("Error with http server: %s", err)
 		}
 	}()
+}
+
+func setPrgStatus(ok bool, message string) {
+	programStatus.OK = ok
+	programStatus.Message = message
 }
 
 func makePath(e string) string {
@@ -237,8 +273,4 @@ func makePath(e string) string {
 
 func enableCors(res *http.ResponseWriter) {
 	(*res).Header().Set("Access-Control-Allow-Origin", "http://localhost:5500")
-}
-
-func printErr(err error) {
-	log.Printf("{error: \"%s\"}", err)
 }

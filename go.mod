@@ -1,4 +1,4 @@
-module github.com/lieuweberg/bungie-auth-experiment
+module github.com/lieuweberg/rich-destiny
 
 go 1.14
 
