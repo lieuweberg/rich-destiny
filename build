@@ -1,0 +1,13 @@
+#!/bin/bash
+if [[ $# -eq 0 ]] ; then
+    echo 'Please specify a build version starting with v for production, or simply "dev" for development'
+    exit 1
+fi
+
+echo "Building $1 executable"
+
+# echo '{"Str ... 0"}}}}' > versioninfo.json
+echo '{"StringFileInfo":{"FileVersion":"'$1'","ProductVersion":"'$1'","FileDescription":"rich-destiny","CompanyName":"lieuwe_berg","InternalName":"rich-destiny","LegalCopyright":"Copyright (c) lieuwe_berg","OriginalFilename":"rich-destiny.exe","ProductName":"rich-destiny","Comments":"","LegalTrademarks":"","PrivateBuild":"","SpecialBuild":""},"IconPath":"assets/rich-destiny.ico","ManifestPath":"rich-destiny.exe.manifest","FixedFileInfo":{"FileFlagsMask":"3f","FileFlags ":"00","FileOS":"040004","FileType":"01","FileSubType":"00"},"VarFileInfo":{"Translation":{"LangID":"0409","CharsetID":"04B0"}}}' > versioninfo.json
+go generate
+
+go build -o rich-destiny.exe -ldflags "-X main.version=$1"

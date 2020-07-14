@@ -1,7 +1,11 @@
 config.go
+
+logs/
+assets/
+
 *.exe
 *.db
 *.zip
-assets/
-logs/
+
+versioninfo.json
 *.syso
