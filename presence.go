@@ -11,11 +11,9 @@ import (
 	"github.com/mitchellh/go-ps"
 )
 
-var quitExeCheckTicker chan(struct{})
-
 func initPresence() {
 	exeCheckTicker := time.NewTicker(15 * time.Second)
-	quitExeCheckTicker = make(chan struct{})
+	quitPresenceTicker = make(chan struct{})
 	loggedIn := false
 	go func() {
 		for {
@@ -45,18 +43,16 @@ func initPresence() {
 				}
 				if loggedIn && !exeFound {
 					richgo.Logout()
-					loggedIn = false
 					log.Print("No longer playing, logged ipc out")
+					loggedIn = false
+					previousActivity = richgo.Activity{}
 				}
-			case <- quitExeCheckTicker:
+			case <- quitPresenceTicker:
 				exeCheckTicker.Stop()
 			}
 		}
 	}()
 }
-
-var previousActivity richgo.Activity
-var previousGuardian guardianIcon
 
 func updatePresence() {
 	var ca *characterActivitiesDefinition
@@ -71,7 +67,6 @@ func updatePresence() {
 		Details: "Launching the game...",
 	}
 
-	var newGuardian guardianIcon
 	var activityModeHash int32
 	var dateActivityStarted time.Time
 
@@ -123,16 +118,14 @@ func updatePresence() {
 			}
 
 			class := classImageMap[ca.Response.Characters.Data[id].ClassType]
-			newGuardian = guardianIcon{
-				Class: class,
-				DisplayText: strings.Title(fmt.Sprintf("%s - %d", class, ca.Response.Characters.Data[id].Light)),
-			}
+			newActivity.SmallImage = class
+			newActivity.SmallText = strings.Title(fmt.Sprintf("%s - %d", class, ca.Response.Characters.Data[id].Light))
 		}
 	}
 	if isLaunching {
-		setActivity(newActivity, guardianIcon{}, time.Now(), 0)
+		setActivity(newActivity, time.Now(), 0)
 	} else {
-		setActivity(newActivity, newGuardian, dateActivityStarted, activityModeHash)
+		setActivity(newActivity, dateActivityStarted, activityModeHash)
 	}
 }
 
@@ -149,10 +142,9 @@ func getHashFromTable(table string, hash int64, v interface{}) (newHash int32, e
 }
 
 // setActivity sets the rich presence status. If there is no specific st (start time), pass an empty string.
-func setActivity(newActivity richgo.Activity, newGuardian guardianIcon, st time.Time, activityModeHash int32) {
-	if previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State || previousGuardian.DisplayText != newGuardian.DisplayText {
+func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int32) {
+	if previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State || previousActivity.SmallText != newActivity.SmallText {
 		previousActivity = newActivity
-		previousGuardian = newGuardian
 
 		if st.IsZero() {
 			st = time.Now()
@@ -161,10 +153,6 @@ func setActivity(newActivity richgo.Activity, newGuardian guardianIcon, st time.
 			Start: &st,
 		}
 		newActivity.LargeText = "rich-destiny"
-		if newGuardian.DisplayText != "" {
-			newActivity.SmallImage = newGuardian.Class
-			newActivity.SmallText = newGuardian.DisplayText
-		}
 
 		if activityModeHash != 0 && newActivity.LargeImage == "destinylogo" {
 			for image, hashes := range largeImageMap {
@@ -184,6 +172,6 @@ func setActivity(newActivity richgo.Activity, newGuardian guardianIcon, st time.
 		if err != nil {
 			log.Print("Error setting activity: " + err.Error())
 		}
-		log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newGuardian.DisplayText)
+		log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newActivity.SmallText)
 	}
 }

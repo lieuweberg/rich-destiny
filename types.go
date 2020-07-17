@@ -5,26 +5,17 @@ package main
 // Semi-local structs
 // here: MSID means MembershipID
 type authResponse struct {
-	AccessToken      string `json:"access_token"`
-	TokenType        string `json:"token_type"`
-	ExpiresIn        int64  `json:"expires_in"`
-	RefreshToken     string `json:"refresh_token"`
-	RefreshExpiresIn int64  `json:"refresh_expires_in"`
-	BungieMSID		 string `json:"membership_id"`
+	AccessToken			string `json:"access_token"`
+	TokenType			string `json:"token_type"`
+	ExpiresIn			int64  `json:"expires_in"`
+	RefreshToken    	string `json:"refresh_token"`
+	RefreshExpiresIn	int64  `json:"refresh_expires_in"`
+	BungieMSID			string `json:"membership_id"`
 
-	ActualMSID		 string
-	RefreshAt		 int64
-	ReAuthAt		 int64
-}
-
-type guardianIcon struct {
-	DisplayText	string
-	Class 		string
-}
-
-type programStatusStruct struct {
-	OK		bool
-	Message	string
+	ActualMSID			string
+	DisplayName			string
+	RefreshAt			int64
+	ReAuthAt			int64
 }
 
 // API/Manifest structs
@@ -139,3 +130,10 @@ type currentActivityModeDefinition struct {
 type placeDefinition struct {
 	DisplayProperties	allDisplay	`json:"displayProperties"`
 }
+
+
+
+
+
+
+

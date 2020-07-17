@@ -10,7 +10,7 @@ var largeImageMap = map[string][]int32{
 	"doubles": {-473465279, 946648766, 1703282980}, // Doubles, Crimson Doubles, All Doubles
 	"dungeon": {608898761}, // Dungeon
 	"explore": {-797199657}, // Explore
-	"forge": {803838459},
+	"forge": {803838459}, // Forge, doesn't really work though but oh well
 	"gambit": {1418469392, 1848252830}, // Gambit Prime, Gambit
 	// Iron Banner Control, Iron Banner Clash, Iron Banner Supremacy, Iron Banner Salvage, Iron Banner
 	"ironbanner": {-1451282428, -815750908, -82084646, 1317961215, 1826469369},

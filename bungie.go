@@ -14,15 +14,13 @@ import (
 	"time"
 )
 
-var auth *authResponse
-
 // requestAccessToken requests an access token from bungie.
-// code is the ?code param if refresh is false.
-// code is the refresh token is refresh is true.
+// code is the code param if refresh is false.
+// code is the refresh token param is refresh is true.
 func requestAccessToken(code string, refresh bool) (err error) {
 	data := url.Values{}
 	if refresh {
-		log.Print("Refreshing access token with refresh token: " + code)
+		log.Print("Refreshing access token")
 		data.Set("grant_type", "refresh_token")
 		data.Set("refresh_token", code)
 	} else {
@@ -46,17 +44,19 @@ func requestAccessToken(code string, refresh bool) (err error) {
 		return
 	}
 	body, err := ioutil.ReadAll(authRes.Body)
+	authRes.Body.Close()
 	if err != nil {
 		log.Printf("Error reading response body: %s", err)
 		return
 	}
-	authRes.Body.Close()
 
 	err = setAuth(body)
 	if err != nil {
 		log.Printf("Error setting auth details: %s", err)
+		return
 	}
 
+	log.Print("Refreshed access token")
 	return
 }
 
@@ -78,12 +78,11 @@ func setAuth(data []byte) (err error) {
 
 		for _, p := range lp.Response.Profiles {
 			if p.MembershipType == 3 {
+				auth.DisplayName = p.DisplayName
 				auth.ActualMSID = p.MembershipID
 				break
 			}
 		}
-
-		log.Print(auth.ActualMSID)
 	}
 
 	d, err := json.Marshal(auth)
@@ -114,6 +113,7 @@ func getAuth() (ar *authResponse, err error) {
 		}
 		ar, err = getAuth()
 	} else if time.Now().Unix() >= auth.ReAuthAt {
+		log.Print("Your authentication details have expired. Please go to https://lieuweberg.com/rich-destiny to log in again.")
 		openOauthTab()
 		return
 	} else if time.Now().Unix() >= auth.RefreshAt {
@@ -123,10 +123,8 @@ func getAuth() (ar *authResponse, err error) {
 	return auth, nil
 }
 
-var browserOpened bool
-
-// makeOauthTab tries to open the browser with /login (redirects to bungie).
-// This uses the localhost path for convenience.
+// openOauthTab tries to open the browser with the bungie oauth authorisation page.
+// Even though this does not work from within a service, why not keep it in /s
 func openOauthTab() {
 	if !browserOpened {
 		err := exec.Command("rundll32", "url.dll,FileProtocolHandler", "http://localhost:35893/login").Start()
@@ -134,7 +132,6 @@ func openOauthTab() {
 			log.Printf("Error executing browser open command: %s", err)
 		}
 		browserOpened = true
-		log.Printf("Opened Oauth in browser")
 	}
 }
 
@@ -153,20 +150,18 @@ func getManifestData() (d manifestData, err error) {
 	return
 }
 
-var httpClient *http.Client
-
 // requestComponents is a helper function to request an endpoint/componenent from the bungie api.
 // You MUST make sure that auth is populated.
 // url MUST start with a '/'!
 func requestComponents(url string, responseStruct interface{}) (err error) {
-	if httpClient == nil {
+	if bungieHTTPClient == nil {
 		cookieJar, err := cookiejar.New(nil)
 		if err == nil {
-			httpClient = &http.Client{
+			bungieHTTPClient = &http.Client{
 				Jar: cookieJar,
 			}
 		} else {
-			httpClient = &http.Client{}
+			bungieHTTPClient = &http.Client{}
 			log.Printf("Couldn't create cookie jar, resolving to http client without it. This can cause some \"stuttery\" presence: %s", err)
 		}
 	}
@@ -179,7 +174,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 	req.Header.Add("X-API-Key", config.APIKey)
 	req.Header.Add("Authorization", "Bearer "+auth.AccessToken)
 
-	res, err := httpClient.Do(req)
+	res, err := bungieHTTPClient.Do(req)
 	if err != nil {
 		return
 	}

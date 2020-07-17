@@ -14,20 +14,35 @@ import (
 
 	"time"
 
+	richgo "github.com/hugolgst/rich-go/client"
 	"github.com/kardianos/service"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+// Injected by the go linker
+var version string
 
 var generatedState string
 var db *sql.DB
 var manifest *sql.DB
 var server = &http.Server{Addr: ":35893", Handler: nil}
 var currentDirectory string
-var programStatus programStatusStruct
+var recentError error
+
+var auth *authResponse
+var browserOpened bool
+// Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
+// All other requests to bungie should probably also use the DefaultClient.
+var bungieHTTPClient *http.Client
+
+// Close this channel to stop the presence loop
+var quitPresenceTicker chan(struct{})
+var previousActivity richgo.Activity
 
 type program struct{}
 
 func (p *program) Start(s service.Service) (err error) {
+	fmt.Print("hi2")
 	go p.run()
 	return
 }
@@ -36,20 +51,13 @@ func (p *program) Stop(s service.Service) (err error) {
 	log.Print("OS termination received")
 	db.Close()
 	manifest.Close()
+	close(quitPresenceTicker)
 	server.Close()
-	close(quitExeCheckTicker)
 	log.Print("Gracefully exited, bye bye")
 	return
 }
 
 func main() {
-	if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
-		err = os.Mkdir(makePath("logs"), os.ModePerm)
-		if err != nil {
-			log.Printf("Couldn't create logs directory: %s", err)
-		}
-	}
-
 	svcConfig := &service.Config{
 		Name:        "rich-destiny",
 		Description: "Discord rich presence tool for Destiny 2",
@@ -62,6 +70,8 @@ func main() {
 	}
 
 	if service.Interactive() {
+		fmt.Print("         _      _              _           _   _\n        (_)    | |            | |         | | (_)\n    _ __ _  ___| |__ ______ __| | ___  ___| |_ _ _ __  _   _\n   | '__| |/ __| '_ \\______/ _` |/ _ \\/ __| __| | '_ \\| | | |\n   | |  | | (__| | | |    | (_| |  __/\\__ \\ |_| | | | | |_| |\n   |_|  |_|\\___|_| |_|     \\__,_|\\___||___/\\__|_|_| |_|\\__, |\n                                                        __/ |\n                                                       |___/    ",
+			version, "\n\n")
 		log.Print("Detected that this program is being run manually, installing into the service manager...")
 		err = s.Install()
 		if err != nil {
@@ -74,7 +84,9 @@ func main() {
 			log.Printf("Error starting service, aborting further execution: %s", err)
 			return
 		}
-		log.Print("Assuming this is first-time installation; this program will now attempt to open a browser tab to log in with Bungie.net.")
+
+		log.Print("Assuming this is first-time installation; this program will shortly attempt to open a browser tab to log in with Bungie.net.")
+		time.Sleep(5 * time.Second)
 		openOauthTab()
 		
 		log.Print("Press ENTER to close this window.")
@@ -88,18 +100,24 @@ func main() {
 }
 
 func (p *program) run() {
-	setPrgStatus(true, "Initialising...")
-	// Wait for a decent computer to have booted, no internet connection means trouble
-	// TODO: Way better way of handling internet connection status, this is pretty terrible
-	time.Sleep(20 * time.Second)
-
 	exe, err := os.Executable()
 	if err != nil {
 		log.Fatalf("Couldn't find current path: %s", err)
 	}
 	currentDirectory = filepath.Dir(exe)
 
-	logFile, err := os.Create(makePath(fmt.Sprintf("logs/%d.log", time.Now().Unix())))
+	if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
+		err = os.Mkdir(makePath("logs"), os.ModePerm)
+		if err != nil {
+			// Logs are voided from here on out. Return as the application is probably lacking permissions.
+			log.Printf("Couldn't create logs directory: %s", err)
+			return
+		}
+	}
+
+	y, m, d := time.Now().Date()
+	h, min, s := time.Now().Clock()
+	logFile, err := os.Create(makePath(fmt.Sprintf("logs/%d-%d-%d %dh%dm%ds.log", y, m, d, h, min, s)))
 	if err != nil {
 		log.Printf("Couldn't create log file: %s", err)
 	} else {
@@ -128,24 +146,30 @@ func (p *program) run() {
 		log.Printf("Error creating storage.db table: %s", err)
 	}
 
+	go startWebServer()
+	// The following section returns on most errors, so defer this function (long manifest downloads can cause issues for initPresence, too)
+	defer func() {
+		initPresence()
+	}()
+
+	// Wait for a decent computer to have booted, no internet connection means trouble
+	// TODO: Way better way of handling internet connection status; this is pretty terrible
+	time.Sleep(10 * time.Second)
+
+	// Kinda useless since browser tabs cannot be opened from a service, but leaving it in
 	if _, err = getAuth(); err != nil {
 		log.Printf("Error getting auth: %s", err)
-		setPrgStatus(false, "Unable to get auth.")
 	}
 
 	// Check if a new manifest has to be downloaded, if so do that, then open the db
 	manifestRes, err := getManifestData()
 	if err != nil {
 		log.Printf("Error getting manifest data: %s", err)
-		setPrgStatus(false, "Unable to get new manifest.")
 	}
-
-	startWebServer()
-	initPresence()
 
 	var lastManifestURL string
 	db.QueryRow("SELECT value FROM data WHERE key='lastManifestURL'").Scan(&lastManifestURL)
-	if _, err := os.Stat(makePath("manifest.db"));  (os.IsNotExist(err) || manifestRes.Response.MobileWorldContentPaths.En != lastManifestURL) {
+	if _, err := os.Stat(makePath("manifest.db")); os.IsNotExist(err) || manifestRes.Response.MobileWorldContentPaths.En != lastManifestURL {
 		if os.IsNotExist(err) {
 			log.Print("Manifest doesn't exist, downloading one...")
 		} else {
@@ -223,12 +247,13 @@ func (p *program) run() {
 
 func startWebServer() {
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
-		enableCors(&res)
-		fmt.Fprint(res, "{message: \"Hello\"}")
+		enableCors(&res, req.URL.RequestURI())
+		fmt.Fprint(res, "{message: \"hello\"}")
 	})
 
 	http.HandleFunc("/login", func(res http.ResponseWriter, req *http.Request) {
-		http.Redirect(res, req, fmt.Sprintf("https://www.bungie.net/en/oauth/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=%s", config.ClientID, config.RedirectURI, generatedState), http.StatusFound)
+		http.Redirect(res, req, fmt.Sprintf("https://www.bungie.net/en/oauth/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=%s",
+			config.ClientID, config.RedirectURI, generatedState), http.StatusFound)
 	})
 
 	http.HandleFunc("/callback", func(res http.ResponseWriter, req *http.Request) {
@@ -236,18 +261,51 @@ func startWebServer() {
 		state := req.URL.Query().Get("state")
 		if code == "" || state != generatedState {
 			res.WriteHeader(http.StatusBadRequest)
-			fmt.Fprint(res, "{error: \"400: Bad Request\"}")
+			fmt.Fprint(res, "error: 400: Bad Request")
 			return
 		}
 
+		fmt.Fprint(res, "Authorising...")
 		err := requestAccessToken(code, false)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(res, "{error: \"500: %s\"}", err)
+			fmt.Fprintf(res, "error: 500: %s", err)
 		}
 
-		fmt.Fprint(res, "{message: \"Success! You may now close this tab.\"}")
+		fmt.Fprint(res, "Success! You are now logged in and may close this tab.")
 		browserOpened = false
+	})
+
+	http.HandleFunc("/action", func(res http.ResponseWriter, req *http.Request) {
+		enableCors(&res, req.URL.RequestURI())
+		action := req.URL.Query().Get("a")
+		
+		switch action {
+		case "":
+			res.WriteHeader(http.StatusBadRequest)
+			fmt.Fprint(res, "{error: \"400: Bad Request\"}")
+			return
+		
+		case "current":
+			if auth == nil {
+				fmt.Fprint(res, "{status: \"Not logged in\"}")
+				return
+			}
+			if previousActivity.Details == "" {
+				fmt.Fprint(res, "{status: \"Not playing Destiny 2\"}")
+				return
+			}
+
+			status := previousActivity.Details
+			if previousActivity.State != "" {
+				status += fmt.Sprintf(" | %s", previousActivity.State)
+			}
+			if previousActivity.SmallText != "" {
+				status += fmt.Sprintf(" | %s", previousActivity.SmallText)
+			}
+
+			fmt.Fprintf(res, "{status: \"%s\", name: \"%s\"}", status, auth.DisplayName)
+		}
 	})
 
 	go func() {
@@ -262,15 +320,16 @@ func startWebServer() {
 	}()
 }
 
-func setPrgStatus(ok bool, message string) {
-	programStatus.OK = ok
-	programStatus.Message = message
-}
-
 func makePath(e string) string {
 	return filepath.Join(currentDirectory, e)
 }
 
-func enableCors(res *http.ResponseWriter) {
-	(*res).Header().Set("Access-Control-Allow-Origin", "http://localhost:5500")
+func enableCors(res *http.ResponseWriter, requestURI string) {
+	urls := [...]string{"http://localhost:5500", "https://lieuweberg.com/rich-destiny"}
+	for _, u := range urls {
+		if u == requestURI {
+			(*res).Header().Set("Access-Control-Allow-Origin", u)
+			break
+		}
+	}
 }
