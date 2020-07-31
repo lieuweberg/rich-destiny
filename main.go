@@ -1,4 +1,3 @@
-//go:generate goversioninfo -64
 package main
 
 import (
@@ -247,8 +246,9 @@ func (p *program) run() {
 
 func startWebServer() {
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
-		enableCors(&res, req.URL.RequestURI())
-		fmt.Fprint(res, "{message: \"hello\"}")
+		enableCors(&res, req)
+		res.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(res, "{\"message\": \"hello\"}")
 	})
 
 	http.HandleFunc("/login", func(res http.ResponseWriter, req *http.Request) {
@@ -265,7 +265,6 @@ func startWebServer() {
 			return
 		}
 
-		fmt.Fprint(res, "Authorising...")
 		err := requestAccessToken(code, false)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
@@ -277,22 +276,25 @@ func startWebServer() {
 	})
 
 	http.HandleFunc("/action", func(res http.ResponseWriter, req *http.Request) {
-		enableCors(&res, req.URL.RequestURI())
+		enableCors(&res, req)
+		res.Header().Set("Content-Type", "application/json")
 		action := req.URL.Query().Get("a")
 		
 		switch action {
 		case "":
 			res.WriteHeader(http.StatusBadRequest)
-			fmt.Fprint(res, "{error: \"400: Bad Request\"}")
+			fmt.Fprint(res, "{\"error\": \"400: Bad Request\"}")
 			return
 		
 		case "current":
+			returnJSON := "{\"status\": \"%s\", \"version\": \"%s\", \"name\": \"%s\"}"
+
 			if auth == nil {
-				fmt.Fprint(res, "{status: \"Not logged in\"}")
+				fmt.Fprintf(res, returnJSON, "Not logged in", version, "")
 				return
 			}
 			if previousActivity.Details == "" {
-				fmt.Fprint(res, "{status: \"Not playing Destiny 2\"}")
+				fmt.Fprintf(res, returnJSON, "Not playing Destiny 2", version, auth.DisplayName)
 				return
 			}
 
@@ -304,7 +306,7 @@ func startWebServer() {
 				status += fmt.Sprintf(" | %s", previousActivity.SmallText)
 			}
 
-			fmt.Fprintf(res, "{status: \"%s\", name: \"%s\"}", status, auth.DisplayName)
+			fmt.Fprintf(res, returnJSON, status, version, auth.DisplayName)
 		}
 	})
 
@@ -324,11 +326,12 @@ func makePath(e string) string {
 	return filepath.Join(currentDirectory, e)
 }
 
-func enableCors(res *http.ResponseWriter, requestURI string) {
-	urls := [...]string{"http://localhost:5500", "https://lieuweberg.com/rich-destiny"}
-	for _, u := range urls {
-		if u == requestURI {
-			(*res).Header().Set("Access-Control-Allow-Origin", u)
+func enableCors(res *http.ResponseWriter, req *http.Request) {
+	origin := req.Header.Get("Origin")
+	allowedOrigins := [...]string{"http://localhost:5500", "https://lieuweberg.com"}
+	for _, o := range allowedOrigins {
+		if o == origin {
+			(*res).Header().Set("Access-Control-Allow-Origin", origin)
 			break
 		}
 	}
