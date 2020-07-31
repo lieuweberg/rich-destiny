@@ -26,7 +26,6 @@ var db *sql.DB
 var manifest *sql.DB
 var server = &http.Server{Addr: ":35893", Handler: nil}
 var currentDirectory string
-var recentError error
 
 var auth *authResponse
 var browserOpened bool
@@ -37,6 +36,7 @@ var bungieHTTPClient *http.Client
 // Close this channel to stop the presence loop
 var quitPresenceTicker chan(struct{})
 var previousActivity richgo.Activity
+var debugHashes string
 
 type program struct{}
 
@@ -287,14 +287,14 @@ func startWebServer() {
 			return
 		
 		case "current":
-			returnJSON := "{\"status\": \"%s\", \"version\": \"%s\", \"name\": \"%s\"}"
+			returnJSON := "{\"status\": \"%s\", \"version\": \"%s\", \"name\": \"%s\", \"debug\": \"%s\"}"
 
 			if auth == nil {
-				fmt.Fprintf(res, returnJSON, "Not logged in", version, "")
+				fmt.Fprintf(res, returnJSON, "Not logged in", version, "", "NA")
 				return
 			}
 			if previousActivity.Details == "" {
-				fmt.Fprintf(res, returnJSON, "Not playing Destiny 2", version, auth.DisplayName)
+				fmt.Fprintf(res, returnJSON, "Not playing Destiny 2", version, auth.DisplayName, "NA")
 				return
 			}
 
@@ -306,7 +306,7 @@ func startWebServer() {
 				status += fmt.Sprintf(" | %s", previousActivity.SmallText)
 			}
 
-			fmt.Fprintf(res, returnJSON, status, version, auth.DisplayName)
+			fmt.Fprintf(res, returnJSON, status, version, auth.DisplayName, debugHashes)
 		}
 	})
 

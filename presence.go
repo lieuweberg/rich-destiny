@@ -80,7 +80,7 @@ func updatePresence() {
 						LargeImage: "destinylogo",
 					}
 				} else {
-					break;
+					continue;
 				}
 			}
 
@@ -98,12 +98,18 @@ func updatePresence() {
 				newActivity.Details = "In orbit"
 				newActivity.LargeImage = "destinylogo"
 			} else {
-				var (
-					fetchedPlace *placeDefinition
-				)
+				var fetchedPlace *placeDefinition
 				placeHash, err := getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
 				if err == nil {
-					if forge, ok := forgeHashMap[activityHash]; ok { // Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - Earth | FORGENAME Forge'
+					debugHashes = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
+
+					// Here are any overrides due to strange API shenanigans. PLEASE append all new overrides with a comment explaning what it used to display before
+					// your patch, and what is displays after if that is unclear (any use of variables). The else is default and indicates it regularly displays fine.
+					// Should you need maps for mass overrides which depend on the activity/place hash, generalised under the activitymode hash but normally displaying
+					// strangely (i.e. forges), head to  presencemaps.go  and create a new map if necessary. If the image of the activity is off too, set LargeImage
+					// to any of the keys in the  largeImageMap  found in  presencemaps.go
+
+					if forge, ok := forgeHashMap[activityHash]; ok { // Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - PLACE | FORGENAME Forge'
 						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivity.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
 						newActivity.State = fmt.Sprintf("%s Forge", forge)
 						newActivity.LargeImage = "forge"
@@ -114,6 +120,7 @@ func updatePresence() {
 						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
 						newActivity.State = fetchedCurrentActivity.DisplayProperties.Name
 					}
+
 				}
 			}
 
@@ -122,6 +129,8 @@ func updatePresence() {
 			newActivity.SmallText = strings.Title(fmt.Sprintf("%s - %d", class, ca.Response.Characters.Data[id].Light))
 		}
 	}
+
+	// This is outside of the loop. If no characters have a current activity other than 0, it indicates the game is launching
 	if isLaunching {
 		setActivity(newActivity, time.Now(), 0)
 	} else {
