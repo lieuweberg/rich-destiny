@@ -1,13 +1,7 @@
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
-github.com/akavel/rsrc v0.9.0 h1:HwUDC0+tMFWqN4D5G+o5siGD4oVsC3jn6zM8ocjc3nY=
-github.com/akavel/rsrc v0.9.0/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
-github.com/ananagame/rich-go v0.0.0-20200319172754-527649f3d36d h1:A6eLJwlu+zpUBm+iTD9JFT9m3JX0SIALnSutn3LymTs=
-github.com/ananagame/rich-go v0.0.0-20200319172754-527649f3d36d/go.mod h1:U9YxCfeNzWcDUs4O8lQfUyz9txKHTojVykpQicaZhyU=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/hugolgst/rich-go v0.0.0-20200319172754-527649f3d36d h1:HYFRni7r+C/z96mu/Ur+JZrcnsCvlA8WEFBEhyGpXH8=
 github.com/hugolgst/rich-go v0.0.0-20200319172754-527649f3d36d/go.mod h1:J5UWekI/HHIt5ID+GVPAW+M19kxXLTFnAdTGDl4mRF0=
-github.com/josephspurrier/goversioninfo v0.0.0-20200309025242-14b0ab84c6ca h1:ozPUX9TKQZVek4lZWYRsQo7uS8vJ+q4OOHvRhHiCLfU=
-github.com/josephspurrier/goversioninfo v0.0.0-20200309025242-14b0ab84c6ca/go.mod h1:eJTEwMjXb7kZ633hO3Ln9mBUCOjX2+FlTljvpl9SYdE=
 github.com/kardianos/service v1.1.0 h1:QV2SiEeWK42P0aEmGcsAgjApw/lRxkwopvT+Gu6t1/0=
 github.com/kardianos/service v1.1.0/go.mod h1:RrJI2xn5vve/r32U5suTbeaSGoMU6GbNPoj36CVYcHc=
 github.com/mattn/go-sqlite3 v1.14.0 h1:mLyGNKR8+Vv9CAU7PphKa2hkEqxxhn8i32J6FPj1/QA=
