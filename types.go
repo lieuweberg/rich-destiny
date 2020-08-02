@@ -53,7 +53,7 @@ type lPProfile struct {
 }
 
 // DisplayProperties used for most Manifest structs
-type allDisplay struct {
+type globalDisplayProperties struct {
 	// Description string `json:"description"`
 	Name        string `json:"name"`
 }
@@ -91,7 +91,7 @@ type clDefDatum struct {
 
 // Manifest: DestinyActivityDefinition
 type currentActivityDefinition struct {
-	DisplayProperties         allDisplay			`json:"displayProperties"`
+	DP         globalDisplayProperties			`json:"displayProperties"`
 	// ActivityLevel             int64              	`json:"activityLevel"`
 	// ActivityLightLevel        int64              	`json:"activityLightLevel"`
 	// DestinationHash           int64              	`json:"destinationHash"`
@@ -120,7 +120,7 @@ type currentActivityDefinition struct {
 
 // Manifest: DestinyActivityModeDefinition
 type currentActivityModeDefinition struct {
-	DisplayProperties     allDisplay	`json:"displayProperties"`
+	DP     globalDisplayProperties	`json:"displayProperties"`
 	// IsTeamBased           bool   		`json:"isTeamBased"`
 	// Tier                  int64  		`json:"tier"`
 }
@@ -128,7 +128,7 @@ type currentActivityModeDefinition struct {
 
 // Manifest: DestinyPlaceDefinition
 type placeDefinition struct {
-	DisplayProperties	allDisplay	`json:"displayProperties"`
+	DP	globalDisplayProperties	`json:"displayProperties"`
 }
 
 
