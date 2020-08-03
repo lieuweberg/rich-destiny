@@ -95,33 +95,50 @@ func updatePresence() {
 			activityHash, err := getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &fetchedCurrentActivity)
 			activityModeHash, err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &fetchedCurrentActivityMode)
 			if err != nil { // Error indicates orbit. Seems to have been working reliably.
+				debugHashes = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
+
 				newActivity.Details = "In orbit"
 				newActivity.LargeImage = "destinylogo"
 			} else {
 				var fetchedPlace *placeDefinition
 				placeHash, err := getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
-				if err == nil {
-					debugHashes = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
 
-					// Here are any overrides due to strange API shenanigans. PLEASE append all new overrides with a comment explaning what it used to display before
-					// your patch, and what is displays after if that is unclear (any use of variables). The else is default and indicates it regularly displays fine.
-					// Should you need maps for mass overrides which depend on the activity/place hash, generalised under the activitymode hash but normally displaying
-					// strangely (i.e. forges), head to  presencemaps.go  and create a new map if necessary. If the image of the activity is off too, set LargeImage
-					// to any of the keys in the  largeImageMap  found in  presencemaps.go
-
-					if forge, ok := forgeHashMap[activityHash]; ok { // Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - PLACE | FORGENAME Forge'
-						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivity.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
+				// Here are any overrides due to strange API shenanigans. PLEASE append all new overrides with a comment explaning what it used to display before
+				// your patch, and what is displays after if that is unclear (any use of variables). The else is default and indicates it regularly displays fine.
+				// Should you need maps for mass overrides which depend on the activity/place hash, collectively under the activitymode but normally displaying
+				// strangely (i.e. forges), head to  presencemaps.go  and create a new map if necessary. You should put  v, ok := ...  conditions in the default's
+				// if/if else/else. If the image of the activity is off too, set LargeImage to any of the keys in the  largeImageMap  found in  presencemaps.go
+				switch {
+				case activityHash == 228586980:
+					// ... 'Normal Strikes - The Menagerie | The Menagerie'. Still unsure why it thinks it's a strike.
+					newActivity.Details = "The Menagerie"
+					newActivity.LargeImage = "menagerie"
+				case activityHash == -1785427429:
+					// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
+					newActivity.Details = "The Menagerie (Heroic)"
+					newActivity.LargeImage = "menagerie"
+				case activityHash == 2032534090:
+					// Story - The Dreaming City | The Shattered Throne
+					newActivity.Details = "Dungeon - The Dreaming City"
+					newActivity.State = "The Shattered Throne"
+					newActivity.LargeImage = "dungeon"
+				default:
+					// Overrides that do not use simple conditions and can't fit in a  case  statement
+					if forge, ok := forgeHashMap[activityHash]; ok {
+						// Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - PLACE | FORGENAME Forge'
+						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivity.DP.Name, fetchedPlace.DP.Name)
 						newActivity.State = fmt.Sprintf("%s Forge", forge)
 						newActivity.LargeImage = "forge"
-					} else if placeHash == 2096719558 { // ... 'Normal Strikes - The Menagerie | The Menagerie'. Still unsure why it thinks it's a strike.
-						newActivity.Details = "The Menagerie - Nessus Orbit"
-						newActivity.LargeImage = "menagerie"
 					} else {
-						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivityMode.DisplayProperties.Name, fetchedPlace.DisplayProperties.Name)
-						newActivity.State = fetchedCurrentActivity.DisplayProperties.Name
+						newActivity.Details = fetchedCurrentActivityMode.DP.Name
+						if err == nil {
+							newActivity.Details += fmt.Sprintf(" - %s", fetchedPlace.DP.Name)
+						}
+						newActivity.State = fetchedCurrentActivity.DP.Name
 					}
-
 				}
+
+				debugHashes = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
 			}
 
 			class := classImageMap[ca.Response.Characters.Data[id].ClassType]
