@@ -3,8 +3,10 @@ package main
 import (
 	"archive/zip"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -27,7 +29,7 @@ var manifest *sql.DB
 var server = &http.Server{Addr: ":35893", Handler: nil}
 var currentDirectory string
 
-var auth *authResponse
+var storage *storageStruct
 var browserOpened bool
 // Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
 // All other requests to bungie should probably also use the DefaultClient.
@@ -132,7 +134,6 @@ func (p *program) run() {
 	}
 	generatedState = string(b)
 
-	// Open the storage db (access token, etc.)
 	db, err = sql.Open("sqlite3", makePath("storage.db"))
 	if err != nil {
 		log.Printf("Error opening storage.db: %s", err)
@@ -230,7 +231,7 @@ func (p *program) run() {
 		}
 		log.Print("Deleted temporary file manifest.zip")
 
-		_, err = db.Exec("INSERT OR REPLACE INTO data(key, value) VALUES('lastManifestURL', $1)", manifestRes.Response.MobileWorldContentPaths.En)
+		err = storeData("lastManifestURL", manifestRes.Response.MobileWorldContentPaths.En)
 		if err != nil {
 			log.Printf("Error setting lastManifestURL to storage.db: %s", err)
 			return
@@ -248,7 +249,7 @@ func startWebServer() {
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		enableCors(&res, req)
 		res.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(res, "{\"message\": \"hello\"}")
+		fmt.Fprint(res, "hello")
 	})
 
 	http.HandleFunc("/login", func(res http.ResponseWriter, req *http.Request) {
@@ -277,24 +278,35 @@ func startWebServer() {
 
 	http.HandleFunc("/action", func(res http.ResponseWriter, req *http.Request) {
 		enableCors(&res, req)
+		if req.Method == http.MethodOptions {
+			return
+		}
 		res.Header().Set("Content-Type", "application/json")
 		action := req.URL.Query().Get("a")
 		
 		switch action {
 		case "":
 			res.WriteHeader(http.StatusBadRequest)
-			fmt.Fprint(res, "{\"error\": \"400: Bad Request\"}")
+			fmt.Fprint(res, "error 400: Bad Request")
 			return
 		
 		case "current":
-			returnJSON := "{\"status\": \"%s\", \"version\": \"%s\", \"name\": \"%s\", \"debug\": \"%s\"}"
+			returnData := currentStruct{
+				Version: version,
+				Debug: "NA",
+				Status: "Not logged in",
+			}
 
-			if auth == nil {
-				fmt.Fprintf(res, returnJSON, "Not logged in", version, "", "NA")
+			if storage == nil {
+				returnStructAsJSON(res, returnData)
 				return
 			}
+
+			returnData.Name = storage.DisplayName
+			returnData.OrbitText = storage.OrbitText
 			if previousActivity.Details == "" {
-				fmt.Fprintf(res, returnJSON, "Not playing Destiny 2", version, auth.DisplayName, "NA")
+				returnData.Status = "Not playing Destiny 2"
+				returnStructAsJSON(res, returnData)
 				return
 			}
 
@@ -305,8 +317,37 @@ func startWebServer() {
 			if previousActivity.SmallText != "" {
 				status += fmt.Sprintf(" | %s", previousActivity.SmallText)
 			}
+			returnData.Status = status
+			returnData.Debug = debugHashes
+			returnStructAsJSON(res, returnData)
+		case "save":
+			if req.Method != http.MethodPost {
+				return
+			}
+			data, err := ioutil.ReadAll(req.Body)
+			req.Body.Close()
+			if err != nil {
+				res.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprintf(res, "error 500: %s", err)
+				return
+			}
+			var toSave saveStruct
+			err = json.Unmarshal(data, &toSave)
+			if err != nil {
+				res.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprintf(res, "error 500: %s", err)
+				return
+			}
 
-			fmt.Fprintf(res, returnJSON, status, version, auth.DisplayName, debugHashes)
+			storage.OrbitText = toSave.OrbitText
+			err = storeData("storage", storage)
+			if err != nil {
+				res.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprintf(res, "error 500: could not save data: %s", err)
+				return
+			}
+
+			fmt.Fprint(res, "OK")
 		}
 	})
 
@@ -332,7 +373,18 @@ func enableCors(res *http.ResponseWriter, req *http.Request) {
 	for _, o := range allowedOrigins {
 		if o == origin {
 			(*res).Header().Set("Access-Control-Allow-Origin", origin)
+			(*res).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+			(*res).Header().Set("Access-Control-Allow-Headers", "*")
 			break
 		}
 	}
+}
+
+func returnStructAsJSON(res http.ResponseWriter, data interface{}) {
+	d, err := json.Marshal(data)
+	if err != nil {
+		fmt.Fprintf(res, "error 500: marshaling struct: %s", err)
+		return
+	}
+	fmt.Fprint(res, string(d))
 }

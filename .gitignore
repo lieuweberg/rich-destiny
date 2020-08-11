@@ -4,6 +4,7 @@ logs/
 assets/
 
 *.exe
+*.exe~
 *.db
 *.zip
 

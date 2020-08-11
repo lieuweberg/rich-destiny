@@ -66,44 +66,57 @@ func requestAccessToken(code string, refresh bool) (err error) {
 
 // setAuth sets the auth response from the bungie api (to memory and the database)
 func setAuth(data []byte) (err error) {
-	err = json.Unmarshal(data, &auth)
+	err = json.Unmarshal(data, &storage)
 	if err != nil {
 		return
 	}
 	// Subtracting five to make sure tokens are refreshed on-time, and not a few milliseconds late (sometimes causing 401's)
-	auth.RefreshAt = time.Now().Unix() + auth.ExpiresIn - 5
-	auth.ReAuthAt = time.Now().Unix() + auth.RefreshExpiresIn - 5
-	if auth.ActualMSID == "" {
+	storage.RefreshAt = time.Now().Unix() + storage.ExpiresIn - 5
+	storage.ReAuthAt = time.Now().Unix() + storage.RefreshExpiresIn - 5
+	if storage.ActualMSID == "" {
 		var lp *linkedProfiles
-		err = requestComponents(fmt.Sprintf("/Destiny2/254/Profile/%s/LinkedProfiles/", auth.BungieMSID), &lp)
+		err = requestComponents(fmt.Sprintf("/Destiny2/254/Profile/%s/LinkedProfiles/", storage.BungieMSID), &lp)
 		if err != nil {
 			return
 		}
 
 		for _, p := range lp.Response.Profiles {
 			if p.MembershipType == 3 {
-				auth.DisplayName = p.DisplayName
-				auth.ActualMSID = p.MembershipID
+				storage.DisplayName = p.DisplayName
+				storage.ActualMSID = p.MembershipID
 				break
 			}
 		}
 	}
 
-	d, err := json.Marshal(auth)
-	if err != nil {
-		return
+	err = storeData("storage", storage)
+	return
+}
+
+// storeData inserts data into the db by key-value pair. Only store strings or structs.
+func storeData(key string, data interface{}) (err error) {
+	var d string
+	switch data.(type) {
+	case string:
+		d = data.(string)
+	default:
+		jsonBytes, err := json.Marshal(storage)
+		if err != nil {
+			return err
+		}
+		d = string(jsonBytes)
 	}
-	_, err = db.Exec("INSERT OR REPLACE INTO data(key, value) VALUES('auth', $1)", string(d))
+	_, err = db.Exec("INSERT OR REPLACE INTO data(key, value) VALUES($1, $2)", key, d)
 	return
 }
 
 // getAuth gets the AuthResponse from the database, or if there is none
 // (or the refresh token is expired) tries to initiate an oauth tab in the browser.
 // This function also refreshes the auth token.
-func getAuth() (ar *authResponse, err error) {
-	if auth == nil {
+func getAuth() (ar *storageStruct, err error) {
+	if storage == nil {
 		var r string
-		err = db.QueryRow("SELECT value FROM data WHERE key='auth'").Scan(&r)
+		err = db.QueryRow("SELECT value FROM data WHERE key='storage'").Scan(&r)
 		if err == sql.ErrNoRows {
 			openOauthTab()
 			err = nil
@@ -111,20 +124,20 @@ func getAuth() (ar *authResponse, err error) {
 		} else if err != nil {
 			return
 		}
-		err = json.Unmarshal([]byte(r), &auth)
+		err = json.Unmarshal([]byte(r), &storage)
 		if err != nil {
 			return
 		}
 		ar, err = getAuth()
-	} else if time.Now().Unix() >= auth.ReAuthAt {
+	} else if time.Now().Unix() >= storage.ReAuthAt {
 		log.Print("Your authentication details have expired. Please go to https://lieuweberg.com/rich-destiny to log in again.")
 		openOauthTab()
 		return
-	} else if time.Now().Unix() >= auth.RefreshAt {
-		requestAccessToken(auth.RefreshToken, true)
+	} else if time.Now().Unix() >= storage.RefreshAt {
+		requestAccessToken(storage.RefreshToken, true)
 	}
 
-	return auth, nil
+	return storage, nil
 }
 
 // openOauthTab tries to open the browser with the bungie oauth authorisation page.
@@ -176,7 +189,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 		return
 	}
 	req.Header.Add("X-API-Key", config.APIKey)
-	req.Header.Add("Authorization", "Bearer "+auth.AccessToken)
+	req.Header.Add("Authorization", "Bearer "+storage.AccessToken)
 
 	res, err := bungieHTTPClient.Do(req)
 	if err != nil {

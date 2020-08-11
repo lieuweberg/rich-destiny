@@ -34,7 +34,7 @@ func initPresence() {
 						}
 
 						getAuth()
-						if auth == nil {
+						if storage == nil {
 							break
 						}
 						updatePresence()
@@ -56,7 +56,7 @@ func initPresence() {
 
 func updatePresence() {
 	var ca *characterActivitiesDefinition
-	err := requestComponents(fmt.Sprintf("/Destiny2/3/Profile/%s?components=204,200", auth.ActualMSID), &ca)
+	err := requestComponents(fmt.Sprintf("/Destiny2/3/Profile/%s?components=204,200", storage.ActualMSID), &ca)
 	if err != nil || ca.ErrorStatus != "Success" {
 		log.Print(err)
 		return
@@ -99,6 +99,9 @@ func updatePresence() {
 
 				newActivity.Details = "In orbit"
 				newActivity.LargeImage = "destinylogo"
+				if storage.OrbitText != "" {
+					newActivity.State = storage.OrbitText
+				}
 			} else {
 				var fetchedPlace *placeDefinition
 				placeHash, err := getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
@@ -109,19 +112,25 @@ func updatePresence() {
 				// strangely (i.e. forges), head to  presencemaps.go  and create a new map if necessary. You should put  v, ok := ...  conditions in the default's
 				// if/if else/else. If the image of the activity is off too, set LargeImage to any of the keys in the  largeImageMap  found in  presencemaps.go
 				switch {
-				case activityHash == 228586980:
-					// ... 'Normal Strikes - The Menagerie | The Menagerie'. Still unsure why it thinks it's a strike.
-					newActivity.Details = "The Menagerie"
-					newActivity.LargeImage = "menagerie"
-				case activityHash == -1785427429:
-					// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
-					newActivity.Details = "The Menagerie (Heroic)"
+				case fetchedCurrentActivity.ActivityTypeHash == 400075666:
+					if activityHash == -1785427429 || activityHash == -1785427432 {
+						// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
+						newActivity.Details = "The Menagerie (Heroic)"
+					} else {
+						// 'Normal Strikes - The Menagerie | The Menagerie'. Still unsure why it thinks it's a strike. There are about 20 activities for
+						// The Menagerie, so if it's not one of the heroic ones, assume it's regular.
+						newActivity.Details = "The Menagerie"
+					}
 					newActivity.LargeImage = "menagerie"
 				case activityHash == 2032534090:
 					// Story - The Dreaming City | The Shattered Throne
 					newActivity.Details = "Dungeon - The Dreaming City"
 					newActivity.State = "The Shattered Throne"
 					newActivity.LargeImage = "dungeon"
+				case activityModeHash == 2043403989 && placeHash == -1417085778:
+					// Remove Level: XX from the state
+					newActivity.Details = "Raid - The Dreaming City"
+					newActivity.State = "Last Wish"
 				default:
 					// Overrides that do not use simple conditions and can't fit in a  case  statement
 					if forge, ok := forgeHashMap[activityHash]; ok {
@@ -159,7 +168,7 @@ func getHashFromTable(table string, hash int64, v interface{}) (newHash int32, e
 	u := uint32(hash)
 	newHash = int32(u)
 	var d string
-	err = manifest.QueryRow(fmt.Sprintf("SELECT json FROM %s WHERE id=$2", table), newHash).Scan(&d)
+	err = manifest.QueryRow(fmt.Sprintf("SELECT json FROM %s WHERE id=$1", table), newHash).Scan(&d)
 	if err != nil {
 		return
 	}

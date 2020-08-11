@@ -1,10 +1,8 @@
 package main
 
-// Note: Only top-level structs should be used. The other's are there because of nesting.
-
-// Semi-local structs
+// Internal structs
 // here: MSID means MembershipID
-type authResponse struct {
+type storageStruct struct {
 	AccessToken			string `json:"access_token"`
 	TokenType			string `json:"token_type"`
 	ExpiresIn			int64  `json:"expires_in"`
@@ -16,6 +14,20 @@ type authResponse struct {
 	DisplayName			string
 	RefreshAt			int64
 	ReAuthAt			int64
+
+	OrbitText			string
+}
+
+type saveStruct struct {
+	OrbitText	string	`json:"orbitText"`
+}
+
+type currentStruct struct {
+	Status		string	`json:"status"`
+	Version		string	`json:"version"`
+	Name		string	`json:"name"`
+	OrbitText	string	`json:"orbitText"`
+	Debug		string	`json:"debug"`
 }
 
 // API/Manifest structs
@@ -96,7 +108,7 @@ type currentActivityDefinition struct {
 	// ActivityLightLevel        int64              	`json:"activityLightLevel"`
 	// DestinationHash           int64              	`json:"destinationHash"`
 	PlaceHash                 int64              	`json:"placeHash"`
-	// ActivityTypeHash          int64              	`json:"activityTypeHash"`
+	ActivityTypeHash          int64              	`json:"activityTypeHash"`
 	// Tier                      int64              	`json:"tier"`
 	// IsPlaylist                bool               	`json:"isPlaylist"`
 	// Matchmaking               caDefMatchmaking   	`json:"matchmaking"`
