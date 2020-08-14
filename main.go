@@ -125,6 +125,10 @@ func (p *program) run() {
 		log.SetOutput(logFile)
 	}
 
+	if version != "dev" {
+		attemptApplicationUpdate()
+	}
+
 	// State query param
 	rand.Seed(time.Now().UnixNano())
 	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")

@@ -1,6 +1,6 @@
 #!/bin/bash
 if [[ $# -eq 0 ]] ; then
-    echo 'Please specify a build version starting with v for production, or simply "dev" for development'
+    echo 'Please specify a build version starting with v for production, or "dev" for development (important!)'
     exit 1
 fi
 

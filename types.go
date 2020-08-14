@@ -30,6 +30,20 @@ type currentStruct struct {
 	Debug		string	`json:"debug"`
 }
 
+type releasesFromGithub []releaseElement
+
+type releaseElement struct {
+	Name            string  `json:"name"`
+	Draft           bool    `json:"draft"`
+	Prerelease      bool    `json:"prerelease"`
+	Assets          []releaseAsset `json:"assets"`          
+}
+
+type releaseAsset struct {
+	BrowserDownloadURL string `json:"browser_download_url"`
+	Name               string `json:"name"`
+}
+
 // API/Manifest structs
 // /Destiny2/Manifest
 type manifestData struct {

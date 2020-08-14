@@ -113,7 +113,7 @@ func updatePresence() {
 				// if/if else/else. If the image of the activity is off too, set LargeImage to any of the keys in the  largeImageMap  found in  presencemaps.go
 				switch {
 				case fetchedCurrentActivity.ActivityTypeHash == 400075666:
-					if activityHash == -1785427429 || activityHash == -1785427432 {
+					if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
 						// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
 						newActivity.Details = "The Menagerie (Heroic)"
 					} else {

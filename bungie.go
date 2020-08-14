@@ -189,7 +189,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 		return
 	}
 	req.Header.Add("X-API-Key", config.APIKey)
-	req.Header.Add("Authorization", "Bearer "+storage.AccessToken)
+	req.Header.Add("Authorization", "Bearer " + storage.AccessToken)
 
 	res, err := bungieHTTPClient.Do(req)
 	if err != nil {
