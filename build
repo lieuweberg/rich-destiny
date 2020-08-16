@@ -1,13 +1,18 @@
 #!/bin/bash
 if [[ $# -eq 0 ]] ; then
-    echo 'Please specify a build version starting with v for production, or "dev" for development (important!)'
+    printf 'Please specify a build version starting with v for production, or "dev" for development (important!)'
     exit 1
 fi
 
-echo "Building $1 executable"
+printf "Building $1 executable\n\n"
 
 # echo '{"Str ... 0"}}}}' > versioninfo.json
-echo '{"StringFileInfo":{"FileVersion":"'$1'","ProductVersion":"'$1'","FileDescription":"rich-destiny","CompanyName":"lieuwe_berg","InternalName":"rich-destiny","LegalCopyright":"Copyright (c) lieuwe_berg","OriginalFilename":"rich-destiny.exe","ProductName":"rich-destiny","Comments":"","LegalTrademarks":"","PrivateBuild":"","SpecialBuild":""},"IconPath":"assets/rich-destiny.ico","ManifestPath":"rich-destiny.exe.manifest","FixedFileInfo":{"FileVersion":{"Major":0,"Minor":0,"Patch":0,"Build":0},"ProductVersion":{"Major":0,"Minor":0,"Patch":0,"Build":0},"FileFlagsMask":"3f","FileFlags ":"00","FileOS":"040004","FileType":"01","FileSubType":"00"},"VarFileInfo":{"Translation":{"LangID":"0409","CharsetID":"04B0"}}}' > versioninfo.json
+printf '{"StringFileInfo":{"FileVersion":"'$1'","ProductVersion":"'$1'","FileDescription":"rich-destiny","CompanyName":"lieuwe_berg","InternalName":"rich-destiny","LegalCopyright":"Copyright (c) lieuwe_berg","OriginalFilename":"rich-destiny.exe","ProductName":"rich-destiny","Comments":"","LegalTrademarks":"","PrivateBuild":"","SpecialBuild":""},"IconPath":"assets/rich-destiny.ico","ManifestPath":"rich-destiny.exe.manifest","FixedFileInfo":{"FileVersion":{"Major":0,"Minor":0,"Patch":0,"Build":0},"ProductVersion":{"Major":0,"Minor":0,"Patch":0,"Build":0},"FileFlagsMask":"3f","FileFlags ":"00","FileOS":"040004","FileType":"01","FileSubType":"00"},"VarFileInfo":{"Translation":{"LangID":"0409","CharsetID":"04B0"}}}' > versioninfo.json
 goversioninfo -64
 
-go build -o rich-destiny.exe -ldflags "-X main.version=$1"
+if [ $1 = "dev" ] ; then
+    go build -o rich-destiny.exe -ldflags "-X main.version=$1"
+else
+    go build -o out/rich-destiny-$1.exe -ldflags "-X main.version=$1"
+    printf "\nNote to self: rename the output executable to 'rich-destiny.exe' in GH releases!"
+fi

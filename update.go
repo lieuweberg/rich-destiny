@@ -23,16 +23,15 @@ func attemptApplicationUpdate() {
 		log.Printf("Error trying to parse latest release response: %s", err)
 	}
 
-	var latest releaseElement
 	for _, release := range releases {
-		if !latest.Draft && !latest.Prerelease {
+		if !release.Draft && !release.Prerelease {
 			if semver.Compare(release.Name, version) == 1 {
-				log.Printf("Attempting to update to %s (currently %s)", latest.Name, version)
+				log.Printf("Attempting to update to %s (currently %s)", release.Name, version)
 				var foundAsset bool
-				for _, asset := range latest.Assets {
+				for _, asset := range release.Assets {
 					if asset.Name == "rich-destiny.exe" {
 						foundAsset = true
-			
+
 						res, err = http.Get(asset.BrowserDownloadURL)
 						if err != nil {
 							log.Printf("Could not get download url of new update: %s", err)
@@ -48,7 +47,7 @@ func attemptApplicationUpdate() {
 						} else {
 							log.Printf("Update applied successfully.")
 						}
-			
+
 						break
 					}
 				}

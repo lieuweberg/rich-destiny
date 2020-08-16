@@ -2,6 +2,7 @@ config.go
 
 logs/
 assets/
+out/
 
 *.exe
 *.exe~
