@@ -94,23 +94,31 @@ func updatePresence() {
 			)
 			activityHash, err := getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &fetchedCurrentActivity)
 			activityModeHash, err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &fetchedCurrentActivityMode)
-			if err != nil { // Error indicates orbit. Seems to have been working reliably.
+			if err != nil { // Error indicates orbit. ~~Seems to have been working reliably.~~
 				debugHashes = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
 
-				newActivity.Details = "In orbit"
-				newActivity.LargeImage = "destinylogo"
-				if storage.OrbitText != "" {
-					newActivity.State = storage.OrbitText
+				// Flaw in bungie api, activity mode is the "undefined" hash and thus it can't find certain modes in the manifest.
+				if activityHash == -146779922 {
+					newActivity.Details = "Dungeon"
+					newActivity.State = "Prophecy"
+					newActivity.LargeImage = "dungeon"
+				} else if activityHash == -1635244228 {
+					newActivity.Details = "Raid - Black Garden"
+					newActivity.State = "Garden of Salvation"
+					newActivity.LargeImage = "raid"
+				} else {
+					newActivity.Details = "In orbit"
+					newActivity.LargeImage = "destinylogo"
+					if storage.OrbitText != "" {
+						newActivity.State = storage.OrbitText
+					}
 				}
+				
 			} else {
 				var fetchedPlace *placeDefinition
 				placeHash, err := getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
 
-				// Here are any overrides due to strange API shenanigans. PLEASE append all new overrides with a comment explaning what it used to display before
-				// your patch, and what is displays after if that is unclear (any use of variables). The else is default and indicates it regularly displays fine.
-				// Should you need maps for mass overrides which depend on the activity/place hash, collectively under the activitymode but normally displaying
-				// strangely (i.e. forges), head to  presencemaps.go  and create a new map if necessary. You should put  v, ok := ...  conditions in the default's
-				// if/if else/else. If the image of the activity is off too, set LargeImage to any of the keys in the  largeImageMap  found in  presencemaps.go
+				// Here are any overrides due to strange API shenanigans.
 				switch {
 				case fetchedCurrentActivity.ActivityTypeHash == 400075666:
 					if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
