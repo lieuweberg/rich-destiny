@@ -4,6 +4,7 @@ type configuration struct {
 	ClientID string
 	ClientSecret string
 	RedirectURI string
+	APIKey	string
 }
 
 // Config is the struct holding the configuration
