@@ -20,25 +20,27 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Injected by the go linker
-var version string
+var (
+	// Injected by the go linker
+	version string
 
-var generatedState string
-var db *sql.DB
-var manifest *sql.DB
-var server = &http.Server{Addr: ":35893", Handler: nil}
-var currentDirectory string
+	generatedState string
+	db *sql.DB
+	manifest *sql.DB
+	server = &http.Server{Addr: ":35893", Handler: nil}
+	currentDirectory string
 
-var storage *storageStruct
-var browserOpened bool
-// Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
-// All other requests to bungie should probably also use the DefaultClient.
-var bungieHTTPClient *http.Client
+	storage *storageStruct
+	browserOpened bool
+	// Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
+	// All other requests to bungie should probably also use the DefaultClient.
+	bungieHTTPClient *http.Client
 
-// Close this channel to stop the presence loop
-var quitPresenceTicker chan(struct{})
-var previousActivity richgo.Activity
-var debugHashes string
+	// Close this channel to stop the presence loop
+	quitPresenceTicker chan(struct{})
+	previousActivity richgo.Activity
+	debugHashes string
+)
 
 type program struct{}
 
