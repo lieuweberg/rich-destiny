@@ -120,6 +120,12 @@ func updatePresence() {
 
 				// Here are any overrides due to strange API shenanigans.
 				switch {
+				case activityModeHash == -797199657:
+					// Remove double place
+					newActivity.Details = "Explore - " + fetchedPlace.DP.Name
+					if strings.Contains(strings.ToLower(fetchedCurrentActivity.DP.Name), "mission") {
+						newActivity.State = fetchedCurrentActivity.DP.Name
+					}
 				case fetchedCurrentActivity.ActivityTypeHash == 400075666:
 					if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
 						// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
