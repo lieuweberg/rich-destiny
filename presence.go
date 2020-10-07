@@ -126,6 +126,9 @@ func updatePresence() {
 					if strings.Contains(strings.ToLower(fetchedCurrentActivity.DP.Name), "mission") {
 						newActivity.State = fetchedCurrentActivity.DP.Name
 					}
+				case activityHash == 707826522  || activityHash == 1454880421 || activityHash == -420675050:
+					newActivity.Details = fetchedCurrentActivity.DP.Name
+					newActivity.LargeImage = "hauntedforest"
 				case fetchedCurrentActivity.ActivityTypeHash == 400075666:
 					if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
 						// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
