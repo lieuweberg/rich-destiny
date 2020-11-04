@@ -103,6 +103,8 @@ func main() {
 }
 
 func (p *program) run() {
+	debugHashes = "Starting up..."
+
 	exe, err := os.Executable()
 	if err != nil {
 		log.Fatalf("Couldn't find current path: %s", err)
@@ -112,7 +114,7 @@ func (p *program) run() {
 	if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
 		err = os.Mkdir(makePath("logs"), os.ModePerm)
 		if err != nil {
-			// Logs are voided from here on out. Return as the application is probably lacking permissions.
+			// Logs are voided. Return as the application is probably lacking permissions.
 			log.Printf("Couldn't create logs directory: %s", err)
 			return
 		}
@@ -125,10 +127,6 @@ func (p *program) run() {
 		log.Printf("Couldn't create log file: %s", err)
 	} else {
 		log.SetOutput(logFile)
-	}
-
-	if version != "dev" {
-		attemptApplicationUpdate()
 	}
 
 	// State query param
@@ -161,6 +159,11 @@ func (p *program) run() {
 	// Wait for a decent computer to have booted, no internet connection means trouble
 	// TODO: Way better way of handling internet connection status; this is pretty terrible
 	time.Sleep(10 * time.Second)
+	if version != "dev" {
+		attemptApplicationUpdate()
+	}
+
+	debugHashes = "";
 
 	// Kinda useless since browser tabs cannot be opened from a service, but leaving it in
 	if _, err = getAuth(); err != nil {

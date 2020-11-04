@@ -93,7 +93,7 @@ func setAuth(data []byte) (err error) {
 	return
 }
 
-// storeData inserts data into the db by key-value pair. Only store strings or structs.
+// storeData inserts data into the db by key-value pair. Only store strings or the storage struct.
 func storeData(key string, data interface{}) (err error) {
 	var d string
 	switch data.(type) {

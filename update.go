@@ -14,6 +14,7 @@ func attemptApplicationUpdate() {
 	res, err := http.Get("https://api.github.com/repos/lieuweberg/rich-destiny/releases")
 	if err != nil {
 		log.Printf("Error trying to get latest release: %s", err)
+		return
 	}
 	body, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
@@ -21,6 +22,7 @@ func attemptApplicationUpdate() {
 	err = json.Unmarshal(body, &releases)
 	if err != nil {
 		log.Printf("Error trying to parse latest release response: %s", err)
+		return
 	}
 
 	for _, release := range releases {
