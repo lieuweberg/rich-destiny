@@ -89,11 +89,11 @@ func updatePresence() {
 			}
 
 			var (
-				fetchedCurrentActivity *currentActivityDefinition
-				fetchedCurrentActivityMode *currentActivityModeDefinition
+				activity *currentActivityDefinition
+				activityMode *currentActivityModeDefinition
 			)
-			activityHash, err := getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &fetchedCurrentActivity)
-			activityModeHash, err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &fetchedCurrentActivityMode)
+			activityHash, err := getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &activity)
+			activityModeHash, err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &activityMode)
 			if err != nil { // Error indicates orbit. ~~Seems to have been working reliably.~~
 				debugHashes = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
 
@@ -115,21 +115,31 @@ func updatePresence() {
 				}
 				
 			} else {
-				var fetchedPlace *placeDefinition
-				placeHash, err := getHashFromTable("DestinyPlaceDefinition", fetchedCurrentActivity.PlaceHash, &fetchedPlace)
+				var place *placeDefinition
+				placeHash, err := getHashFromTable("DestinyPlaceDefinition", activity.PlaceHash, &place)
 
 				// Here are any overrides due to strange API shenanigans.
+				// This first if part should not be long, and should be used for everything that should be changed all the time if it appears (e.g. the name of a destination).
+				if placeHash == 1729879943 {
+					place.DP.Name = "Europa"
+				}
+				if placeHash == -547261341 {
+					place.DP.Name = "The Cosmodrome"
+				}
+
+				// This second part specifies more specific overrides.
 				switch {
 				case activityModeHash == -797199657:
+					log.Print("next case executed")
 					// Remove double place
-					newActivity.Details = "Explore - " + fetchedPlace.DP.Name
-					if strings.Contains(strings.ToLower(fetchedCurrentActivity.DP.Name), "mission") {
-						newActivity.State = fetchedCurrentActivity.DP.Name
+					newActivity.Details = "Explore - " + place.DP.Name
+					if strings.Contains(strings.ToLower(activity.DP.Name), "mission") {
+						newActivity.State = activity.DP.Name
 					}
 				case activityHash == 707826522  || activityHash == 1454880421 || activityHash == -420675050:
-					newActivity.Details = fetchedCurrentActivity.DP.Name
+					newActivity.Details = activity.DP.Name
 					newActivity.LargeImage = "hauntedforest"
-				case fetchedCurrentActivity.ActivityTypeHash == 400075666:
+				case activity.ActivityTypeHash == 400075666:
 					if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
 						// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
 						newActivity.Details = "The Menagerie (Heroic)"
@@ -149,18 +159,18 @@ func updatePresence() {
 					newActivity.Details = "Raid - The Dreaming City"
 					newActivity.State = "Last Wish"
 				default:
-					// Overrides that do not use simple conditions and can't fit in a  case  statement
+					// This third part specifies overrides that do not use simple conditions and can't fit in a  case  statement
 					if forge, ok := forgeHashMap[activityHash]; ok {
 						// Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - PLACE | FORGENAME Forge'
-						newActivity.Details = fmt.Sprintf("%s - %s", fetchedCurrentActivity.DP.Name, fetchedPlace.DP.Name)
+						newActivity.Details = fmt.Sprintf("%s - %s", activity.DP.Name, place.DP.Name)
 						newActivity.State = fmt.Sprintf("%s Forge", forge)
 						newActivity.LargeImage = "forge"
 					} else {
-						newActivity.Details = fetchedCurrentActivityMode.DP.Name
+						newActivity.Details = activityMode.DP.Name
 						if err == nil {
-							newActivity.Details += fmt.Sprintf(" - %s", fetchedPlace.DP.Name)
+							newActivity.Details += fmt.Sprintf(" - %s", place.DP.Name)
 						}
-						newActivity.State = fetchedCurrentActivity.DP.Name
+						newActivity.State = activity.DP.Name
 					}
 				}
 
