@@ -130,7 +130,6 @@ func updatePresence() {
 				// This second part specifies more specific overrides.
 				switch {
 				case activityModeHash == -797199657:
-					log.Print("next case executed")
 					// Remove double place
 					newActivity.Details = "Explore - " + place.DP.Name
 					if strings.Contains(strings.ToLower(activity.DP.Name), "mission") {
