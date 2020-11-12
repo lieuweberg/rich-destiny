@@ -73,25 +73,27 @@ func setAuth(data []byte) (err error) {
 	// Subtracting five to make sure tokens are refreshed on-time, and not a few milliseconds late (sometimes causing 401's)
 	storage.RefreshAt = time.Now().Unix() + storage.ExpiresIn - 5
 	storage.ReAuthAt = time.Now().Unix() + storage.RefreshExpiresIn - 5
-	if storage.ActualMSID == "" {
-		var lp *linkedProfiles
-		err = requestComponents(fmt.Sprintf("/Destiny2/254/Profile/%s/LinkedProfiles/", storage.BungieMSID), &lp)
-		if err != nil {
-			return
-		}
+	// if storage.ActualMSID == "" {
+	
+	var lp *linkedProfiles
+	err = requestComponents(fmt.Sprintf("/Destiny2/254/Profile/%s/LinkedProfiles/", storage.BungieMSID), &lp)
+	if err != nil {
+		return
+	}
 
-		for _, profile := range lp.Response.Profiles {
-			for _, membershipType := range profile.MembershipTypes {
-				if membershipType == 3 {
-					storage.DisplayName = profile.DisplayName
-					storage.ActualMSID = profile.MembershipID
-					storage.MSType = profile.MembershipType
-					break
-				}
-			}
-			if storage.ActualMSID != "" {
+	for _, profile := range lp.Response.Profiles {
+		for _, membershipType := range profile.MembershipTypes {
+			log.Print("seeing type", membershipType)
+			if membershipType == 3 {
+				storage.DisplayName = profile.DisplayName
+				storage.ActualMSID = profile.MembershipID
+				storage.MSType = profile.MembershipType
+				log.Print("set type", profile.MembershipType)
 				break
 			}
+		}
+		if storage.ActualMSID != "" {
+			break
 		}
 	}
 
