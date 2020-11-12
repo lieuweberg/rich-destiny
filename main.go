@@ -24,6 +24,7 @@ var (
 	// Injected by the go linker
 	version string
 
+	s service.Service
 	generatedState string
 	db *sql.DB
 	manifest *sql.DB
@@ -67,12 +68,18 @@ func main() {
 	}
 	prg := &program{}
 
-	s, err := service.New(prg, svcConfig)
+	var err error
+	s, err = service.New(prg, svcConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if service.Interactive() {
+		defer func() {
+			log.Print("Press ENTER to close this window.")
+			fmt.Scanln()
+		}()
+
 		fmt.Print("         _      _              _           _   _\n        (_)    | |            | |         | | (_)\n    _ __ _  ___| |__ ______ __| | ___  ___| |_ _ _ __  _   _\n   | '__| |/ __| '_ \\______/ _` |/ _ \\/ __| __| | '_ \\| | | |\n   | |  | | (__| | | |    | (_| |  __/\\__ \\ |_| | | | | |_| |\n   |_|  |_|\\___|_| |_|     \\__,_|\\___||___/\\__|_|_| |_|\\__, |\n                                                        __/ |\n                                                       |___/    ",
 			version, "\n\n")
 		log.Print("Detected that this program is being run manually, installing into the service manager...")
@@ -91,9 +98,6 @@ func main() {
 		log.Print("Assuming this is first-time installation; this program will shortly attempt to open a browser tab to log in with Bungie.net.")
 		time.Sleep(5 * time.Second)
 		openOauthTab()
-		
-		log.Print("Press ENTER to close this window.")
-		fmt.Scanln()
 	} else {
 		err = s.Run()
 		if err != nil {
@@ -160,9 +164,6 @@ func (p *program) run() {
 	// Wait for a decent computer to have booted, no internet connection means trouble
 	// TODO: Way better way of handling internet connection status; this is pretty terrible
 	time.Sleep(10 * time.Second)
-	if version != "dev" {
-		go attemptApplicationUpdate()
-	}
 
 	defer func() {
 		initPresence()
@@ -171,9 +172,19 @@ func (p *program) run() {
 	debugText = "";
 
 	// Kinda useless since browser tabs cannot be opened from a service, but leaving it in
-	if _, err = getAuth(); err != nil {
+	if _, err = getStorage(); err != nil {
 		log.Printf("Error getting auth: %s", err)
+	} else {
+		if storage.AutoUpdate {
+			go func() {
+				_, err = attemptApplicationUpdate()
+				if err != nil {
+					log.Print(err)
+				}
+			}()
+		}
 	}
+
 
 	// Check if a new manifest has to be downloaded, if so do that, then open the db
 	manifestRes, err := getManifestData()
@@ -305,7 +316,7 @@ func startWebServer() {
 			return
 		
 		case "current":
-			returnData := currentStruct{
+			returnData := currentProgramStatus{
 				Version: version,
 				Debug: "NA",
 				Status: "Not logged in",
@@ -318,6 +329,7 @@ func startWebServer() {
 
 			returnData.Name = storage.DisplayName
 			returnData.OrbitText = storage.OrbitText
+			returnData.AutoUpdate = storage.AutoUpdate
 			if previousActivity.Details == "" {
 				returnData.Status = "Not playing Destiny 2"
 				returnStructAsJSON(res, returnData)
@@ -345,15 +357,13 @@ func startWebServer() {
 				fmt.Fprintf(res, "error 500: %s", err)
 				return
 			}
-			var toSave saveSettingsStruct
-			err = json.Unmarshal(data, &toSave)
+			err = json.Unmarshal(data, storage)
 			if err != nil {
 				res.WriteHeader(http.StatusInternalServerError)
 				fmt.Fprintf(res, "error 500: %s", err)
 				return
 			}
 
-			storage.OrbitText = toSave.OrbitText
 			err = storeData("storage", storage)
 			if err != nil {
 				res.WriteHeader(http.StatusInternalServerError)
@@ -362,6 +372,22 @@ func startWebServer() {
 			}
 
 			fmt.Fprint(res, "OK")
+		case "update":
+			newVersion, err := attemptApplicationUpdate()
+			if err != nil {
+				res.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprint(res, err)
+			} else {
+				fmt.Fprintf(res, "Update installed successfully; will be applied next startup (or restart from the Services program). New version: %s", newVersion)
+			}
+		// case "restart":
+		// 	err := s.Restart()
+		// 	if err != nil {
+		// 		res.WriteHeader(http.StatusInternalServerError)
+		// 		fmt.Fprintf(res, "Error trying to restart: %s", err)
+		// 	}
+
+		// 	fmt.Fprintf(res, "OK")
 		}
 	})
 

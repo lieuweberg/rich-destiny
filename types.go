@@ -3,12 +3,12 @@ package main
 // Internal structs
 // here: MSID means MembershipID
 type storageStruct struct {
-	AccessToken			string `json:"access_token"`
-	TokenType			string `json:"token_type"`
-	ExpiresIn			int64  `json:"expires_in"`
-	RefreshToken    	string `json:"refresh_token"`
-	RefreshExpiresIn	int64  `json:"refresh_expires_in"`
-	BungieMSID			string `json:"membership_id"`
+	AccessToken			string	`json:"access_token"`
+	TokenType			string	`json:"token_type"`
+	ExpiresIn			int64 	`json:"expires_in"`
+	RefreshToken    	string	`json:"refresh_token"`
+	RefreshExpiresIn	int64 	`json:"refresh_expires_in"`
+	BungieMSID			string	`json:"membership_id"`
 
 	ActualMSID			string
 	MSType				int64
@@ -16,18 +16,17 @@ type storageStruct struct {
 	RefreshAt			int64
 	ReAuthAt			int64
 
-	OrbitText			string
+	// Custom settings
+	OrbitText			string	`json:"orbitText"`
+	AutoUpdate			bool	`json:"autoUpdate"`
 }
 
-type saveSettingsStruct struct {
-	OrbitText	string	`json:"orbitText"`
-}
-
-type currentStruct struct {
+type currentProgramStatus struct {
 	Status		string	`json:"status"`
 	Version		string	`json:"version"`
 	Name		string	`json:"name"`
 	OrbitText	string	`json:"orbitText"`
+	AutoUpdate	bool	`json:"autoUpdate"`
 	Debug		string	`json:"debug"`
 }
 

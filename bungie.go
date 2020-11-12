@@ -95,6 +95,9 @@ func setAuth(data []byte) (err error) {
 		}
 	}
 
+	// Default values for the web config
+	storage.AutoUpdate = true
+
 	err = storeData("storage", storage)
 	return
 }
@@ -116,10 +119,10 @@ func storeData(key string, data interface{}) (err error) {
 	return
 }
 
-// getAuth gets the AuthResponse from the database, or if there is none
+// getStorage gets the AuthResponse and storage values from the database, or if there is none
 // (or the refresh token is expired) tries to initiate an oauth tab in the browser.
 // This function also refreshes the auth token.
-func getAuth() (ar *storageStruct, err error) {
+func getStorage() (s *storageStruct, err error) {
 	if storage == nil {
 		var r string
 		err = db.QueryRow("SELECT value FROM data WHERE key='storage'").Scan(&r)
@@ -134,7 +137,7 @@ func getAuth() (ar *storageStruct, err error) {
 		if err != nil {
 			return
 		}
-		ar, err = getAuth()
+		s, err = getStorage()
 	} else if time.Now().Unix() >= storage.ReAuthAt {
 		log.Print("Your authentication details have expired. Please go to https://lieuweberg.com/rich-destiny to log in again.")
 		openOauthTab()
@@ -147,7 +150,7 @@ func getAuth() (ar *storageStruct, err error) {
 }
 
 // openOauthTab tries to open the browser with the bungie oauth authorisation page.
-// Even though this does not work from within a service, why not keep it in /s
+// Even though this does not work from within a service, it is used when first launching.
 func openOauthTab() {
 	if !browserOpened {
 		err := exec.Command("rundll32", "url.dll,FileProtocolHandler", "http://localhost:35893/login").Start()

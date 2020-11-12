@@ -33,7 +33,7 @@ func initPresence() {
 							loggedIn = true
 						}
 
-						getAuth()
+						getStorage()
 						if storage == nil {
 							break
 						}
