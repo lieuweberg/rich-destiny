@@ -128,6 +128,7 @@ func (p *program) run() {
 	} else {
 		log.SetOutput(logFile)
 	}
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	// State query param
 	rand.Seed(time.Now().UnixNano())
