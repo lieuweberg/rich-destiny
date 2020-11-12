@@ -56,9 +56,13 @@ func initPresence() {
 
 func updatePresence() {
 	var ca *characterActivitiesDefinition
-	err := requestComponents(fmt.Sprintf("/Destiny2/3/Profile/%s?components=204,200", storage.ActualMSID), &ca)
+	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s?components=204,200", storage.MSType, storage.ActualMSID), &ca)
 	if err != nil || ca.ErrorStatus != "Success" {
-		log.Print(err)
+		if err == nil {
+			log.Print(ca.ErrorStatus, ca.Message)
+		} else {
+			log.Print(err)
+		}
 		return
 	}
 
@@ -95,7 +99,7 @@ func updatePresence() {
 			activityHash, err := getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &activity)
 			activityModeHash, err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &activityMode)
 			if err != nil { // Error indicates orbit. ~~Seems to have been working reliably.~~
-				debugHashes = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
+				debugText = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
 
 				// Flaw in bungie api, activity mode is the "undefined" hash and thus it can't find certain modes in the manifest.
 				if activityHash == -146779922 {
@@ -173,7 +177,7 @@ func updatePresence() {
 					}
 				}
 
-				debugHashes = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
+				debugText = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
 			}
 
 			class := classImageMap[ca.Response.Characters.Data[id].ClassType]

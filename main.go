@@ -39,7 +39,7 @@ var (
 	// Close this channel to stop the presence loop
 	quitPresenceTicker chan(struct{})
 	previousActivity richgo.Activity
-	debugHashes string
+	debugText string
 )
 
 type program struct{}
@@ -103,7 +103,7 @@ func main() {
 }
 
 func (p *program) run() {
-	debugHashes = "Starting up..."
+	debugText = "Starting up..."
 
 	exe, err := os.Executable()
 	if err != nil {
@@ -161,10 +161,14 @@ func (p *program) run() {
 	// TODO: Way better way of handling internet connection status; this is pretty terrible
 	time.Sleep(10 * time.Second)
 	if version != "dev" {
-		attemptApplicationUpdate()
+		go attemptApplicationUpdate()
 	}
 
-	debugHashes = "";
+	defer func() {
+		initPresence()
+	}()
+
+	debugText = "";
 
 	// Kinda useless since browser tabs cannot be opened from a service, but leaving it in
 	if _, err = getAuth(); err != nil {
@@ -328,7 +332,7 @@ func startWebServer() {
 				status += fmt.Sprintf(" | %s", previousActivity.SmallText)
 			}
 			returnData.Status = status
-			returnData.Debug = debugHashes
+			returnData.Debug = debugText
 			returnStructAsJSON(res, returnData)
 		case "save":
 			if req.Method != http.MethodPost {
@@ -341,7 +345,7 @@ func startWebServer() {
 				fmt.Fprintf(res, "error 500: %s", err)
 				return
 			}
-			var toSave saveStruct
+			var toSave saveSettingsStruct
 			err = json.Unmarshal(data, &toSave)
 			if err != nil {
 				res.WriteHeader(http.StatusInternalServerError)

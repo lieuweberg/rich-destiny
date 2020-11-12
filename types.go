@@ -11,6 +11,7 @@ type storageStruct struct {
 	BungieMSID			string `json:"membership_id"`
 
 	ActualMSID			string
+	MSType				int64
 	DisplayName			string
 	RefreshAt			int64
 	ReAuthAt			int64
@@ -18,7 +19,7 @@ type storageStruct struct {
 	OrbitText			string
 }
 
-type saveStruct struct {
+type saveSettingsStruct struct {
 	OrbitText	string	`json:"orbitText"`
 }
 
@@ -73,6 +74,7 @@ type lPResponse struct {
 }
 
 type lPProfile struct {
+	MembershipTypes	[]int64	`json:"applicableMembershipTypes"`
 	MembershipType	int64	`json:"membershipType"`
 	MembershipID	string	`json:"membershipId"`
 	DisplayName		string	`json:"displayName"`
@@ -84,11 +86,11 @@ type globalDisplayProperties struct {
 	Name        string `json:"name"`
 }
 
-// /Destiny2/3/Profile/{ActualMSID}?components=204,200
+// /Destiny2/{MSType}/Profile/{ActualMSID}?components=204,200
 type characterActivitiesDefinition struct {
 	Response        caDefReponse  	`json:"Response"`
 	ErrorStatus     string      	`json:"ErrorStatus"`
-	// Message         string      	`json:"Message"`
+	Message         string      	`json:"Message"`
 }
 
 type caDefReponse struct {

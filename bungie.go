@@ -80,10 +80,16 @@ func setAuth(data []byte) (err error) {
 			return
 		}
 
-		for _, p := range lp.Response.Profiles {
-			if p.MembershipType == 3 {
-				storage.DisplayName = p.DisplayName
-				storage.ActualMSID = p.MembershipID
+		for _, profile := range lp.Response.Profiles {
+			for _, membershipType := range profile.MembershipTypes {
+				if membershipType == 3 {
+					storage.DisplayName = profile.DisplayName
+					storage.ActualMSID = profile.MembershipID
+					storage.MSType = profile.MembershipType
+					break
+				}
+			}
+			if storage.ActualMSID != "" {
 				break
 			}
 		}
