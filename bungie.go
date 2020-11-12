@@ -97,8 +97,10 @@ func setAuth(data []byte) (err error) {
 		}
 	}
 
-	// Default values for the web config
-	storage.AutoUpdate = true
+	err = db.QueryRow("SELECT value FROM data WHERE key='storage'").Scan()
+	if err == sql.ErrNoRows {
+		storage.AutoUpdate = true
+	}
 
 	err = storeData("storage", storage)
 	return
