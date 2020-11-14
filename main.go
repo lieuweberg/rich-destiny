@@ -164,11 +164,7 @@ func (p *program) run() {
 	// Wait for a decent computer to have booted, no internet connection means trouble
 	// TODO: Way better way of handling internet connection status; this is pretty terrible
 	time.Sleep(10 * time.Second)
-
-	defer func() {
-		initPresence()
-	}()
-
+	
 	debugText = "";
 
 	// Kinda useless since browser tabs cannot be opened from a service, but leaving it in
