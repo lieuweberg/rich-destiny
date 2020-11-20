@@ -95,9 +95,14 @@ func setAuth(data []byte) (err error) {
 		}
 	}
 
-	err = db.QueryRow("SELECT value FROM data WHERE key='storage'").Scan()
-	if err == sql.ErrNoRows {
-		storage.AutoUpdate = true
+	var dud string
+	err = db.QueryRow("SELECT value FROM data WHERE key='storage'").Scan(&dud)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			storage.AutoUpdate = true
+		} else {
+			log.Printf("Error trying to query the database: %s", err)
+		}
 	}
 
 	err = storeData("storage", storage)
