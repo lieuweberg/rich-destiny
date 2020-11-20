@@ -217,7 +217,7 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 		newActivity.Timestamps = &richgo.Timestamps{
 			Start: &st,
 		}
-		newActivity.LargeText = "rich-destiny"
+		newActivity.LargeText = "rich-destiny " + version
 
 		if activityModeHash != 0 && newActivity.LargeImage == "destinylogo" {
 			for image, hashes := range largeImageMap {
