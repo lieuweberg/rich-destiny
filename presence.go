@@ -139,19 +139,21 @@ func updatePresence() {
 					if strings.Contains(strings.ToLower(activity.DP.Name), "mission") {
 						newActivity.State = activity.DP.Name
 					}
-				case activityHash == 707826522  || activityHash == 1454880421 || activityHash == -420675050:
-					newActivity.Details = activity.DP.Name
-					newActivity.LargeImage = "hauntedforest"
-				case activity.ActivityTypeHash == 400075666:
-					if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
-						// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
-						newActivity.Details = "The Menagerie (Heroic)"
-					} else {
-						// 'Normal Strikes - The Menagerie | The Menagerie'. Still unsure why it thinks it's a strike. There are about 20 activities for
-						// The Menagerie, so if it's not one of the heroic ones, assume it's regular.
-						newActivity.Details = "The Menagerie"
-					}
-					newActivity.LargeImage = "menagerie"
+				case activityModeHash == 1848252830:
+					newActivity.Details = "Gambit"
+				// case activityHash == 707826522  || activityHash == 1454880421 || activityHash == -420675050:
+				// 	newActivity.Details = activity.DP.Name
+				// 	newActivity.LargeImage = "hauntedforest"
+				// case activity.ActivityTypeHash == 400075666:
+				// 	if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
+				// 		// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
+				// 		newActivity.Details = "The Menagerie (Heroic)"
+				// 	} else {
+				// 		// 'Normal Strikes - The Menagerie | The Menagerie'. Still unsure why it thinks it's a strike. There are about 20 activities for
+				// 		// The Menagerie, so if it's not one of the heroic ones, assume it's regular.
+				// 		newActivity.Details = "The Menagerie"
+				// 	}
+				// 	newActivity.LargeImage = "menagerie"
 				case activityHash == 2032534090:
 					// Story - The Dreaming City | The Shattered Throne
 					newActivity.Details = "Dungeon - The Dreaming City"
