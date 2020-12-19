@@ -102,8 +102,8 @@ func updatePresence() {
 				debugText = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
 
 				// Flaw in bungie api, activity mode is the "undefined" hash and thus it can't find certain modes in the manifest.
-				if activityHash == -146779922 {
-					newActivity.Details = "Dungeon"
+				if activityHash == 1077850348 {
+					newActivity.Details = "Dungeon - IX Realms"
 					newActivity.State = "Prophecy"
 					newActivity.LargeImage = "dungeon"
 				} else if activityHash == -1635244228 {
