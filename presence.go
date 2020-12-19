@@ -164,19 +164,19 @@ func updatePresence() {
 					newActivity.Details = "Raid - The Dreaming City"
 					newActivity.State = "Last Wish"
 				default:
-					// This third part specifies overrides that do not use simple conditions and can't fit in a  case  statement
-					if forge, ok := forgeHashMap[activityHash]; ok {
-						// Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - PLACE | FORGENAME Forge'
-						newActivity.Details = fmt.Sprintf("%s - %s", activity.DP.Name, place.DP.Name)
-						newActivity.State = fmt.Sprintf("%s Forge", forge)
-						newActivity.LargeImage = "forge"
-					} else {
-						newActivity.Details = activityMode.DP.Name
-						if err == nil {
-							newActivity.Details += fmt.Sprintf(" - %s", place.DP.Name)
-						}
-						newActivity.State = activity.DP.Name
+					// This third part specifies overrides that do not use simple conditions and can't fit in a case statement
+					// if forge, ok := forgeHashMap[activityHash]; ok {
+					// 	// Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - PLACE | FORGENAME Forge'
+					// 	newActivity.Details = fmt.Sprintf("%s - %s", activity.DP.Name, place.DP.Name)
+					// 	newActivity.State = fmt.Sprintf("%s Forge", forge)
+					// 	newActivity.LargeImage = "forge"
+					// } else {
+					newActivity.Details = activityMode.DP.Name
+					if err == nil {
+						newActivity.Details += fmt.Sprintf(" - %s", place.DP.Name)
 					}
+					newActivity.State = activity.DP.Name
+					// }
 				}
 
 				debugText = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)

@@ -30,12 +30,12 @@ var largeImageMap = map[string][]int32{
 }
 
 // Maps ActivityHash to Forge name (because they are seen as story)
-var forgeHashMap = map[int32]string{
-	10898844: "Bergusia",
-	1019949956: "Volundr",
-	1483179969: "Gofannon",
-	1878615566: "Izanami",
-}
+// var forgeHashMap = map[int32]string{
+// 	10898844: "Bergusia",
+// 	1019949956: "Volundr",
+// 	1483179969: "Gofannon",
+// 	1878615566: "Izanami",
+// }
 
 // Maps classID to class name
 var classImageMap = map[int64]string{
