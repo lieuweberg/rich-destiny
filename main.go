@@ -28,7 +28,7 @@ var (
 	generatedState string
 	db *sql.DB
 	manifest *sql.DB
-	server = &http.Server{Addr: ":35893", Handler: nil}
+	server = &http.Server{Addr: "localhost:35893", Handler: nil}
 	currentDirectory string
 
 	storage *storageStruct
