@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/hugolgst/rich-go v0.0.0-20200319172754-527649f3d36d
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
-	github.com/kardianos/service v1.2.0
+	github.com/kardianos/service v1.1.0
 	github.com/mattn/go-sqlite3 v1.14.5
 	github.com/mitchellh/go-ps v1.0.0
 	golang.org/x/mod v0.4.0
