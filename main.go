@@ -81,22 +81,25 @@ func main() {
 		}()
 
 		fmt.Print("         _      _              _           _   _\n        (_)    | |            | |         | | (_)\n    _ __ _  ___| |__ ______ __| | ___  ___| |_ _ _ __  _   _\n   | '__| |/ __| '_ \\______/ _` |/ _ \\/ __| __| | '_ \\| | | |\n   | |  | | (__| | | |    | (_| |  __/\\__ \\ |_| | | | | |_| |\n   |_|  |_|\\___|_| |_|     \\__,_|\\___||___/\\__|_|_| |_|\\__, |\n                                                        __/ |\n                                                       |___/    ",
-			version, "\n\n")
+			version, "\n\n\n")
+		log.SetFlags(log.Lshortfile)
+		log.Print("Hi, I'm the console window that will help you through installation :)...\n")
+		time.Sleep(5 * time.Second)
 		log.Print("Detected that this program is being run manually, installing into the service manager...")
 		err = s.Install()
 		if err != nil {
 			log.Printf("Something went wrong: %s", err)
 			return
 		}
-		log.Print("Program installed. The service should automatically start (check the installation directory for new files).")
 		err = s.Start()
 		if err != nil {
 			log.Printf("Error starting service, aborting further execution: %s", err)
 			return
 		}
-
-		log.Print("Assuming this is first-time installation; this program will shortly attempt to open a browser tab to log in with Bungie.net.")
-		time.Sleep(5 * time.Second)
+		log.Print("Service installed. The service should automatically start when you start your computer (and just now because I told your computer to) (check the installation directory for new files).\n\n")
+		log.Print("That was fast wasn't it? This is my sole purpose -- running me again will do nothing except throw an error. If you want to configure something, you should head to https://lieuweberg.com/rich-destiny.")
+		log.Print("Assuming this is first-time installation: I will shortly attempt to open a browser tab to log in with Bungie.net.")
+		time.Sleep(10 * time.Second)
 		openOauthTab()
 	} else {
 		err = s.Run()
