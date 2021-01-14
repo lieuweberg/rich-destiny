@@ -296,7 +296,8 @@ func startWebServer() {
 			fmt.Fprintf(res, "error: 500: %s", err)
 		}
 
-		fmt.Fprint(res, "Success! You are now logged in and may close this tab.")
+		res.Header().Set("Content-Type", "text/html")
+		fmt.Fprint(res, "Success! You are now logged in and may close this tab (and head to <a href=\"https://lieuweberg.com/rich-destiny\">the control panel</a>).")
 		browserOpened = false
 	})
 
