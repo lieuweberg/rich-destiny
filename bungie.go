@@ -134,8 +134,7 @@ func getStorage() (s *storageStruct, err error) {
 		var r string
 		err = db.QueryRow("SELECT value FROM data WHERE key='storage'").Scan(&r)
 		if err == sql.ErrNoRows {
-			openOauthTab()
-			err = nil
+			err = fmt.Errorf("no existing storage found, please go to https://lieuweberg.com/rich-destiny to log in")
 			return
 		} else if err != nil {
 			return
