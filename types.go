@@ -121,7 +121,7 @@ type currentActivityDefinition struct {
 	DP         globalDisplayProperties			`json:"displayProperties"`
 	// ActivityLevel             int64              	`json:"activityLevel"`
 	// ActivityLightLevel        int64              	`json:"activityLightLevel"`
-	// DestinationHash           int64              	`json:"destinationHash"`
+	DestinationHash           int64              	`json:"destinationHash"`
 	PlaceHash                 int64              	`json:"placeHash"`
 	ActivityTypeHash          int64              	`json:"activityTypeHash"`
 	// Tier                      int64              	`json:"tier"`

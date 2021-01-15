@@ -103,15 +103,15 @@ func updatePresence() {
 
 				// Flaw in bungie api, activity mode is the "undefined" hash and thus it can't find certain modes in the manifest.
 				switch {
-				case activityHash == 910380154:
+				case activity != nil && activity.DP.Name == "Deep Stone Crypt":
 					newActivity.Details = "Raid - Europa"
 					newActivity.State = "Deep Stone Crypt"
 					newActivity.LargeImage = "raid"
-				case activityHash == 1077850348:
+				case activity != nil && activity.DP.Name == "Prophecy":
 					newActivity.Details = "Dungeon - IX Realms"
 					newActivity.State = "Prophecy"
 					newActivity.LargeImage = "dungeon"
-				case activityHash == -1635244228:
+				case activity != nil && activity.DP.Name == "Garden of Salvation":
 					newActivity.Details = "Raid - Black Garden"
 					newActivity.State = "Garden of Salvation"
 					newActivity.LargeImage = "raid"
@@ -129,23 +129,27 @@ func updatePresence() {
 
 				// Here are any overrides due to strange API shenanigans.
 				// This first if part should not be long, and should be used for everything that should be changed all the time if it appears (e.g. the name of a destination).
-				if placeHash == 1729879943 {
+				if place.DP.Name == "Earth" {
+					if activity.DestinationHash == 2073151843 || activity.DestinationHash == 3990611421 {
+						place.DP.Name = "The Cosmodrome"
+					} else if activity.DestinationHash == 697502628 || activity.DestinationHash == 1199524104 {
+						place.DP.Name = "EDZ"
+					}
+				} else if place.DP.Name == "Castalia Macula, Europa" {
 					place.DP.Name = "Europa"
-				}
-				if placeHash == -547261341 {
-					place.DP.Name = "The Cosmodrome"
 				}
 
 				// This second part specifies more specific overrides.
 				switch {
-				case activityModeHash == -797199657:
+				case activityMode.DP.Name == "Explore":
 					// Remove double place
 					newActivity.Details = "Explore - " + place.DP.Name
 					if strings.Contains(strings.ToLower(activity.DP.Name), "mission") {
 						newActivity.State = activity.DP.Name
 					}
-				case activityModeHash == 1848252830:
+				case activityMode.DP.Name == "Gambit":
 					newActivity.Details = "Gambit"
+					newActivity.State = activity.DP.Name
 				// case activityHash == 707826522  || activityHash == 1454880421 || activityHash == -420675050:
 				// 	newActivity.Details = activity.DP.Name
 				// 	newActivity.LargeImage = "hauntedforest"
@@ -159,12 +163,12 @@ func updatePresence() {
 				// 		newActivity.Details = "The Menagerie"
 				// 	}
 				// 	newActivity.LargeImage = "menagerie"
-				case activityHash == 2032534090:
+				case activity.DP.Name == "The Shattered Throne":
 					// Story - The Dreaming City | The Shattered Throne
 					newActivity.Details = "Dungeon - The Dreaming City"
 					newActivity.State = "The Shattered Throne"
 					newActivity.LargeImage = "dungeon"
-				case activityModeHash == 2043403989 && placeHash == -1417085778:
+				case activityMode.DP.Name == "Raid" && place.DP.Name == "The Dreaming City":
 					// Remove Level: XX from the state
 					newActivity.Details = "Raid - The Dreaming City"
 					newActivity.State = "Last Wish"
@@ -178,7 +182,7 @@ func updatePresence() {
 					// } else {
 					newActivity.Details = activityMode.DP.Name
 					if err == nil {
-						newActivity.Details += fmt.Sprintf(" - %s", place.DP.Name)
+						newActivity.Details += " - " + place.DP.Name
 					}
 					newActivity.State = activity.DP.Name
 					// }
