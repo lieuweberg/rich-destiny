@@ -135,7 +135,7 @@ func updatePresence() {
 					} else if activity.DestinationHash == 697502628 || activity.DestinationHash == 1199524104 {
 						place.DP.Name = "EDZ"
 					}
-				} else if place.DP.Name == "Castalia Macula, Europa" {
+				} else if place.DP.Name == "Rathmore Chaos, Europa" {
 					place.DP.Name = "Europa"
 				}
 
