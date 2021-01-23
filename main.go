@@ -128,8 +128,8 @@ func (p *program) run() {
 	}
 
 	y, m, d := time.Now().Date()
-	h, min, s := time.Now().Clock()
-	logFile, err := os.Create(makePath(fmt.Sprintf("logs/%d-%d-%d %dh%dm%ds.log", y, m, d, h, min, s)))
+	h, min, sec := time.Now().Clock()
+	logFile, err := os.Create(makePath(fmt.Sprintf("logs/%d-%d-%d %dh%dm%ds.log", y, m, d, h, min, sec)))
 	if err != nil {
 		log.Printf("Couldn't create log file: %s", err)
 	} else {
@@ -159,10 +159,6 @@ func (p *program) run() {
 	}
 
 	go startWebServer()
-	// The following section returns on most errors, so defer this function (long manifest downloads can cause issues for initPresence, too)
-	defer func() {
-		initPresence()
-	}()
 
 	// Wait for a decent computer to have booted, no internet connection means trouble
 	// TODO: Way better way of handling internet connection status; this is pretty terrible
@@ -184,6 +180,24 @@ func (p *program) run() {
 		}
 	}
 
+	var manifestExists bool
+	// The following section returns on most errors, so defer this function (long manifest downloads can cause issues for initPresence, too)
+	defer func() {
+		if manifestExists {
+			manifest, err = sql.Open("sqlite3", makePath("manifest.db"))
+			if err != nil {
+				log.Printf("Error opening manifest.db. This program will now exit since without a manifest, it can't do anything: %s", err)
+				s.Stop()
+				return
+			}
+		} else {
+			log.Printf("No manifest exists and could not download new one. See errors above. This program will now exit since without a manifest, it can't do anything.")
+			s.Stop()
+			return
+		}
+		
+		initPresence()
+	}()
 
 	// Check if a new manifest has to be downloaded, if so do that, then open the db
 	manifestRes, err := getManifestData()
@@ -192,11 +206,18 @@ func (p *program) run() {
 	}
 
 	var lastManifestURL string
-	db.QueryRow("SELECT value FROM data WHERE key='lastManifestURL'").Scan(&lastManifestURL)
+	err = db.QueryRow("SELECT value FROM data WHERE key='lastManifestURL'").Scan(&lastManifestURL)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.Printf("Error querying database for lastManifestURL. Obtaining new manifest: %s", err)
+		}
+	}
+
 	if _, err := os.Stat(makePath("manifest.db")); os.IsNotExist(err) || manifestRes.Response.MobileWorldContentPaths.En != lastManifestURL {
 		if os.IsNotExist(err) {
 			log.Print("Manifest doesn't exist, downloading one...")
 		} else {
+			manifestExists = true
 			log.Print("Manifest is outdated, downloading a new one...")
 		}
 
@@ -247,6 +268,7 @@ func (p *program) run() {
 			return
 		}
 		log.Print("Manifest downloaded and unzipped!")
+		manifestExists = true
 
 		err = os.Remove(makePath("manifest.zip"))
 		if err != nil {
@@ -260,12 +282,8 @@ func (p *program) run() {
 			log.Printf("Error setting lastManifestURL to storage.db: %s", err)
 			return
 		}
-	}
-
-	manifest, err = sql.Open("sqlite3", makePath("manifest.db"))
-	if err != nil {
-		log.Printf("Error opening manifest.db: %s", err)
-		return
+	} else {
+		manifestExists = true
 	}
 }
 
