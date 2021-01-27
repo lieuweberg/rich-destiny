@@ -172,6 +172,11 @@ func updatePresence() {
 					// Remove Level: XX from the state
 					newActivity.Details = "Raid - The Dreaming City"
 					newActivity.State = "Last Wish"
+				case activity.ActivityTypeHash == 332181804:
+					// Story - The Moon | Nightmare Hunt: ...: ...
+					newActivity.Details = "Nightmare Hunt - " + place.DP.Name
+					newActivity.State = strings.Replace(activity.DP.Name, "Nightmare Hunt: ", "", 1)
+					newActivity.LargeImage = "nightmarehunt"
 				default:
 					// This third part specifies overrides that do not use simple conditions and can't fit in a case statement
 					// if forge, ok := forgeHashMap[activityHash]; ok {
