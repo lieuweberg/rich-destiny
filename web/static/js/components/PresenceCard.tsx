@@ -22,10 +22,10 @@ export default function({largeImage, description, time, state, smallImage}: Pres
         </div>
         <div className="presence">
             <div className="images">
-                <img className="large-image" draggable="false" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
-                    + imageMapIdMap[largeImage] + ".png"}/>
-                <img className="small-image" draggable="false" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
-                    + imageMapIdMap[smallImage] + ".png"}/>
+                <img className="large-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
+                    + imageMapIdMap[largeImage] + ".png"} draggable="false" alt=""/>
+                <img className="small-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
+                    + imageMapIdMap[smallImage] + ".png"} draggable="false" alt=""/>
             </div>
             <div className="text">
                 <p className="game">Destiny 2</p>

@@ -66,7 +66,7 @@ export default function() {
                 </div>
             </div>
             <div className="card">
-                <img src="https:\/\/f.lieuweberg.com\/HHKjbd.png" alt="screenshot showing tooltip"/>
+                <img src="https://f.lieuweberg.com/HHKjbd.png" alt="screenshot showing tooltip"/>
                 <div>
                     <h3>Class & power</h3>
                  <p>Displays current class and power level as a tooltip on the class icon.</p>
