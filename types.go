@@ -21,6 +21,7 @@ type storageStruct struct {
 	// Custom settings
 	OrbitText       string  `json:"orbitText"`
 	AutoUpdate      bool    `json:"autoUpdate"`
+	JoinGameCode    string  `json:"joinGameCode"`
 }
 
 type currentProgramStatus struct {
@@ -29,6 +30,7 @@ type currentProgramStatus struct {
 	Version    	    string `json:"version"`
 	Name            string `json:"name"`
 	OrbitText       string `json:"orbitText"`
+	JoinGameCode    string `json:"joinGameCode"`
 	AutoUpdate      bool   `json:"autoUpdate"`
 
 	Presence    richgo.Activity `json:"presence"`

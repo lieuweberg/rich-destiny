@@ -340,6 +340,7 @@ func startWebServer() {
 				Status: "Not logged in",
 				Presence: previousActivity,
 				OrbitText: storage.OrbitText,
+				JoinGameCode: storage.JoinGameCode,
 				AutoUpdate: storage.AutoUpdate,
 			}
 

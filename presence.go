@@ -222,10 +222,12 @@ func getHashFromTable(table string, hash int64, v interface{}) (newHash int32, e
 	return
 }
 
-// setActivity sets the rich presence status. If there is no specific st (start time), pass an empty string.
+// setActivity sets the rich presence status.
 func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int32) {
-	if previousActivity.Details != newActivity.Details || previousActivity.State != newActivity.State || previousActivity.SmallText != newActivity.SmallText {
-		previousActivity = newActivity
+	if (previousActivity.Details != newActivity.Details ||
+		previousActivity.State != newActivity.State ||
+		previousActivity.SmallText != newActivity.SmallText ||
+		len(previousActivity.Buttons) != len(storage.JoinGameCode)) {
 
 		if st.IsZero() {
 			st = time.Now()
@@ -249,6 +251,16 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 			}
 		}
 
+		if storage.JoinGameCode != "" {
+			newActivity.Buttons = []*richgo.Button{
+				{
+					Label: "Join Game",
+					Url: fmt.Sprintf("steam://rungame/1085660/%s", storage.JoinGameCode),
+				},
+			}
+		}
+		
+		previousActivity = newActivity
 		err := richgo.SetActivity(newActivity)
 		if err != nil {
 			log.Print("Error setting activity: " + err.Error())
