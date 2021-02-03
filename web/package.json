@@ -6,6 +6,7 @@
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
     "react-toastify": "^7.0.2",
+    "react-tooltip": "^4.2.13",
     "semver": "^7.3.4"
   },
   "devDependencies": {
