@@ -334,23 +334,24 @@ func startWebServer() {
 			return
 		
 		case "current":
-			returnData := currentProgramStatus{
+			d := currentProgramStatus{
 				Version: version,
 				Debug: "NA",
 				Status: "Not logged in",
+				Presence: previousActivity,
+				OrbitText: storage.OrbitText,
+				AutoUpdate: storage.AutoUpdate,
 			}
 
 			if storage == nil {
-				returnStructAsJSON(res, returnData)
+				returnStructAsJSON(res, d)
 				return
 			}
-
-			returnData.Name = storage.DisplayName
-			returnData.OrbitText = storage.OrbitText
-			returnData.AutoUpdate = storage.AutoUpdate
+			d.Name = storage.DisplayName
+			
 			if previousActivity.Details == "" {
-				returnData.Status = "Not playing Destiny 2"
-				returnStructAsJSON(res, returnData)
+				d.Status = "Not playing Destiny 2"
+				returnStructAsJSON(res, d)
 				return
 			}
 
@@ -361,9 +362,9 @@ func startWebServer() {
 			if previousActivity.SmallText != "" {
 				status += fmt.Sprintf(" | %s", previousActivity.SmallText)
 			}
-			returnData.Status = status
-			returnData.Debug = debugText
-			returnStructAsJSON(res, returnData)
+			d.Status = status
+			d.Debug = debugText
+			returnStructAsJSON(res, d)
 		case "save":
 			if req.Method != http.MethodPost {
 				return
@@ -396,7 +397,7 @@ func startWebServer() {
 				res.WriteHeader(http.StatusInternalServerError)
 				fmt.Fprint(res, err)
 			} else {
-				fmt.Fprintf(res, "Update installed successfully; will be applied next startup (or restart from the Services program). New version: %s", newVersion)
+				fmt.Fprintf(res, "Update installed successfully; will be applied next startup (or restart rich-destiny from the Services manager). New version: %s", newVersion)
 			}
 		// case "restart":
 		// 	err := s.Restart()
@@ -427,7 +428,7 @@ func makePath(e string) string {
 
 func enableCors(res *http.ResponseWriter, req *http.Request) {
 	origin := req.Header.Get("Origin")
-	allowedOrigins := [...]string{"http://localhost:5500", "https://lieuweberg.com"}
+	allowedOrigins := [...]string{"https://lieuweberg.com", "http://localhost:5500", "http://localhost:1234"}
 	for _, o := range allowedOrigins {
 		if o == origin {
 			(*res).Header().Set("Access-Control-Allow-Origin", origin)
