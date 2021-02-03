@@ -11,3 +11,8 @@ out/
 
 versioninfo.json
 *.syso
+
+# web
+node_modules
+.cache
+dist
