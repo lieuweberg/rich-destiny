@@ -13,7 +13,7 @@ import Download from "./Download";
 import ControlPanel from "./ControlPanel";
 
 function Root() {
-    return <BrowserRouter>
+    return <BrowserRouter basename="/rich-destiny">
         <ToastContainer autoClose={10000}/>
 
         <div id="nav">
