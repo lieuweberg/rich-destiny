@@ -1,0 +1,66 @@
+@import "./mixins.scss";
+
+#cp {
+    display: grid;
+    grid-template: 1fr 1fr / 1fr 1fr;
+    @include isMobile() {
+        grid-template: none;
+        grid-auto-flow: row;
+    }
+    row-gap: 20px;
+
+    :nth-child(even) {
+        justify-self: right;
+    }
+}
+
+h1 {
+    margin-top: 0;
+}
+
+label {
+    display: inline-block;
+    line-height: 1.5em;
+}
+
+input {
+    &[type=text] {
+        padding: 5px;
+        background-color: #545454;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        outline: none;
+    }
+
+    &[type=submit] {
+        font-size: 1em;
+    }
+}
+
+.button {
+    display: inline-block;
+    margin: 20px 7px 0;
+    padding: 10px 0;
+    width: 180px;
+
+    border-radius: 5px;
+    outline: none;
+    color: white;
+    background-color: #6c82cf;
+    box-shadow: -7px 7px #050505;
+    
+    text-align: center;
+    line-height: 1rem;
+    text-decoration: none;
+
+    &:active {
+        outline: none;
+        box-shadow: -3px 3px #050505;
+        transform: translate(-4px, 4px);
+    }
+}
+
+.__react_component_tooltip {
+    max-width: 150px;
+}

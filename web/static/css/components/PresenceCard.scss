@@ -1,0 +1,61 @@
+.presence-wrapper {
+    width: 250px - 32px;
+    height: 128px - 32px;
+
+    background-color: #6c82cf;
+    border-radius: 8px;
+    padding: 16px;
+    
+    p {
+        display: block;
+        margin: 0;
+        text-align: left;
+        font-family: "Whitney";
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .type {
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 12px;
+    }
+
+    .presence {
+        display: flex;
+    }
+    .game {
+        font-weight: 600;
+    }
+    .text {
+        overflow: hidden;
+        margin-left: 10px;
+        line-height: 18px;
+        font-size: 14px;
+    }
+
+    .images {
+        position: relative;
+        align-self: center;
+        width: 60px;
+        height: 60px;
+        user-select: none;
+    }
+    .large-image {
+        width: 60px;
+        border-radius: 8px;
+    }
+    .small-image {
+        position: absolute;
+        bottom: -4px;
+        right: -4px;
+        width: 20px;
+
+        border-radius: 50%;
+        border: 2px solid #6c82cf;
+    }
+}

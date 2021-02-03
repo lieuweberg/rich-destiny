@@ -1,0 +1,186 @@
+@font-face {
+    font-family: "Whitney";
+    font-weight: 400;
+    src: url("../fonts/whitney-400.woff");
+}
+@font-face {
+    font-family: "Whitney";
+    font-weight: 600;
+    src: url("../fonts/whitney-600.woff");
+}
+@font-face {
+    font-family: "Whitney";
+    font-weight: 700;
+    src: url("../fonts/whitney-700.woff");
+}
+
+@import "mixins.scss";
+
+body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: #1e1e1e;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #333333;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #555555;
+
+    &:hover {
+        background-color: #5e5e5e;
+    }
+}
+
+#root {
+    min-height: 100%;
+    position: relative;
+}
+
+#view {
+    padding-bottom: 80px;
+}
+
+.Toastify__progress-bar--dark {
+    background-color: #6c82cf !important;
+}
+
+#nav {
+    margin: 0 auto 60px;
+    padding-top: 40px;
+    max-width: 800px;
+
+    font: 500 15px sans-serif;
+    line-height: 40px;
+    border-bottom: 1px dashed #454545;
+
+    a {
+        text-decoration: none;
+        color: white;
+        transition: all .5s ease;
+
+        &:hover {
+            color: #ddd;
+        }
+    }
+
+    label, input {
+        display: none;
+    }
+}
+
+@include isMobile() {
+    #nav label {
+        display: block;
+        margin: 0px 20px;
+        text-align: right;
+        font-size: 20px;
+        color: white;
+    }   
+
+    #nav-items li {
+        display: block;
+    }
+
+    #nav-items {
+        display: none;
+    }
+    #nav input:checked ~ #nav-items {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+#nav-logo {
+    margin-right: 20px;
+    display: flex;
+    float: left;
+    font-size: 20px;
+}
+
+#nav-items {
+    margin: 0;
+    padding: 0;
+    
+    list-style: none;
+}
+
+.nav-item {
+    display: inline;
+    margin: 0px 20px;
+}
+
+#footer {
+    display: flex;
+    align-items: center;
+    padding: 0 15%;
+    width: 70%;
+    height: 80px;
+    @include isMobile() {
+        padding: 10px;
+        width: calc(100% - 20px);
+    }
+
+    position: absolute;
+    bottom: 0;
+
+    background-color: #2a2a2a;
+    line-height: 10px;
+
+    div {
+        flex-grow: 1;
+        &:last-child {
+            text-align: right;
+            :last-child {
+                margin-left: 30px;
+            }
+        }
+    }
+}
+
+// Global stuff, not directly related to the root of the site.
+
+p, h1, h2, h3, h4, a, li, label, input[type=submit], .__react_component_tooltip {
+    color: white;
+    font-family: 'Segoe UI', Geneva, Verdana, sans-serif;
+    word-wrap: normal;
+}
+
+code {
+    color: #ff6d6d;
+    .Toastify & {
+        color: #d8d8d8;
+    }
+}
+
+a:not(#nav a, .button) {
+    padding-bottom: 1px;
+    text-decoration: none;
+    border-bottom: 2px dashed #aeaeae;
+
+    &:hover {
+        border-color: #d8d8d8;
+    }
+}
+
+.generic-text {
+    margin: 0 auto;
+    &:not(.no-padding) {
+        padding: 45px 20px 60px;
+    }
+    &.top-text {
+        padding: 0 20px 60px;
+    }
+    width: min(calc(100% - 40px), 1000px);
+}
+
+.float-right {
+    float: right;
+}

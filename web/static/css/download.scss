@@ -1,0 +1,13 @@
+#release-link {
+    font-size: 1.5em;
+}
+
+li {
+    ol & {
+        padding-left: 20px;
+        list-style-type: lower-roman;
+    }
+    &::marker {
+        color: #bdbdbd;
+    }
+}
