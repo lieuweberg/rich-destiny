@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build": "parcel build --public-url . index.html"
+  },
   "dependencies": {
     "axios": "^0.21.1",
     "marked": "^1.2.8",
