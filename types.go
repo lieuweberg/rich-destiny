@@ -123,7 +123,7 @@ type clDefDatum struct {
 }
 
 // Manifest: DestinyActivityDefinition
-type currentActivityDefinition struct {
+type activityDefinition struct {
 	DP                          globalDisplayProperties			`json:"displayProperties"`
 	// ActivityLevel             int64              	`json:"activityLevel"`
 	// ActivityLightLevel        int64              	`json:"activityLightLevel"`

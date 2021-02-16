@@ -93,53 +93,49 @@ func updatePresence() {
 			}
 
 			var (
-				activity *currentActivityDefinition
+				activity *activityDefinition
+				place *placeDefinition
 				activityMode *currentActivityModeDefinition
 			)
 			activityHash, err := getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &activity)
+			placeHash, err := getHashFromTable("DestinyPlaceDefinition", activity.PlaceHash, &place)
 			activityModeHash, err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &activityMode)
+
+			if place != nil {
+				transformPlace(place, activity)
+			}
+
 			if err != nil { // Error indicates orbit. ~~Seems to have been working reliably.~~
 				debugText = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
 
-				// Flaw in bungie api, activity mode is the "undefined" hash and thus it can't find certain modes in the manifest.
-				switch {
-				case activity != nil && activity.DP.Name == "Deep Stone Crypt":
-					newActivity.Details = "Raid - Europa"
-					newActivity.State = "Deep Stone Crypt"
-					newActivity.LargeImage = "raid"
-				case activity != nil && activity.DP.Name == "Prophecy":
-					newActivity.Details = "Dungeon - IX Realms"
-					newActivity.State = "Prophecy"
-					newActivity.LargeImage = "dungeon"
-				case activity != nil && activity.DP.Name == "Garden of Salvation":
-					newActivity.Details = "Raid - Black Garden"
-					newActivity.State = "Garden of Salvation"
-					newActivity.LargeImage = "raid"
-				default:
-					newActivity.Details = "In orbit"
+				if activity != nil {
+					switch {
+					case activity.DP.Name == "Deep Stone Crypt":
+						newActivity.Details = "Raid - Europa"
+						newActivity.State = "Deep Stone Crypt"
+						newActivity.LargeImage = "raid"
+					case activity.DP.Name == "Prophecy":
+						newActivity.Details = "Dungeon - IX Realms"
+						newActivity.State = "Prophecy"
+						newActivity.LargeImage = "dungeon"
+					case activity.DP.Name == "Garden of Salvation":
+						newActivity.Details = "Raid - Black Garden"
+						newActivity.State = "Garden of Salvation"
+						newActivity.LargeImage = "raid"
+					default:
+						newActivity.Details = "In orbit"
+						newActivity.LargeImage = "destinylogo"
+						if storage.OrbitText != "" {
+							newActivity.State = storage.OrbitText
+						}
+					}
+				} else {
+					newActivity.Details = "???"
 					newActivity.LargeImage = "destinylogo"
-					if storage.OrbitText != "" {
-						newActivity.State = storage.OrbitText
-					}
 				}
-				
+
 			} else {
-				var place *placeDefinition
-				placeHash, err := getHashFromTable("DestinyPlaceDefinition", activity.PlaceHash, &place)
-
-				// Here are any overrides due to strange API shenanigans.
-				// This first if part should not be long, and should be used for everything that should be changed all the time if it appears (e.g. the name of a destination).
-				if place.DP.Name == "Earth" {
-					if activity.DestinationHash == 2073151843 || activity.DestinationHash == 3990611421 {
-						place.DP.Name = "The Cosmodrome"
-					} else if activity.DestinationHash == 697502628 || activity.DestinationHash == 1199524104 {
-						place.DP.Name = "EDZ"
-					}
-				} else if place.DP.Name == "Rathmore Chaos, Europa" {
-					place.DP.Name = "Europa"
-				}
-
-				// This second part specifies more specific overrides.
+				// This part specifies more specific overrides.
 				switch {
 				case activity.DP.Name == "H.E.L.M.":
 					// Explore - EDZ
@@ -183,7 +179,7 @@ func updatePresence() {
 					newActivity.State = strings.Replace(activity.DP.Name, "Nightmare Hunt: ", "", 1)
 					newActivity.LargeImage = "nightmarehunt"
 				default:
-					// This third part specifies overrides that do not use simple conditions and can't fit in a case statement
+					// This part specifies overrides that do not use simple conditions and can't fit in a case statement. Switch/case is prettier than a giant if/else imo
 					// if forge, ok := forgeHashMap[activityHash]; ok {
 					// 	// Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - PLACE | FORGENAME Forge'
 					// 	newActivity.Details = fmt.Sprintf("%s - %s", activity.DP.Name, place.DP.Name)
@@ -227,8 +223,21 @@ func getHashFromTable(table string, hash int64, v interface{}) (newHash int32, e
 	return
 }
 
+func transformPlace(place *placeDefinition, activity *activityDefinition) {
+	if place.DP.Name == "Earth" {
+		if activity.DestinationHash == 2073151843 || activity.DestinationHash == 3990611421 {
+			place.DP.Name = "The Cosmodrome"
+		} else if activity.DestinationHash == 697502628 || activity.DestinationHash == 1199524104 {
+			place.DP.Name = "EDZ"
+		}
+	} else if place.DP.Name == "Rathmore Chaos, Europa" {
+		place.DP.Name = "Europa"
+	}
+}
+
 // setActivity sets the rich presence status.
 func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int32) {
+	// Condition that decides whether to update the presence or not
 	if (previousActivity.Details != newActivity.Details ||
 		previousActivity.State != newActivity.State ||
 		previousActivity.SmallText != newActivity.SmallText ||
