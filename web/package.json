@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel build --public-url . index.html"
+    "build": "rm -rf ./dist && parcel build --public-url . index.html"
   },
   "dependencies": {
     "axios": "^0.21.1",
