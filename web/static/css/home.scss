@@ -99,8 +99,7 @@
         @include isMobile() {
             width: 300px;
         }
-        background-color: #191919;
-        border-radius: 10px;
+        // background-color: #191919;
         overflow: hidden;
 
         div:not(.image) {
@@ -109,12 +108,24 @@
     }
 
     .image {
+        border-radius: 10px;
         background-color: #6c82cf;
+        overflow: hidden;
+
+        img {
+            display: block;
+            margin: 0 auto;
+            height: 150px;
+        }
     }
 
-    img {
-        display: block;
-        margin: 0 auto;
-        height: 150px;
+    hr {
+        margin: 1em 0.5em;
+        border: 1px solid #404040;
+        
+    }
+
+    h3 {
+        margin: 1rem 0;
     }
 }

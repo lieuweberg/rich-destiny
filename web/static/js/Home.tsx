@@ -60,13 +60,17 @@ export default function() {
                 <div className="image">
                     <img src="https://icongr.am/entypo/cog.svg?size=300&color=ffffff" alt="screenshot showing tooltip"/>
                 </div>
+                <hr/>
                 <div>
                     <h3>Background process</h3>
                  <p>Fully runs in the background and needs no further maintenance. Auto updates by default.</p>
                 </div>
             </div>
             <div className="card">
-                <img src="https://f.lieuweberg.com/HHKjbd.png" alt="screenshot showing tooltip"/>
+                <div className="image">
+                    <img src="https://f.lieuweberg.com/HHKjbd.png" alt="screenshot showing tooltip"/>
+                </div>
+                <hr/>
                 <div>
                     <h3>Class & power</h3>
                  <p>Displays current class and power level as a tooltip on the class icon.</p>
@@ -76,6 +80,7 @@ export default function() {
                 <div className="image">
                     <img src="https://icongr.am/entypo/drive.svg?size=300&color=ffffff" alt="screenshot showing tooltip"/>
                 </div>
+                <hr/>
                 <div>
                     <h3>Small footprint</h3>
                  <p>Around 23MiB in size and uses close to no CPU and 4-7MB of memory. GUI is this website.</p>

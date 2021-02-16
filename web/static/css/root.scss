@@ -67,7 +67,7 @@ body {
     a {
         text-decoration: none;
         color: white;
-        transition: all .5s ease;
+        transition: color .5s ease;
 
         &:hover {
             color: #ddd;
@@ -76,28 +76,6 @@ body {
 
     label, input {
         display: none;
-    }
-}
-
-@include isMobile() {
-    #nav label {
-        display: block;
-        margin: 0px 20px;
-        text-align: right;
-        font-size: 20px;
-        color: white;
-    }   
-
-    #nav-items li {
-        display: block;
-    }
-
-    #nav-items {
-        display: none;
-    }
-    #nav input:checked ~ #nav-items {
-        display: flex;
-        flex-direction: column;
     }
 }
 
@@ -120,6 +98,33 @@ body {
     margin: 0px 20px;
 }
 
+@include isMobile() {
+    #nav-logo {
+        position: absolute;
+    }
+
+    #nav label {
+        display: block;
+        margin: 0px 20px;
+        text-align: right;
+        font-size: 20px;
+        color: white;
+    }   
+
+    #nav-items li {
+        display: block;
+    }
+
+    #nav-items {
+        display: none;
+        margin-top: 10px;
+    }
+    #nav input:checked ~ #nav-items {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
 #footer {
     display: flex;
     align-items: center;
@@ -135,7 +140,6 @@ body {
     bottom: 0;
 
     background-color: #2a2a2a;
-    line-height: 10px;
 
     div {
         flex-grow: 1;
@@ -186,4 +190,27 @@ a:not(#nav a, .button) {
 
 .float-right {
     float: right;
+}
+
+.button {
+    display: inline-block;
+    margin: 20px 7px 0;
+    padding: 10px 0;
+    width: 180px;
+
+    border-radius: 5px;
+    outline: none;
+    color: white;
+    background-color: #6c82cf;
+    box-shadow: -7px 7px #050505;
+    
+    text-align: center;
+    line-height: 1rem;
+    text-decoration: none;
+
+    &:active {
+        outline: none;
+        box-shadow: -3px 3px #050505;
+        transform: translate(-4px, 4px);
+    }
 }

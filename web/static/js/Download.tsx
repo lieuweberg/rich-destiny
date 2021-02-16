@@ -71,41 +71,42 @@ export default function() {
     return <>
         <div className="generic-text top-text">
             <h1>Download</h1>
-            <p>You can download the latest (non-pre) release here. Source code (in case
-            you want to view that) can be found in the <a href="https://github.com/lieuweberg/rich-destiny"
-            target="_blank" rel="noopener noreferrer">GitHub</a> repo alongside old releases. Note
-            that old releases don't do anything special, please download the most recent release.
-            Clicking the download button here downloads the same file as GitHub releases provides.</p>
+            <p>You can download the latestrelease here. Source code (in case to view that) can be
+            found in the <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
+            rel="noopener noreferrer">GitHub</a> repo alongside old releases. Note that old releases
+            don't do anything special, please download the most recent release. Clicking the download
+            button here downloads the same file as GitHub releases provides.</p>
             <p>Installation instructions can be found below, in case they are needed. It is recommended
             to fully read these prior to installation.</p></div>
             <div className="generic-text no-padding">
 
-            <a id="release-link" href={url} rel="noopener noreferrer">Download {version}</a>
+            <a id="release-link" className="button" href={url} rel="noopener noreferrer">Download {version}</a>
             <p>Size: {size}MiB <br/>
             {/* Downloads: {downloads}</p> */}</p>
-            <div dangerouslySetInnerHTML= {{ __html: marked(latest ? latest.body : "") }} />
+            <div id="release-info" dangerouslySetInnerHTML= {{ __html: marked(latest ? latest.body : "") }} />
         </div>
         <div className="generic-text">
             <h1>Installation</h1>
             <ol id="install-steps">
                 <li>
-                    <p>First download rich-destiny by clicking the big 'Download {version}' button above.
-                    Download the file to where you want the program to reside. It will create additional
-                    files in its folder. Recommended location: <code>C:\Users\YOURNAME\rich-destiny</code></p>
+                    <p>Download rich-destiny by clicking the 'Download {version}' button above. The program
+                    will create a few files relative to where it is. It's recommended to <b>download to a
+                    dedicated folder</b> (recommended: <code>C:\Users\YOURNAME\rich-destiny</code>).</p>
                 </li>
                 <li>
                     <p>Double click <code>rich-destiny.exe</code>. Windows Defender will pop up saying
-                    that the file is from an unknown source and can't be trusted<sup>[1]</sup>.
-                    Click 'More info' and then 'Run anyway'.</p>
+                    that the file is from an unknown source and can't be trusted<sup>[1]</sup>. <b>Click
+                    'More info' and then 'Run anyway'.</b></p>
                 </li>
                 <li>
-                    <p>Now another window will pop up asking for administrator permissions. This is so
-                    rich-destiny can install itself into the service manager, allowing it to run in
-                    the background. Click 'Yes'.</p>
+                    <p>Another window will pop up asking for administrator permissions. <b>Click 'Yes'
+                    </b>. This is so rich-destiny can install itself into the service manager, allowing
+                    it to run in the background.</p>
                 </li>
                 <li>
-                    <p>Since there is no GUI, a command window will pop up. Take your time to read what
-                    it says. A browser tab will shortly pop up to log in with Bungie.net.</p>
+                    <p>Since there is no user interface built-in, a command window will pop up. Take
+                    your time to read what it says. A browser tab will shortly open to log in with
+                    Bungie.net.</p>
                     <p>That's it. You're done. Head to the <Link to="/cp">control panel</Link> to
                     configure rich-destiny! Enjoy :) If you have any questions, feel free to ask in
                     the <a href="https://discord.gg/UNU4UXp" target="_blank"
