@@ -141,6 +141,11 @@ func updatePresence() {
 
 				// This second part specifies more specific overrides.
 				switch {
+				case activity.DP.Name == "H.E.L.M.":
+					// Explore - EDZ
+					newActivity.Details = "Social - Earth"
+					newActivity.State = "H.E.L.M."
+					newActivity.LargeImage = "socialall"
 				case activityMode.DP.Name == "Explore":
 					// Remove double place
 					newActivity.Details = "Explore - " + place.DP.Name
