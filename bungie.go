@@ -134,7 +134,7 @@ func getStorage() (s *storageStruct, err error) {
 		var r string
 		err = db.QueryRow("SELECT value FROM data WHERE key='storage'").Scan(&r)
 		if err == sql.ErrNoRows {
-			err = fmt.Errorf("no existing storage found, please go to https://lieuweberg.com/rich-destiny to log in")
+			err = fmt.Errorf("no existing storage found, please go to https://lieuweberg.com/rich-destiny/cp to log in (click Reauthenticate)")
 			return
 		} else if err != nil {
 			return
@@ -145,7 +145,7 @@ func getStorage() (s *storageStruct, err error) {
 		}
 		s, err = getStorage()
 	} else if time.Now().Unix() >= storage.ReAuthAt {
-		log.Print("Your authentication details have expired. Please go to https://lieuweberg.com/rich-destiny to log in again.")
+		log.Print("Your authentication details have expired. Please go to https://lieuweberg.com/rich-destiny/cp to Reauthenticate again.")
 		openOauthTab()
 		return
 	} else if time.Now().Unix() >= storage.RefreshAt {
