@@ -97,9 +97,9 @@ func updatePresence() {
 				place *placeDefinition
 				activityMode *currentActivityModeDefinition
 			)
-			activityHash, err := getHashFromTable("DestinyActivityDefinition", d.CurrentActivityHash, &activity)
-			placeHash, err := getHashFromTable("DestinyPlaceDefinition", activity.PlaceHash, &place)
-			activityModeHash, err = getHashFromTable("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &activityMode)
+			activityHash, err := getFromTableByHash("DestinyActivityDefinition", d.CurrentActivityHash, &activity)
+			placeHash, err := getFromTableByHash("DestinyPlaceDefinition", activity.PlaceHash, &place)
+			activityModeHash, err = getFromTableByHash("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &activityMode)
 
 			if place != nil {
 				transformPlace(place, activity)
@@ -215,7 +215,8 @@ func updatePresence() {
 	}
 }
 
-func getHashFromTable(table string, hash int64, v interface{}) (newHash int32, err error) {
+// getFromTableByHash retrieves an object from the database by hash.
+func getFromTableByHash(table string, hash int64, v interface{}) (newHash int32, err error) {
 	u := uint32(hash)
 	newHash = int32(u)
 	var d string
@@ -227,6 +228,7 @@ func getHashFromTable(table string, hash int64, v interface{}) (newHash int32, e
 	return
 }
 
+// transformPlace changes some funny or vague place names to where you actually are.
 func transformPlace(place *placeDefinition, activity *activityDefinition) {
 	if place.DP.Name == "Earth" {
 		if activity.DestinationHash == 2073151843 || activity.DestinationHash == 3990611421 {
