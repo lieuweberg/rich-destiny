@@ -221,7 +221,7 @@ func (p *program) run() {
 			log.Print("Manifest is outdated, downloading a new one...")
 		}
 
-		res, err := http.Get("https://bungie.net" + manifestRes.Response.MobileWorldContentPaths.En)
+		res, err := http.Get("https://www.bungie.net" + manifestRes.Response.MobileWorldContentPaths.En)
 		if err != nil {
 			log.Printf("Error getting manifest database: %s", err)
 			return

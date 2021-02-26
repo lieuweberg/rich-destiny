@@ -56,7 +56,7 @@ func initPresence() {
 
 func updatePresence() {
 	var ca *characterActivitiesDefinition
-	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s?components=204,200", storage.MSType, storage.ActualMSID), &ca)
+	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/?components=204,200", storage.MSType, storage.ActualMSID), &ca)
 	if err != nil || ca.ErrorStatus != "Success" {
 		if err == nil {
 			log.Print(ca.ErrorStatus, ca.Message)

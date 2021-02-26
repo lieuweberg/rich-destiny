@@ -182,7 +182,7 @@ func getManifestData() (d manifestData, err error) {
 	return
 }
 
-// requestComponents is a helper function to request an endpoint/componenent from the bungie api.
+// requestComponents is a helper function to request an endpoint/component from the bungie api.
 // You MUST make sure that auth is populated.
 // url MUST start with a '/'!
 func requestComponents(url string, responseStruct interface{}) (err error) {
@@ -198,13 +198,13 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 		}
 	}
 
-	url = "https://bungie.net/Platform" + url
+	url = "https://www.bungie.net/Platform" + url
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return
 	}
-	req.Header.Add("X-API-Key", config.APIKey)
-	req.Header.Add("Authorization", "Bearer " + storage.AccessToken)
+	req.Header.Set("X-API-Key", config.APIKey)
+	req.Header.Set("Authorization", "Bearer " + storage.AccessToken)
 
 	res, err := bungieHTTPClient.Do(req)
 	if err != nil {
