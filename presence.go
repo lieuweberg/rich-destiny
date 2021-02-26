@@ -247,7 +247,8 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 	if (previousActivity.Details != newActivity.Details ||
 		previousActivity.State != newActivity.State ||
 		previousActivity.SmallText != newActivity.SmallText ||
-		len(previousActivity.Buttons) != len(storage.JoinGameCode)) {
+		// 0 or 1 != 1 or 0. In the latter, 0 occurs when JoinGameCode is an empty string, and 1 when JoinGameCode is set.
+		len(previousActivity.Buttons) != min(1, len(storage.JoinGameCode)) ) {
 
 		if st.IsZero() {
 			st = time.Now()
@@ -287,4 +288,12 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 		}
 		log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newActivity.SmallText)
 	}
+}
+
+// min computes the smaller of two ints
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
 }
