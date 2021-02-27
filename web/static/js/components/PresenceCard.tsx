@@ -7,15 +7,48 @@ export type PresenceCardProps = {
     state?:         string
     largeImage:     string
     smallImage?:    string
-    time:           string
+    initialTime?:   string
 }
 
-export default function({largeImage, description, time, state, smallImage}: PresenceCardProps) {
+export default function({largeImage, description, initialTime, state, smallImage}: PresenceCardProps) {
+    const [timeMs, setTime] = React.useState(0)
+    let time = new Date(timeMs);
+    React.useEffect(() => {
+        if (initialTime && initialTime.includes("T")) {
+            let elapsed = Date.now() - (new Date(initialTime)).getTime();
+            setTime(elapsed);
+            time = new Date(elapsed);
+        } else {
+            if (!initialTime) {
+                initialTime = "12:34"
+            }
+            let times = initialTime.split(":");
+            time.setSeconds(parseInt(times.pop()));
+            time.setMinutes(parseInt(times.pop()));
+            if (times.length == 1) {
+                time.setHours(parseInt(times[0]));
+            }
+            setTime(time.getTime());
+        }
+
+        let interval = setInterval(() => {
+            time.setSeconds(time.getUTCSeconds() + 1);
+            setTime(time.getTime());
+        }, 1000)
+        return () => clearInterval(interval);
+    }, [initialTime])
+
+    let t = fmtTime(time.getUTCMinutes()) + ":" + fmtTime(time.getUTCSeconds());
+    if (time.getUTCHours() != 0) {
+        t = fmtTime(time.getUTCHours()) + ":" + t;
+    }
+
     if (!smallImage) {
         [smallImage] = React.useState(
             ["hunter", "warlock", "titan"][Math.floor(Math.random() * 3)]
         );
     }
+
     return <div className="presence-wrapper">
         <div className="type">
             <p>playing a game</p>
@@ -23,22 +56,27 @@ export default function({largeImage, description, time, state, smallImage}: Pres
         <div className="presence">
             <div className="images">
                 <img className="large-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
-                    + imageMapIdMap[largeImage] + ".png"} draggable="false" alt=""/>
+                    + imageIdMap[largeImage] + ".png"} draggable="false" alt=""/>
                 <img className="small-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
-                    + imageMapIdMap[smallImage] + ".png"} draggable="false" alt=""/>
+                    + imageIdMap[smallImage] + ".png"} draggable="false" alt=""/>
             </div>
             <div className="text">
                 <p className="game">Destiny 2</p>
                 <p title={description}>{description}</p>
                 <p title={state}>{state}</p>
-                <p>{time} elapsed</p>
+                <p>{t} elapsed</p>
                 {!state ? <p>&nbsp;</p> : ""}
             </div>
         </div>
     </div>
 }
 
-const imageMapIdMap = {
+function fmtTime(t: number): string {
+    if (t < 10) return "0" + t;
+    return t.toString();
+}
+
+const imageIdMap = {
     control: "726487437026656398",
     crucible: "726487437744013322",
     destinylogo: "726090605373161523",

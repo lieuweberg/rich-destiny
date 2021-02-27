@@ -3,19 +3,17 @@ import { Link } from "react-router-dom";
 
 import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
 
-import examplePresencesJSON from "../misc/example-presences.json";
-
 import "../css/home.scss";
 
 export default function() {
-    let examplePresences: PresenceCardProps[] = [];
+    let presences: PresenceCardProps[] = [];
     for (let i = 0; i < 3*6; i++) {
-        let p = examplePresencesJSON[i];
-        examplePresences.push({
-            largeImage: p.largeImage,
-            description: p.description,
-            state: p.state,
-            time: p.time
+        let p = examplePresences[i];
+        presences.push({
+            largeImage: p.i,
+            description: p.d,
+            state: p.s,
+            initialTime: p.t
         })
     }
 
@@ -31,26 +29,26 @@ export default function() {
         <div id="sliders">
             <div className="animated-row-1">
                 <div className="slider-item">
-                    {examplePresences.slice(0,6).map((p, i) => <PresenceCard key={i} {...p} />)}
+                    {presences.slice(0,6).map((p, i) => <PresenceCard key={i} {...p} />)}
                 </div>
                 <div className="slider-item">
-                    {examplePresences.slice(0,6).map((p, i) => <PresenceCard key={i} {...p} />)}
+                    {presences.slice(0,6).map((p, i) => <PresenceCard key={i} {...p} />)}
                 </div>
             </div>
             <div className="animated-row-2">
                 <div className="slider-item">
-                    {examplePresences.slice(6,12).map((p, i) => <PresenceCard key={i} {...p} />)}
+                    {presences.slice(6,12).map((p, i) => <PresenceCard key={i} {...p} />)}
                 </div>
                 <div className="slider-item">
-                    {examplePresences.slice(6,12).map((p, i) => <PresenceCard key={i} {...p} />)}
+                    {presences.slice(6,12).map((p, i) => <PresenceCard key={i} {...p} />)}
                 </div>
             </div>
             <div className="animated-row-3">
                 <div className="slider-item">
-                    {examplePresences.slice(12).map((p, i) => <PresenceCard key={i} {...p} />)}
+                    {presences.slice(12).map((p, i) => <PresenceCard key={i} {...p} />)}
                 </div>
                 <div className="slider-item">
-                    {examplePresences.slice(12).map((p, i) => <PresenceCard key={i} {...p} />)}
+                    {presences.slice(12).map((p, i) => <PresenceCard key={i} {...p} />)}
                 </div>
             </div>
         </div>
@@ -100,3 +98,24 @@ export default function() {
         </div>
     </>
 }
+
+const examplePresences = [
+    {i:"strikes",d:"Normal Strikes - Nessus",s:"The Insight Terminus",t:"08:42"},
+    {i:"destinylogo",d:"In orbit",s:"space 🌌 (customisable)",t:"04:13"},
+    {i:"storypvecoopheroic",d:"Story - Europa",s:"The New Kell",t:"13:24"},
+    {i:"raid",d:"Raid - The Dreaming City",s:"Last Wish",t:"02:15:11"},
+    {i:"control",d:"Control - The Crucible",s:"Pacifica",t:"05:58"},
+    {i:"gambit",d:"Gambit",s:"Emerald Coast",t:"07:26"},
+    {i:"crucible",d:"Mayhem - The Crucible",s:"Javelin-4",t:"02:55"},
+    {i:"socialall",d:"Social - Earth",s:"Tower",t:"13:17"},
+    {i:"raid",d:"Raid - Europa",s:"Deep Stone Crypt",t:"59:08"},
+    {i:"strikes",d:"Scored Nightfall Strikes - Nessus",s:"Nightfall: The Ordeal: Master",t:"29:33"},
+    {i:"dungeon",d:"Dungeon - IX Realms",s:"Prophecy",t:"43:22"},
+    {i:"explore",d:"Explore - The Moon",s:"",t:"06:14"},
+    {i:"storypvecoopheroic",d:"Story - The Cosmodrome",s:"Vendetta",t:"11:50"},
+    {i:"ironbanner",d:"Iron Banner - The Crucible",s:"Midtown",t:"03:27"},
+    {i:"strikes",d:"Normal Strikes - The Tangled Shore",s:"Broodhold",t:"13:01"},
+    {i:"nightmarehunt",d:"Nightmare Hunt - The Moon",s:"Insanity: Legend",t:"08:32"},
+    {i:"trialsofosiris",d:"Trials of Osiris - The Crucible",s:"Convergence",t:"04:50"},
+    {i:"raid",d:"Raid - Black Garden",s:"Garden of Salvation",t:"1:37:12"}
+];

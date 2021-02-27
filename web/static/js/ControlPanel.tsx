@@ -92,7 +92,8 @@ export default function() {
         <div>
             <h4>Current presence preview</h4>
             <PresenceCard description={data.presence.Details} state={data.presence.State}
-                largeImage={data.presence.LargeImage} smallImage={data.presence.SmallImage} time="12:34" />
+                largeImage={data.presence.LargeImage} smallImage={data.presence.SmallImage}
+                initialTime={data.presence.Timestamps ? data.presence.Timestamps.Start : null}/>
         </div>
         <div>
             <h2>Settings</h2>
@@ -122,8 +123,7 @@ export default function() {
         </div>
         <div>
             <h4>Orbit presence preview</h4>
-            <PresenceCard description="In orbit" state={orbitTextValue}
-                largeImage="destinylogo" time="12:34" />
+            <PresenceCard description="In orbit" state={orbitTextValue} largeImage="destinylogo"/>
         </div>
         <div>
             <h2>Actions</h2>
