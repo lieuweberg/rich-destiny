@@ -15,8 +15,9 @@ interface APIResponse {
     version:        string;
     name:           string;
     orbitText:      string;
-    joinGameCode:   string;
     autoUpdate:     boolean;
+    joinGameCode:   string;
+    joinOnlySocial: boolean;
     presence:       Presence;
 }
 
@@ -33,12 +34,13 @@ interface Presence {
 
 const DefaultData: APIResponse = {
     status: "Not installed",
+    debug: "NA",
     version: "vX.Y.Z",
     name: "Not logged in",
     orbitText: "",
-    joinGameCode: "",
     autoUpdate: true,
-    debug: "NA",
+    joinGameCode: "",
+    joinOnlySocial: false,
     presence: {
         Details: "Not playing...",
         State: "",
@@ -51,8 +53,9 @@ export default function() {
     const [data, setData] = useMemoryState("controlPanelData", DefaultData) as [APIResponse, Function];
     const [intervalID, setIntervalID] = React.useState(-1);
     const [orbitTextValue, setOrbitTextValue] = React.useState("");
+    const [autoUpdateValue, setAutoUpdateValue] = React.useState(false);
     const [joinGameCodeValue, setJoinGameCodeValue] = React.useState("");
-    const [autoUpdateValue, setAutoUpdateValue] = React.useState(true);
+    const [joinOnlySocialValue, setJoinOnlySocialValue] = React.useState(false);
 
     if (intervalID == -1) {
         let interval = setInterval(() => {
@@ -70,10 +73,12 @@ export default function() {
         }
     }, [intervalID])
     React.useEffect(() => {
+        // update settings when new data comes in
         setOrbitTextValue(data.orbitText);
-        setJoinGameCodeValue(data.joinGameCode);
         setAutoUpdateValue(data.autoUpdate);
-    }, [data.orbitText, data.joinGameCode, data.autoUpdate])
+        setJoinGameCodeValue(data.joinGameCode);
+        setJoinOnlySocialValue(data.joinOnlySocial)
+    }, [data.orbitText, data.joinGameCode, data.autoUpdate, data.joinOnlySocial])
 
     function requiresVersion(version: string) {
         if (data.version == "dev" || data.version == "vX.Y.Z") return null;
@@ -98,26 +103,42 @@ export default function() {
         <div>
             <h2>Settings</h2>
             <form>
-                <label>
-                    Orbit state text: <input type="text" id="orbitText" placeholder="empty up here..."
-                        value={orbitTextValue} onChange={e => setOrbitTextValue(e.target.value)} />
-                    &nbsp; <span data-tip="Text to display on the second line of the presence. See
-                    the preview to the right. Leave empty to disable.">&#x1f6c8;</span>
-                </label> <br/>
-                <label>
-                    Join Game code: <input type="text" id="joinGameCode" placeholder="76561198237606311"
-                        value={joinGameCodeValue} onChange={e => setJoinGameCodeValue(e.target.value)} />
-                    &nbsp; <span data-tip="Adds a 'Join Game' button to your status that allows anyone
-                    (including people without rich-destiny) to join your fireteam, simply by clicking it.
-                    <br/><br/> Enter the number from <code>/id</code> here or your SteamID64. Leave empty
-                    to disable." data-html>&#x1f6c8;</span> {requiresVersion("v0.1.8")}
-                </label> <br/>
-                <label>
-                    Auto update: <input type="checkbox" id="autoUpdate" checked={autoUpdateValue}
-                        onChange={e => setAutoUpdateValue(e.target.checked)} />
-                    &nbsp; <span data-tip="Whether to update to the latest releases of rich-destiny
-                    automatically. If unticked, you can use the Update button below.">&#x1f6c8;</span>
-                </label> <br/>
+                <h4>General</h4>
+                <div>
+                    <label>
+                        Orbit state text: <input type="text" id="orbitText" placeholder="empty up here..."
+                            value={orbitTextValue} onChange={e => setOrbitTextValue(e.target.value)} />
+                        &nbsp; <span data-tip="Text to display on the second line of the presence. See
+                        the preview to the right. Leave empty to disable.">&#x1f6c8;</span>
+                    </label> <br/>
+                    <label>
+                        Auto update: <input type="checkbox" id="autoUpdate" checked={autoUpdateValue}
+                            onChange={e => setAutoUpdateValue(e.target.checked)} />
+                        &nbsp; <span data-tip="Whether to update to the latest releases of rich-destiny
+                        automatically. If unticked, you can use the Update button below.">&#x1f6c8;</span>
+                    </label> <br/>
+                </div>
+
+                <h4>Join Game button</h4>
+                <div>
+                    <label>
+                        Code: <input type="text" id="joinGameCode" placeholder="76561198237606311"
+                            value={joinGameCodeValue} onChange={e => setJoinGameCodeValue(e.target.value)} />
+                        &nbsp; <span data-tip="Adds a 'Join Game' button to your status that allows anyone
+                        (including people without rich-destiny) to join your fireteam, simply by clicking it.
+                        <br/><br/> Enter the number from <code>/id</code> here (your SteamID64). Leave empty
+                        to disable." data-html>&#x1f6c8;</span> {requiresVersion("v0.1.8")}
+                    </label> <br/>
+                    <label>
+                        Orbit or social spaces only: <input type="checkbox" id="joinOnlySocial"
+                        checked={joinOnlySocialValue}
+                            onChange={e => setJoinOnlySocialValue(e.target.checked)} />
+                        &nbsp; <span data-tip="When ticked, the Join Game button will appear only when you're
+                        in orbit or social spaces like the Tower, preventing people from joining mid-game
+                        or when you're trying to complete an activity solo, like a dungeon.">&#x1f6c8;
+                        </span> {requiresVersion("v0.1.9")}
+                    </label> <br/>
+                </div>
                 <a href="#" className="button" onClick={handleFormSubmit}>Save Settings</a>
             </form>
         </div>
@@ -172,7 +193,8 @@ function handleFormSubmit() {
     axios.post("http://localhost:35893/action?a=save", {
         orbitText: (document.getElementById("orbitText") as HTMLInputElement).value,
         autoUpdate: (document.getElementById("autoUpdate") as HTMLInputElement).checked,
-        joinGameCode: (document.getElementById("joinGameCode") as HTMLInputElement).value
+        joinGameCode: (document.getElementById("joinGameCode") as HTMLInputElement).value,
+        joinOnlySocial: (document.getElementById("joinOnlySocial") as HTMLInputElement).checked
     }, { timeout: 1000 })
     .then(res => {
         toast.dark("Settings saved!")

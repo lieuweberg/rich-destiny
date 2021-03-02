@@ -339,9 +339,11 @@ func startWebServer() {
 				Debug: "NA",
 				Status: "Not logged in",
 				Presence: previousActivity,
+				
 				OrbitText: storage.OrbitText,
-				JoinGameCode: storage.JoinGameCode,
 				AutoUpdate: storage.AutoUpdate,
+				JoinGameCode: storage.JoinGameCode,
+				JoinOnlySocial: storage.JoinOnlySocial,
 			}
 
 			if storage == nil {

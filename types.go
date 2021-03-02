@@ -22,6 +22,7 @@ type storageStruct struct {
 	OrbitText       string  `json:"orbitText"`
 	AutoUpdate      bool    `json:"autoUpdate"`
 	JoinGameCode    string  `json:"joinGameCode"`
+	JoinOnlySocial	bool	`json:"joinOnlySocial"`
 }
 
 type currentProgramStatus struct {
@@ -29,10 +30,12 @@ type currentProgramStatus struct {
 	Debug      	    string `json:"debug"`
 	Version    	    string `json:"version"`
 	Name            string `json:"name"`
-	OrbitText       string `json:"orbitText"`
-	JoinGameCode    string `json:"joinGameCode"`
-	AutoUpdate      bool   `json:"autoUpdate"`
 
+	OrbitText       string `json:"orbitText"`
+	AutoUpdate      bool   `json:"autoUpdate"`
+	JoinGameCode    string `json:"joinGameCode"`
+	JoinOnlySocial	bool	`json:"joinOnlySocial"`
+	
 	Presence    richgo.Activity `json:"presence"`
 }
 

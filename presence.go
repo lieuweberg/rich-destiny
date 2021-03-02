@@ -247,8 +247,8 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 	if (previousActivity.Details != newActivity.Details ||
 		previousActivity.State != newActivity.State ||
 		previousActivity.SmallText != newActivity.SmallText ||
-		// 0 or 1 != 1 or 0. In the latter, 0 occurs when JoinGameCode is an empty string, and 1 when JoinGameCode is set.
-		len(previousActivity.Buttons) != min(1, len(storage.JoinGameCode)) ) {
+		// Don't update because of this rule if JoinOnlySocial is enabled && 0 or 1 != 1 or 0. In the latter, 0 occurs when JoinGameCode is an empty string, and 1 when JoinGameCode is set.
+		!storage.JoinOnlySocial && len(previousActivity.Buttons) != min(1, len(storage.JoinGameCode)) ) {
 
 		if st.IsZero() {
 			st = time.Now()
@@ -273,11 +273,13 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 		}
 
 		if storage.JoinGameCode != "" {
-			newActivity.Buttons = []*richgo.Button{
-				{
-					Label: "Join Game",
-					Url: fmt.Sprintf("steam://rungame/1085660/%s", storage.JoinGameCode),
-				},
+			if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In orbit") {
+				newActivity.Buttons = []*richgo.Button{
+					{
+						Label: "Join Game",
+						Url: fmt.Sprintf("steam://rungame/1085660/%s", storage.JoinGameCode),
+					},
+				}
 			}
 		}
 		
