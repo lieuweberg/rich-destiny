@@ -71,12 +71,12 @@ export default function() {
     return <>
         <div className="generic-text top-text">
             <h1>Download</h1>
-            <p>You can download the latestrelease here. Source code (in case to view that) can be
+            <p>You can download the latest release here. Source code (in case you want to view that) can be
             found in the <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
             rel="noopener noreferrer">GitHub</a> repo alongside old releases. Note that old releases
             don't do anything special, please download the most recent release. Clicking the download
             button here downloads the same file as GitHub releases provides.</p>
-            <p>Installation instructions can be found below, in case they are needed. It is recommended
+            <p>Installation instructions can be found below. It is recommended
             to fully read these prior to installation.</p></div>
             <div className="generic-text no-padding">
 
