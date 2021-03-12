@@ -80,7 +80,7 @@ export default function() {
             to fully read these prior to installation.</p></div>
             <div className="generic-text no-padding">
 
-            <a id="release-link" className="button" href={url} rel="noopener noreferrer">Download {version}</a>
+            <a id="release-link" className="button" href={url}>Download {version}</a>
             <p>Size: {size}MiB <br/>
             {/* Downloads: {downloads}</p> */}</p>
             <div id="release-info" dangerouslySetInnerHTML= {{ __html: marked(latest ? latest.body : "") }} />
