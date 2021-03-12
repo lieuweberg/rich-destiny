@@ -97,7 +97,7 @@ func main() {
 			return
 		}
 		log.Print("Service installed. The service should automatically start when you start your computer (and just now because I told your computer to) (check the installation directory for new files).\n\n")
-		log.Print("That was fast wasn't it? This is my sole purpose -- running me again will do nothing except throw an error. If you want to configure something, you should head to https://lieuweberg.com/rich-destiny/cp.")
+		log.Print("That was fast wasn't it? This is my sole purpose -- running me again will do nothing except throw an error. If you want to configure something, you should head to https://richdestiny.app/cp.")
 		log.Print("Assuming this is first-time installation: I will shortly attempt to open a browser tab to log in with Bungie.net.")
 		time.Sleep(10 * time.Second)
 		openOauthTab()
@@ -315,7 +315,7 @@ func startWebServer() {
 		}
 
 		res.Header().Set("Content-Type", "text/html")
-		fmt.Fprint(res, "Success! You are now logged in and may close this tab (and head to <a href=\"https://lieuweberg.com/rich-destiny/cp\">the control panel</a>).")
+		fmt.Fprint(res, "Success! You are now logged in and may close this tab (and head to <a href=\"https://richdestiny.app/cp\">the control panel</a>).")
 		browserOpened = false
 	})
 
@@ -431,7 +431,7 @@ func makePath(e string) string {
 
 func enableCors(res *http.ResponseWriter, req *http.Request) {
 	origin := req.Header.Get("Origin")
-	allowedOrigins := [...]string{"https://lieuweberg.com", "http://localhost:5500", "http://localhost:1234"}
+	allowedOrigins := [...]string{"https://lieuweberg.com", "http://localhost:1234", `https://richdestiny.app`}
 	for _, o := range allowedOrigins {
 		if o == origin {
 			(*res).Header().Set("Access-Control-Allow-Origin", origin)
