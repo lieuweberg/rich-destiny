@@ -18,7 +18,7 @@ function Root() {
 
         <div id="nav">
             <Link to="/" id="nav-logo">
-                <img src={logo} alt="icon" width="40"/>
+                <img src={logo} alt="icon" width="40" height="40"/>
                 &nbsp;&nbsp;rich-destiny
             </Link>
             <label htmlFor="hamburger">&#9776;</label>
