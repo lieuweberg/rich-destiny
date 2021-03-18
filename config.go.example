@@ -7,11 +7,10 @@ type configuration struct {
 	APIKey	string
 }
 
-// Config is the struct holding the configuration
-var Config *configuration
+var config *configuration
 
 func init() {
-	Config = &configuration{
+	config = &configuration{
 		ClientID: "CLIENTID",
 		ClientSecret: "CLIENTSECRET",
 		RedirectURI: "REDIRECTURI",
