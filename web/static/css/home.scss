@@ -84,14 +84,13 @@
 #info-cards {
     display: flex;
     justify-content: center;
-    column-gap: 50px;
+    gap: 50px;
     padding: 70px 0;
     background-color: #252525;
 
     @include isMobile() {
         flex-direction: column;
         align-items: center;
-        row-gap: 50px;
     }
 
     .card {
@@ -103,7 +102,7 @@
         overflow: hidden;
 
         div:not(.image) {
-            padding: 0px 30px;
+            padding: 0px 5px;
         }
     }
 

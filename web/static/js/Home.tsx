@@ -5,6 +5,11 @@ import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
 
 import "../css/home.scss";
 
+// @ts-expect-error
+import home1 from "../images/home1.png";
+// @ts-expect-error
+import home2 from "../images/home2.png";
+
 export default function() {
     let presences: PresenceCardProps[] = [];
     for (let i = 0; i < 3*6; i++) {
@@ -56,22 +61,23 @@ export default function() {
         <div id="info-cards">
             <div className="card">
                 <div className="image">
-                    <img src="https://icongr.am/entypo/cog.svg?size=300&color=ffffff" alt="screenshot showing tooltip"/>
+                    <img src={home1} alt="screenshot showing tooltip"/>
                 </div>
                 <hr/>
                 <div>
-                    <h3>Background process</h3>
-                 <p>Fully runs in the background and needs no further maintenance. Auto updates by default.</p>
+                    <h3>Forge your fireteam</h3>
+                    <p>No more sharing join codes: have anyone effortlessly join your fireteam by clicking a button in
+                        your status. <small>(optional)</small></p>
                 </div>
             </div>
             <div className="card">
                 <div className="image">
-                    <img src="https://f.lieuweberg.com/HHKjbd.png" alt="screenshot showing tooltip"/>
+                    <img src={home2} alt="screenshot showing tooltip"/>
                 </div>
                 <hr/>
                 <div>
-                    <h3>Class & power</h3>
-                 <p>Displays current class and power level as a tooltip on the class icon.</p>
+                    <h3>Make your class proud</h3>
+                    <p>Displays current class and power level as a tooltip on the class icon.</p>
                 </div>
             </div>
             <div className="card">
@@ -80,8 +86,8 @@ export default function() {
                 </div>
                 <hr/>
                 <div>
-                    <h3>Small footprint</h3>
-                 <p>Around 23MiB in size and uses close to no CPU and 4-7MB of memory. GUI is this website.</p>
+                    <h3>It just works</h3>
+                    <p>Runs in the background and is tiny in size. Auto updates by default. Fully self-contained.</p>
                 </div>
             </div>
         </div>
