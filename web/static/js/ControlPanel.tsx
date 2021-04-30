@@ -86,6 +86,10 @@ export default function() {
         else return <code>{version} needed! (current: {data.version})</code>;
     }
 
+    // if (requiresVersion("v0.2.0") == null) {
+    //     window.location.href = "https://richdestiny.app/cp";
+    // }
+
     return <> <div id="cp" className="generic-text top-text">
         <div>
             <h1>Control Panel</h1>

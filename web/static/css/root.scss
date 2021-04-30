@@ -1,3 +1,4 @@
+// Fonts
 @font-face {
     font-family: "Whitney";
     font-weight: 400;
@@ -19,6 +20,7 @@
 
 @import "mixins.scss";
 
+// Site-wide
 body {
     height: 100vh;
     margin: 0;
@@ -53,6 +55,27 @@ body {
 
 .Toastify__progress-bar--dark {
     background-color: #6c82cf !important;
+}
+
+// Site-wide rendered content
+#info-banner {
+    height: 1.6em;
+    background-color: #6c82cf;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+
+    p {
+        margin: 0;
+    }
+
+    code {
+        color: #ffb7b7;
+    }
+
+    :hover {
+        cursor: pointer;
+    }
 }
 
 #nav {
@@ -152,8 +175,7 @@ body {
     }
 }
 
-// Global stuff, not directly related to the root of the site.
-
+// Global defaults and other widely used css
 p, h1, h2, h3, h4, a, li, label, input[type=submit], .__react_component_tooltip {
     color: white;
     font-family: 'Segoe UI', Geneva, Verdana, sans-serif;

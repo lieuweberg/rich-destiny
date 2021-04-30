@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Switch, Link, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -14,7 +14,9 @@ import ControlPanel from "./ControlPanel";
 
 function Root() {
     return <BrowserRouter>
-        <ToastContainer autoClose={10000}/>
+        <ToastContainer autoClose={10000} />
+
+        <InfoBanner />
 
         <div id="nav">
             <Link to="/" id="nav-logo">
@@ -77,6 +79,25 @@ function Root() {
             </div>
         </div>
     </BrowserRouter>
+}
+
+function InfoBanner() {
+    let bannerID = "1";
+    let [dismissed, setDismissed] = useState(localStorage.getItem("bannerDismissed"));
+    useEffect(() => {}, [dismissed]);
+
+    if (dismissed == bannerID) {
+        return null;
+    } else {
+        return (
+            <div id="info-banner" title="Click to dismiss" onClick={() => {
+                localStorage.setItem("bannerDismissed", bannerID);
+                setDismissed(bannerID);
+            }}>
+                <p>rich-destiny has moved to its own cozy place on the internet, <code>richdestiny.app</code>!</p>
+            </div>
+        )
+    }
 }
 
 const root = document.getElementById("root");
