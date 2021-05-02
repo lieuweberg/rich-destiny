@@ -88,6 +88,7 @@ const imageIdMap = {
     hauntedforest: "763440501092384820",
     hunter: "726487437572046860",
     ironbanner: "726487439325003887",
+    lostsector: "838469802300801065",
     menagerie: "726487439048441857",
     nightmarehunt: "726487439060762664",
     privatecrucible: "726487438834532353",
