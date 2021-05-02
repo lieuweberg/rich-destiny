@@ -203,8 +203,9 @@ func updatePresence() {
 						}
 						// It was not a lost sector
 						if !didWeBreak {
-							newActivity.Details = "Nightfall - " + place.DP.Name
-							newActivity.State = activity.DP.Name
+							newActivity.Details = "Nightfall: The Ordeal - " + place.DP.Name
+							a := strings.Split(activity.DP.Name, ": ")
+							newActivity.State = "Difficulty: " + a[len(a)-1]
 						}
 					} else {
 						newActivity.Details = activityMode.DP.Name
