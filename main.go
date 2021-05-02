@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"time"
 
@@ -30,6 +32,7 @@ var (
 	manifest *sql.DB
 	server = &http.Server{Addr: "localhost:35893", Handler: nil}
 	currentDirectory string
+	exe string
 
 	storage *storageStruct
 	browserOpened bool
@@ -46,7 +49,6 @@ var (
 type program struct{}
 
 func (p *program) Start(s service.Service) (err error) {
-	fmt.Print("hi2")
 	go p.run()
 	return
 }
@@ -61,10 +63,11 @@ func (p *program) Stop(s service.Service) (err error) {
 	return
 }
 
-func main() {
+func createService() {
 	svcConfig := &service.Config{
 		Name:        "rich-destiny",
-		Description: "Discord rich presence tool for Destiny 2",
+		Description: "discord rich presence tool for destiny 2 ( https://richdestiny.app )",
+		Executable: exe,
 	}
 	prg := &program{}
 
@@ -73,6 +76,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func main() {
+	var err error
+	exe, err = os.Executable()
+	if err != nil {
+		log.Fatalf("Couldn't find current path: %s", err)
+	}
+	currentDirectory = filepath.Dir(exe)
 
 	if service.Interactive() {
 		defer func() {
@@ -83,25 +95,89 @@ func main() {
 		fmt.Print("         _      _              _           _   _\n        (_)    | |            | |         | | (_)\n    _ __ _  ___| |__ ______ __| | ___  ___| |_ _ _ __  _   _\n   | '__| |/ __| '_ \\______/ _` |/ _ \\/ __| __| | '_ \\| | | |\n   | |  | | (__| | | |    | (_| |  __/\\__ \\ |_| | | | | |_| |\n   |_|  |_|\\___|_| |_|     \\__,_|\\___||___/\\__|_|_| |_|\\__, |\n                                                        __/ |\n                                                       |___/    ",
 			version, "\n\n\n")
 		log.SetFlags(log.Lshortfile)
-		log.Print("Hi, I'm the console window that will help you through installation :)...\n")
-		time.Sleep(5 * time.Second)
-		log.Print("Detected that this program is being run manually, installing into the service manager...")
+		log.Print("Setting up...")
+
+		home, err := os.UserHomeDir()
+		if err != nil {
+			log.Printf("Could not get home directory...: %s", err)
+		}
+		if currentDirectory == filepath.Join(home, "Downloads") {
+			var moved bool
+			for {
+				log.Printf("This program will refuse to install to the downloads directory as it often will not work from there.\n\n > Use  %s\\rich-destiny\\  instead? [Yes/No]:", home)
+				var r string
+				_, err = fmt.Scanln(&r)
+				r = strings.ToLower(r)
+				if strings.Contains(r, "y") {
+					log.Printf("Attempting to move there...")
+
+					newLocation := filepath.Join(home, "rich-destiny")
+					err = os.Mkdir(newLocation, os.ModePerm)
+					if err != nil && !errors.Is(err, os.ErrExist)  {
+						log.Printf("Error trying to create %s\\rich-destiny folder: %s", home, err)
+						break
+					}
+
+					oldExe := exe
+					exe = filepath.Join(newLocation, "rich-destiny.exe")
+
+					err = os.Rename(oldExe, exe)
+					if err != nil {
+						log.Printf("Error moving rich-destiny.exe to new location: %s", err)
+					}
+					
+					log.Print("Successfully moved the file.")
+					moved = true
+					break
+				} else if strings.Contains(r, "n") {
+					log.Printf("Okay, move this program to a different directory manually and run it from there.")
+					break
+				} else {
+					log.Printf("Invalid response. Please reply with Yes or No.")
+				}
+			}
+			if !moved {
+				return
+			}
+		}
+
+		createService()
 		err = s.Install()
 		if err != nil {
-			log.Printf("Something went wrong: %s", err)
+			log.Printf("Error adding rich-destiny to the service manager: %s", err)
 			return
 		}
-		err = s.Start()
-		if err != nil {
-			log.Printf("Error starting service, aborting further execution: %s", err)
+
+		log.Print("Done! Waiting for rich-destiny to start...")
+
+		var success bool
+		for i := 0; i <= 10; i++ {
+			if i == 0 || i == 5 {
+				err = s.Start()
+				if err != nil {
+					log.Printf("Error starting rich-destiny: %s", err)
+					return
+				}
+			}
+			_, err := http.Get("http://localhost:35893")
+			if err != nil {
+				time.Sleep(3 * time.Second)
+			} else {
+				success = true
+				break
+			}
+		}
+
+		if !success {
+			log.Printf("It seems rich-destiny didn't want to start at all..." +
+				"Try seeing if there is any information in the logs folder where rich-destiny was installed or head to the Discord server for help ( https://discord.gg/UNU4UXp ).")
 			return
 		}
-		log.Print("Service installed. The service should automatically start when you start your computer (and just now because I told your computer to) (check the installation directory for new files).\n\n")
-		log.Print("That was fast wasn't it? This is my sole purpose -- running me again will do nothing except throw an error. If you want to configure something, you should head to https://richdestiny.app/cp.")
-		log.Print("Assuming this is first-time installation: I will shortly attempt to open a browser tab to log in with Bungie.net.")
-		time.Sleep(10 * time.Second)
+
+		log.Print("Done! Opening a browser tab to log in with Bungie.net. Setup is now complete and you can close this window.")
 		openOauthTab()
 	} else {
+		createService()
 		err = s.Run()
 		if err != nil {
 			log.Fatal(err)
@@ -111,12 +187,6 @@ func main() {
 
 func (p *program) run() {
 	debugText = "Starting up..."
-
-	exe, err := os.Executable()
-	if err != nil {
-		log.Fatalf("Couldn't find current path: %s", err)
-	}
-	currentDirectory = filepath.Dir(exe)
 
 	if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
 		err = os.Mkdir(makePath("logs"), os.ModePerm)
@@ -290,7 +360,6 @@ func (p *program) run() {
 func startWebServer() {
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		enableCors(&res, req)
-		res.Header().Set("Content-Type", "application/json")
 		fmt.Fprint(res, "hello")
 	})
 
