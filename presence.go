@@ -180,7 +180,7 @@ func updatePresence() {
 				case activity.ActivityTypeHash == 332181804:
 					// Story - The Moon | Nightmare Hunt: name: difficulty
 					newActivity.Details = "Nightmare Hunt - " + place.DP.Name
-					newActivity.State = strings.Replace(activity.DP.Name, "Nightmare Hunt: ", "", 1)
+					newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
 					newActivity.LargeImage = "nightmarehunt"
 				default:
 					// This part specifies overrides that do not use simple conditions and can't fit in a case statement. Switch/case is prettier than a giant if/else imo
