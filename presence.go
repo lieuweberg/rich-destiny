@@ -178,7 +178,7 @@ func updatePresence() {
 					newActivity.Details = "Raid - The Dreaming City"
 					newActivity.State = "Last Wish"
 				case activity.ActivityTypeHash == 332181804:
-					// Story - The Moon | Nightmare Hunt: ...: ...
+					// Story - The Moon | Nightmare Hunt: name: difficulty
 					newActivity.Details = "Nightmare Hunt - " + place.DP.Name
 					newActivity.State = strings.Replace(activity.DP.Name, "Nightmare Hunt: ", "", 1)
 					newActivity.LargeImage = "nightmarehunt"
@@ -189,13 +189,30 @@ func updatePresence() {
 					// 	newActivity.Details = fmt.Sprintf("%s - %s", activity.DP.Name, place.DP.Name)
 					// 	newActivity.State = fmt.Sprintf("%s Forge", forge)
 					// 	newActivity.LargeImage = "forge"
-					// } else {
-					newActivity.Details = activityMode.DP.Name
-					if err == nil {
-						newActivity.Details += " - " + place.DP.Name
+					if activityMode.DP.Name == "Scored Nightfall Strikes" {
+						// Scored lost sectors are seen as scored nightfall strikes
+						var didWeBreak bool
+						for _, ls := range scoredLostSectors {
+							if strings.Contains(activity.DP.Name, ls) {
+								newActivity.Details = "Lost Sector - " + place.DP.Name
+								newActivity.State = activity.DP.Name
+								newActivity.LargeImage = "lostsector"
+								didWeBreak = true
+								break
+							}
+						}
+						// It was not a lost sector
+						if !didWeBreak {
+							newActivity.Details = "Nightfall - " + place.DP.Name
+							newActivity.State = activity.DP.Name
+						}
+					} else {
+						newActivity.Details = activityMode.DP.Name
+						if err == nil {
+							newActivity.Details += " - " + place.DP.Name
+						}
+						newActivity.State = activity.DP.Name
 					}
-					newActivity.State = activity.DP.Name
-					// }
 				}
 
 				debugText = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)

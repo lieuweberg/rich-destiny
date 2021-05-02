@@ -43,3 +43,5 @@ var classImageMap = map[int64]string{
 	1: "hunter",
 	2: "warlock",
 }
+
+var scoredLostSectors = []string{"K1", "Concealed Void", "E15", "Perdition", "2A", "Veles Labyrinth"}
