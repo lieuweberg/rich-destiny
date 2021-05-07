@@ -27,7 +27,6 @@ var (
 	version string
 
 	s service.Service
-	generatedState string
 	db *sql.DB
 	manifest *sql.DB
 	server = &http.Server{Addr: "localhost:35893", Handler: nil}
@@ -216,15 +215,6 @@ func (p *program) run() {
 	}
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	// State query param
-	rand.Seed(time.Now().UnixNano())
-	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	b := make([]rune, 20)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	generatedState = string(b)
-
 	db, err = sql.Open("sqlite3", makePath("storage.db"))
 	if err != nil {
 		log.Printf("Error opening storage.db: %s", err)
@@ -372,7 +362,9 @@ func startWebServer() {
 		fmt.Fprint(res, "hello")
 	})
 
+	var generatedState string
 	http.HandleFunc("/login", func(res http.ResponseWriter, req *http.Request) {
+		generatedState = randomString(20)
 		http.Redirect(res, req, fmt.Sprintf("https://www.bungie.net/en/oauth/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=%s",
 			config.ClientID, config.RedirectURI, generatedState), http.StatusFound)
 	})
@@ -526,4 +518,14 @@ func returnStructAsJSON(res http.ResponseWriter, data interface{}) {
 		return
 	}
 	fmt.Fprint(res, string(d))
+}
+
+func randomString(length uint8) string {
+	rand.Seed(time.Now().UnixNano())
+	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]rune, length)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
