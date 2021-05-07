@@ -59,7 +59,14 @@ func updatePresence() {
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/?components=204,200", storage.MSType, storage.ActualMSID), &ca)
 	if err != nil || ca.ErrorStatus != "Success" {
 		if err == nil {
-			log.Print(ca.ErrorStatus, ca.Message)
+			if ca.ErrorStatus == "SystemDisabled" {
+				setActivity(richgo.Activity{
+					LargeImage: "destinylogo",
+					Details: "Waiting for maintenance to end",
+				}, time.Now(), 0)
+				return
+			}
+			log.Println(ca.ErrorStatus, ca.Message)
 		} else {
 			log.Print(err)
 		}
