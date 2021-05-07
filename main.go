@@ -88,57 +88,67 @@ func main() {
 
 	if service.Interactive() {
 		defer func() {
-			log.Print("Press ENTER to close this window.")
+			fmt.Println("\n Press ENTER to close this window.")
 			fmt.Scanln()
 		}()
 
 		fmt.Print("         _      _              _           _   _\n        (_)    | |            | |         | | (_)\n    _ __ _  ___| |__ ______ __| | ___  ___| |_ _ _ __  _   _\n   | '__| |/ __| '_ \\______/ _` |/ _ \\/ __| __| | '_ \\| | | |\n   | |  | | (__| | | |    | (_| |  __/\\__ \\ |_| | | | | |_| |\n   |_|  |_|\\___|_| |_|     \\__,_|\\___||___/\\__|_|_| |_|\\__, |\n                                                        __/ |\n                                                       |___/    ",
 			version, "\n\n\n")
 		log.SetFlags(log.Lshortfile)
-		log.Print("Setting up...")
+		fmt.Println(" Welcome to the rich-destiny setup!")
 
 		home, err := os.UserHomeDir()
 		if err != nil {
 			log.Printf("Could not get home directory...: %s", err)
 		}
+		var downloadDir bool
 		if currentDirectory == filepath.Join(home, "Downloads") {
-			var moved bool
-			for {
-				log.Printf("This program will refuse to install to the downloads directory as it often will not work from there.\n\n > Use  %s\\rich-destiny\\  instead? [Yes/No]:", home)
-				var r string
-				_, err = fmt.Scanln(&r)
-				r = strings.ToLower(r)
-				if strings.Contains(r, "y") {
-					log.Printf("Attempting to move there...")
+			downloadDir = true
+			fmt.Println(" This program will refuse to install to the downloads directory as it often will not work from there.")
+		} else {
+			fmt.Println(" Do you want to move this program to the recommended installation folder? (No will install at the current location)")
+		}
 
-					newLocation := filepath.Join(home, "rich-destiny")
-					err = os.Mkdir(newLocation, os.ModePerm)
-					if err != nil && !errors.Is(err, os.ErrExist)  {
-						log.Printf("Error trying to create %s\\rich-destiny folder: %s", home, err)
-						break
-					}
+		var moved bool
+		for {
+			fmt.Printf("\n  > Use  %s\\rich-destiny\\  instead? [Yes/No]: ", home)
+			var r string
+			_, err = fmt.Scanln(&r)
+			r = strings.ToLower(r)
+			if strings.Contains(r, "y") {
+				fmt.Println(" Okay, attempting to move there...")
 
-					oldExe := exe
-					exe = filepath.Join(newLocation, "rich-destiny.exe")
-
-					err = os.Rename(oldExe, exe)
-					if err != nil {
-						log.Printf("Error moving rich-destiny.exe to new location: %s", err)
-					}
-					
-					log.Print("Successfully moved the file.")
-					moved = true
+				newLocation := filepath.Join(home, "rich-destiny")
+				err = os.Mkdir(newLocation, os.ModePerm)
+				if err != nil && !errors.Is(err, os.ErrExist)  {
+					log.Printf("Error trying to create %s\\rich-destiny folder: %s", home, err)
 					break
-				} else if strings.Contains(r, "n") {
-					log.Printf("Okay, move this program to a different directory manually and run it from there.")
-					break
-				} else {
-					log.Printf("Invalid response. Please reply with Yes or No.")
 				}
+
+				oldExe := exe
+				exe = filepath.Join(newLocation, "rich-destiny.exe")
+
+				err = os.Rename(oldExe, exe)
+				if err != nil {
+					log.Printf("Error moving rich-destiny.exe to new location: %s", err)
+				}
+				
+				fmt.Println(" Successfully moved the file.")
+				moved = true
+				break
+			} else if strings.Contains(r, "n") {
+				if downloadDir {
+					fmt.Println(" Okay, move this program to a different directory manually and run it from there.")
+				} else {
+					fmt.Println(" Okay, installing at the current location.")
+				}
+				break
+			} else {
+				fmt.Println(" Invalid response. Please reply with Yes or No.")
 			}
-			if !moved {
-				return
-			}
+		}
+		if downloadDir && !moved {
+			return
 		}
 
 		createService()
@@ -148,7 +158,7 @@ func main() {
 			return
 		}
 
-		log.Print("Done! Waiting for rich-destiny to start...")
+		fmt.Println(" Done! Waiting for rich-destiny to start...")
 
 		var success bool
 		for i := 0; i <= 10; i++ {
@@ -169,12 +179,12 @@ func main() {
 		}
 
 		if !success {
-			log.Printf("It seems rich-destiny didn't want to start at all..." +
+			fmt.Println(" It seems rich-destiny didn't want to start at all..." +
 				"Try seeing if there is any information in the logs folder where rich-destiny was installed or head to the Discord server for help ( https://discord.gg/UNU4UXp ).")
 			return
 		}
 
-		log.Print("Done! Opening a browser tab to log in with Bungie.net. Setup is now complete and you can close this window.")
+		fmt.Println(" Done! Opening a browser tab to log in with Bungie.net. Setup is now complete and you can close this window.")
 		openOauthTab()
 	} else {
 		createService()
