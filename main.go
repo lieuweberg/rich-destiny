@@ -35,7 +35,6 @@ var (
 	exe string
 
 	storage *storageStruct
-	browserOpened bool
 	// Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
 	// All other requests to bungie should probably also use the DefaultClient.
 	bungieHTTPClient *http.Client
@@ -395,7 +394,6 @@ func startWebServer() {
 
 		res.Header().Set("Content-Type", "text/html")
 		fmt.Fprint(res, "Success! You are now logged in and may close this tab (and head to <a href=\"https://richdestiny.app/cp\">the control panel</a>).")
-		browserOpened = false
 	})
 
 	http.HandleFunc("/action", func(res http.ResponseWriter, req *http.Request) {
@@ -424,7 +422,7 @@ func startWebServer() {
 				returnStructAsJSON(res, d)
 				return
 			}
-			
+
 			d.Name = storage.DisplayName
 			d.OrbitText = storage.OrbitText
 			d.AutoUpdate = storage.AutoUpdate

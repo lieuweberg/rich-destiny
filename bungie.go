@@ -146,7 +146,6 @@ func getStorage() (s *storageStruct, err error) {
 		s, err = getStorage()
 	} else if time.Now().Unix() >= storage.ReAuthAt {
 		log.Print("Your authentication details have expired. Please go to https://rich-destiny.app/cp to Reauthenticate again.")
-		openOauthTab()
 		return
 	} else if time.Now().Unix() >= storage.RefreshAt {
 		requestAccessToken(storage.RefreshToken, true)
@@ -158,12 +157,9 @@ func getStorage() (s *storageStruct, err error) {
 // openOauthTab tries to open the browser with the bungie oauth authorisation page.
 // Even though this does not work from within a service, it is used when first launching.
 func openOauthTab() {
-	if !browserOpened {
-		err := exec.Command("rundll32", "url.dll,FileProtocolHandler", "http://localhost:35893/login").Start()
-		if err != nil {
-			log.Printf("Error executing browser open command: %s", err)
-		}
-		browserOpened = true
+	err := exec.Command("rundll32", "url.dll,FileProtocolHandler", "http://localhost:35893/login").Start()
+	if err != nil {
+		log.Printf("Error executing browser open command: %s", err)
 	}
 }
 
