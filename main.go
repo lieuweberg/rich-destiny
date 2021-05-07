@@ -418,18 +418,18 @@ func startWebServer() {
 				Debug: "NA",
 				Status: "Not logged in",
 				Presence: previousActivity,
-				
-				OrbitText: storage.OrbitText,
-				AutoUpdate: storage.AutoUpdate,
-				JoinGameCode: storage.JoinGameCode,
-				JoinOnlySocial: storage.JoinOnlySocial,
 			}
 
 			if storage == nil {
 				returnStructAsJSON(res, d)
 				return
 			}
+			
 			d.Name = storage.DisplayName
+			d.OrbitText = storage.OrbitText
+			d.AutoUpdate = storage.AutoUpdate
+			d.JoinGameCode = storage.JoinGameCode
+			d.JoinOnlySocial = storage.JoinOnlySocial
 			
 			if previousActivity.Details == "" {
 				d.Status = "Not playing Destiny 2"
