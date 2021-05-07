@@ -41,6 +41,7 @@ var (
 	// Close this channel to stop the presence loop
 	quitPresenceTicker chan(struct{})
 	previousActivity richgo.Activity
+	forcePresenceUpdate bool
 	debugText string
 )
 
@@ -463,6 +464,10 @@ func startWebServer() {
 			}
 
 			fmt.Fprint(res, "OK")
+
+			if previousActivity.Details != "" {
+				forcePresenceUpdate = true
+			}
 		case "update":
 			newVersion, err := attemptApplicationUpdate()
 			if err != nil {
