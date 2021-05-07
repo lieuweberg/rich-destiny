@@ -103,29 +103,38 @@ func main() {
 		var downloadDir bool
 		if currentDirectory == filepath.Join(home, "Downloads") {
 			downloadDir = true
-			fmt.Println(" This program will refuse to install to the downloads directory as it often will not work from there.")
+			fmt.Println("\n This program will refuse to install in the Downloads folder as it often will not work from there.")
 		} else {
-			fmt.Println(" Do you want to move this program to the recommended installation folder? (No will install at the current location)")
+			fmt.Println("\n You can install the program in either the default (recommended) folder or the current folder.")
+		}
+
+		defaultDirectory := filepath.Join(home, "rich-destiny")
+		fmt.Printf(" If you want to install the program in another folder: Exit, move this file to the desired folder and then run it again.\n\n → Default: %s", defaultDirectory)
+		if !downloadDir {
+			fmt.Printf("\n → Current: %s", currentDirectory)
 		}
 
 		var moved bool
 		for {
-			fmt.Printf("\n  > Use  %s\\rich-destiny\\  instead? [Yes/No]: ", home)
+			fmt.Print("\n\n  > Choose a location: [Default/")
+			if !downloadDir {
+				fmt.Print("Current/")
+			}
+			fmt.Print("Exit]: ")
 			var r string
 			_, err = fmt.Scanln(&r)
 			r = strings.ToLower(r)
-			if strings.Contains(r, "y") {
+			if strings.Contains(r, "d") {
 				fmt.Println(" Okay, attempting to move there...")
 
-				newLocation := filepath.Join(home, "rich-destiny")
-				err = os.Mkdir(newLocation, os.ModePerm)
+				err = os.Mkdir(defaultDirectory, os.ModePerm)
 				if err != nil && !errors.Is(err, os.ErrExist)  {
 					log.Printf("Error trying to create %s\\rich-destiny folder: %s", home, err)
 					break
 				}
 
 				oldExe := exe
-				exe = filepath.Join(newLocation, "rich-destiny.exe")
+				exe = filepath.Join(defaultDirectory, "rich-destiny.exe")
 
 				err = os.Rename(oldExe, exe)
 				if err != nil {
@@ -135,15 +144,20 @@ func main() {
 				fmt.Println(" Successfully moved the file.")
 				moved = true
 				break
-			} else if strings.Contains(r, "n") {
+			} else if strings.Contains(r, "c") {
 				if downloadDir {
 					fmt.Println(" Okay, move this program to a different directory manually and run it from there.")
 				} else {
 					fmt.Println(" Okay, installing at the current location.")
 				}
 				break
+			} else if strings.Contains(r, "x") {
+				fmt.Println(" Okay, exiting. If you intend to move this program to another folder, make sure to close this window first.")
+				// Hacky way to stop :)
+				downloadDir = true
+				break
 			} else {
-				fmt.Println(" Invalid response. Please reply with Yes or No.")
+				fmt.Println(" Invalid response. Please reply with Default, Current or Exit.")
 			}
 		}
 		if downloadDir && !moved {
