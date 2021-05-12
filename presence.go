@@ -121,6 +121,9 @@ func updatePresence() {
 						newActivity.Details = "Battleground - " + place.DP.Name
 						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
 						newActivity.LargeImage = "storypvecoopheroic"
+					case strings.Contains(activity.DP.Name, "Override:"):
+						newActivity.Details = strings.Replace(activity.DP.Name, ": ", " - ", 1)
+						newActivity.LargeImage = "storypvecoopheroic"
 					case activity.DP.Name == "Deep Stone Crypt":
 						newActivity.Details = "Raid - Europa"
 						newActivity.State = "Deep Stone Crypt"
