@@ -117,12 +117,16 @@ func updatePresence() {
 
 				if activity != nil {
 					switch {
-					case strings.Contains(activity.DP.Name, "Battleground:"):
-						newActivity.Details = "Battleground - " + place.DP.Name
+					case strings.Contains(activity.DP.Name, "Expunge:"):
+						newActivity.Details = "Expunge - " + place.DP.Name
 						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
 						newActivity.LargeImage = "storypvecoopheroic"
 					case strings.Contains(activity.DP.Name, "Override:"):
 						newActivity.Details = strings.Replace(activity.DP.Name, ": ", " - ", 1)
+						newActivity.LargeImage = "storypvecoopheroic"
+					case strings.Contains(activity.DP.Name, "Battleground:"):
+						newActivity.Details = "Battleground - " + place.DP.Name
+						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
 						newActivity.LargeImage = "storypvecoopheroic"
 					case activity.DP.Name == "Vault of Glass":
 						newActivity.Details = "Raid - Venus"
