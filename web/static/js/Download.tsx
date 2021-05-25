@@ -89,12 +89,10 @@ export default function() {
             <h1>Installation</h1>
             <ol id="install-steps">
                 <li>
-                    <p>Download rich-destiny by clicking the 'Download {version}' button above. The program
-                    will create a few files relative to where it is. It's recommended to <b>download to a
-                    dedicated folder</b> (recommended: <code>C:\Users\YOURNAME\rich-destiny</code>).</p>
+                    <p>Download rich-destiny by clicking the 'Download {version}' button above.</p>
                 </li>
                 <li>
-                    <p>Double click <code>rich-destiny.exe</code>. Windows Defender will pop up saying
+                    <p>Double click <code>rich-destiny.exe</code>. Windows SmartScreen will pop up saying
                     that the file is from an unknown source and can't be trusted<sup>[1]</sup>. <b>Click
                     'More info' and then 'Run anyway'.</b></p>
                 </li>
@@ -104,9 +102,9 @@ export default function() {
                     it to run in the background.</p>
                 </li>
                 <li>
-                    <p>Since there is no user interface built-in, a command window will pop up. Take
-                    your time to read what it says. A browser tab will shortly open to log in with
-                    Bungie.net.</p>
+                    <p>A text window will pop up. It will ask where you want to download rich-destiny. Unless
+                    you well know what you're doing, <b>type 'default' and hit enter</b>. A browser tab will shortly
+                    open to log in with Bungie.net.</p>
                     <p>That's it. You're done. Head to the <Link to="/cp">control panel</Link> to
                     configure rich-destiny! Enjoy :) If you have any questions, feel free to ask in
                     the <a href="https://discord.gg/UNU4UXp" target="_blank"
