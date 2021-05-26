@@ -141,7 +141,7 @@ func main() {
 					log.Printf("Error moving rich-destiny.exe to new location: %s", err)
 				}
 				
-				fmt.Println(" Successfully moved the file.")
+				fmt.Println(" Successfully moved.")
 				moved = true
 				break
 			} else if strings.Contains(r, "c") {
