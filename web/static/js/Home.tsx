@@ -9,6 +9,8 @@ import "../css/home.scss";
 import home1 from "../images/home1.png";
 // @ts-expect-error
 import home2 from "../images/home2.png";
+// @ts-expect-error
+import home3 from "../images/home3.png";
 
 export default function() {
     let presences: PresenceCardProps[] = [];
@@ -61,7 +63,7 @@ export default function() {
         <div id="info-cards">
             <div className="card">
                 <div className="image">
-                    <img src={home1} alt="screenshot showing tooltip"/>
+                    <img src={home1} alt="screenshot showing join game button"/>
                 </div>
                 <hr/>
                 <div>
@@ -82,7 +84,7 @@ export default function() {
             </div>
             <div className="card">
                 <div className="image">
-                    <img src="https://icongr.am/entypo/drive.svg?size=300&color=ffffff" alt="screenshot showing tooltip"/>
+                    <img src={home3} title="credit: tiberaus" alt="image of errors before arrow, checkmarks after"/>
                 </div>
                 <hr/>
                 <div>
