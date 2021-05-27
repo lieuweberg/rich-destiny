@@ -311,12 +311,12 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 			}
 		}
 
-		if storage.JoinGameCode != "" {
+		if storage.JoinGameButton {
 			if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In orbit") {
 				newActivity.Buttons = []*richgo.Button{
 					{
 						Label: "Join Game",
-						Url: fmt.Sprintf("steam://rungame/1085660/%s", storage.JoinGameCode),
+						Url: fmt.Sprintf("steam://rungame/1085660/%s", storage.SteamID64),
 					},
 				}
 			}

@@ -433,7 +433,7 @@ func startWebServer() {
 			d.Name = storage.DisplayName
 			d.OrbitText = storage.OrbitText
 			d.AutoUpdate = storage.AutoUpdate
-			d.JoinGameCode = storage.JoinGameCode
+			d.JoinGameButton = storage.JoinGameButton
 			d.JoinOnlySocial = storage.JoinOnlySocial
 			
 			if previousActivity.Details == "" {

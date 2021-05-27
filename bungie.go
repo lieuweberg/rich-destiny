@@ -86,6 +86,18 @@ func setAuth(data []byte) (err error) {
 				storage.DisplayName = profile.DisplayName
 				storage.ActualMSID = profile.MembershipID
 				storage.MSType = profile.MembershipType
+
+				var cta *credentialsTargetAccount
+				err = requestComponents(fmt.Sprintf("/User/GetCredentialTypesForTargetAccount/%s/", storage.ActualMSID), &cta)
+				if err != nil {
+					return
+				}
+				for _, cred := range cta.Response {
+					if cred.CredentialType == 12 {
+						storage.SteamID64 = cred.CredentialAsString
+					}
+				}
+
 				break
 			}
 		}

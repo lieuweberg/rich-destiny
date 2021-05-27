@@ -15,13 +15,14 @@ type storageStruct struct {
 	ActualMSID  string
 	MSType      int64
 	DisplayName string
+	SteamID64	string
 	RefreshAt   int64
 	ReAuthAt    int64
 
 	// Custom settings
 	OrbitText       string  `json:"orbitText"`
 	AutoUpdate      bool    `json:"autoUpdate"`
-	JoinGameCode    string  `json:"joinGameCode"`
+	JoinGameButton	bool	`json:"joinGameButton"`
 	JoinOnlySocial	bool	`json:"joinOnlySocial"`
 }
 
@@ -33,7 +34,7 @@ type currentProgramStatus struct {
 
 	OrbitText       string `json:"orbitText"`
 	AutoUpdate      bool   `json:"autoUpdate"`
-	JoinGameCode    string `json:"joinGameCode"`
+	JoinGameButton  bool 	`json:"joinGameButton"`
 	JoinOnlySocial	bool	`json:"joinOnlySocial"`
 	
 	Presence    richgo.Activity `json:"presence"`
@@ -124,6 +125,19 @@ type clDefDatum struct {
 	Light       int64   `json:"light"`
 	ClassType   int64   `json:"classType"`
 }
+
+// /User/GetCredentialTypesForTargetAccount/{ActualMSID}/
+type credentialsTargetAccount struct {
+	Response        []ctaResponse  `json:"Response"`       
+	ErrorCode       int64          `json:"ErrorCode"`
+	ErrorStatus     string         `json:"ErrorStatus"`
+}
+
+type ctaResponse struct {
+	CredentialType        int64   `json:"credentialType"`
+	CredentialAsString    string  `json:"credentialAsString"`
+}
+
 
 // Manifest: DestinyActivityDefinition
 type activityDefinition struct {
