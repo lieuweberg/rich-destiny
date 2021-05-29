@@ -16,7 +16,7 @@ interface APIResponse {
     name:           string;
     orbitText:      string;
     autoUpdate:     boolean;
-    joinGameCode:   string;
+    joinGameButton: boolean;
     joinOnlySocial: boolean;
     presence:       Presence;
 }
@@ -39,7 +39,7 @@ const DefaultData: APIResponse = {
     name: "Not logged in",
     orbitText: "",
     autoUpdate: true,
-    joinGameCode: "",
+    joinGameButton: false,
     joinOnlySocial: false,
     presence: {
         Details: "Not playing...",
@@ -54,7 +54,7 @@ export default function() {
     const [intervalID, setIntervalID] = React.useState(-1);
     const [orbitTextValue, setOrbitTextValue] = React.useState("");
     const [autoUpdateValue, setAutoUpdateValue] = React.useState(false);
-    const [joinGameCodeValue, setJoinGameCodeValue] = React.useState("");
+    const [joinGameButtonValue, setJoinGameButtonValue] = React.useState(false);
     const [joinOnlySocialValue, setJoinOnlySocialValue] = React.useState(false);
 
     if (intervalID == -1) {
@@ -76,9 +76,9 @@ export default function() {
         // update settings when new data comes in
         setOrbitTextValue(data.orbitText);
         setAutoUpdateValue(data.autoUpdate);
-        setJoinGameCodeValue(data.joinGameCode);
+        setJoinGameButtonValue(data.joinGameButton);
         setJoinOnlySocialValue(data.joinOnlySocial)
-    }, [data.orbitText, data.joinGameCode, data.autoUpdate, data.joinOnlySocial])
+    }, [data.orbitText, data.joinGameButton, data.autoUpdate, data.joinOnlySocial])
 
     function requiresVersion(version: string) {
         if (data.version == "dev" || data.version == "vX.Y.Z") return null;
@@ -126,12 +126,11 @@ export default function() {
                 <h4>Join Game button</h4>
                 <div>
                     <label>
-                        Code: <input type="text" id="joinGameCode" placeholder="76561198237606311"
-                            value={joinGameCodeValue} onChange={e => setJoinGameCodeValue(e.target.value)} />
+                        Enabled: <input type="checkbox" id="joinGameButton" checked={joinGameButtonValue}
+                            onChange={e => setJoinGameButtonValue(e.target.checked)} />
                         &nbsp; <span data-tip="Adds a 'Join Game' button to your status that allows anyone
-                        (including people without rich-destiny) to join your fireteam, simply by clicking it.
-                        <br/><br/> Enter the number from <code>/id</code> here (your SteamID64). Leave empty
-                        to disable." data-html>&#x1f6c8;</span> {requiresVersion("v0.1.8")}
+                        (including people without rich-destiny) to join your fireteam, simply by clicking
+                        it.">&#x1f6c8;</span>
                     </label> <br/>
                     <label>
                         Orbit or social spaces only: <input type="checkbox" id="joinOnlySocial"
@@ -197,7 +196,7 @@ function handleFormSubmit() {
     axios.post("http://localhost:35893/action?a=save", {
         orbitText: (document.getElementById("orbitText") as HTMLInputElement).value,
         autoUpdate: (document.getElementById("autoUpdate") as HTMLInputElement).checked,
-        joinGameCode: (document.getElementById("joinGameCode") as HTMLInputElement).value,
+        joinGameButton: (document.getElementById("joinGameButton") as HTMLInputElement).checked,
         joinOnlySocial: (document.getElementById("joinOnlySocial") as HTMLInputElement).checked
     }, { timeout: 1000 })
     .then(res => {
