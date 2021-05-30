@@ -26,12 +26,12 @@ var (
 	// Injected by the go linker
 	version string
 
-	s service.Service
-	db *sql.DB
-	manifest *sql.DB
-	server = &http.Server{Addr: "localhost:35893", Handler: nil}
+	s                service.Service
+	db               *sql.DB
+	manifest         *sql.DB
+	server           = &http.Server{Addr: "localhost:35893", Handler: nil}
 	currentDirectory string
-	exe string
+	exe              string
 
 	storage *storageStruct
 	// Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
@@ -39,10 +39,10 @@ var (
 	bungieHTTPClient *http.Client
 
 	// Close this channel to stop the presence loop
-	quitPresenceTicker chan(struct{})
-	previousActivity richgo.Activity
+	quitPresenceTicker  chan (struct{})
+	previousActivity    richgo.Activity
 	forcePresenceUpdate bool
-	debugText string
+	debugText           string
 )
 
 type program struct{}
@@ -66,7 +66,7 @@ func createService() {
 	svcConfig := &service.Config{
 		Name:        "rich-destiny",
 		Description: "discord rich presence tool for destiny 2 ( https://richdestiny.app )",
-		Executable: exe,
+		Executable:  exe,
 	}
 	prg := &program{}
 
@@ -75,6 +75,32 @@ func createService() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func successfullyStartService() (success bool, err error) {
+	for i := 0; i <= 10; i++ {
+		if i == 0 || i == 5 {
+			err = s.Start()
+			if err != nil {
+				return
+			}
+		}
+		_, err = http.Get("http://localhost:35893")
+		if err != nil {
+			time.Sleep(3 * time.Second)
+		} else {
+			success = true
+			break
+		}
+	}
+
+	if !success {
+		fmt.Println(" It seems rich-destiny didn't want to start at all..." +
+			"Try seeing if there is any information in the logs folder where rich-destiny was installed or head to the support server for help ( https://discord.gg/UNU4UXp ).")
+		return
+	}
+
+	return
 }
 
 func main() {
@@ -94,6 +120,53 @@ func main() {
 		fmt.Print("         _      _              _           _   _\n        (_)    | |            | |         | | (_)\n    _ __ _  ___| |__ ______ __| | ___  ___| |_ _ _ __  _   _\n   | '__| |/ __| '_ \\______/ _` |/ _ \\/ __| __| | '_ \\| | | |\n   | |  | | (__| | | |    | (_| |  __/\\__ \\ |_| | | | | |_| |\n   |_|  |_|\\___|_| |_|     \\__,_|\\___||___/\\__|_|_| |_|\\__, |\n                                                        __/ |\n                                                       |___/    ",
 			version, "\n\n\n")
 		log.SetFlags(log.Lshortfile)
+
+		// This works because it deletes/starts/detects by name. Path does not matter, except when installing.
+		createService()
+		status, err := s.Status()
+		if err != nil {
+			log.Printf("Error trying to detect service status: %s", err)
+		}
+
+		if status == service.StatusRunning {
+			fmt.Println(" rich-destiny is already installed and running. Open the control panel at:  https://richdestiny.app/cp")
+			return
+		} else if status == service.StatusStopped {
+			fmt.Println(" rich-destiny is already installed but not running. Attempting to start it...")
+			started, err := successfullyStartService()
+			if err != nil {
+				if err.Error() == "The system cannot find the file specified." {
+					fmt.Println(" Windows can't find the file where you installed rich-destiny previously.\n\n Do you want to uninstall the original location so you can reinstall here?")
+					for {
+						fmt.Print("\n Choose: [Yes/No]: ")
+						r, err := readUserInput()
+						if err != nil {
+							log.Printf(" Unable to read your input...: %s", err)
+							return
+						}
+						if strings.Contains(r, "y") {
+							err = s.Uninstall()
+							if err != nil {
+								log.Printf("Error trying to uninstall the service: %s", err)
+							}
+							fmt.Print("\n Uninstalled. Starting new installation now.\n\n")
+							break
+						} else if strings.Contains(r, "n") {
+							fmt.Println(" Okay. If you need help, please join the support server!  https://discord.gg/UNU4UXp")
+							return
+						} else {
+							fmt.Println(" Invalid response.")
+						}
+					}
+				}
+			} else if started {
+				fmt.Println(" rich-destiny was successfully started! Find the control panel at:  https://richdestiny.app/cp")
+				return
+			} else { // it didn't start, but that message was already printed so just return here
+				return
+			}
+		}
+
 		fmt.Println(" Welcome to the rich-destiny setup!")
 
 		home, err := os.UserHomeDir()
@@ -121,14 +194,17 @@ func main() {
 				fmt.Print("Current/")
 			}
 			fmt.Print("Exit]: ")
-			var r string
-			_, err = fmt.Scanln(&r)
-			r = strings.ToLower(r)
+
+			r, err := readUserInput()
+			if err != nil {
+				log.Printf(" Unable to read your input...: %s", err)
+				return
+			}
 			if strings.Contains(r, "d") {
 				fmt.Println(" Okay, attempting to move there...")
 
 				err = os.Mkdir(defaultDirectory, os.ModePerm)
-				if err != nil && !errors.Is(err, os.ErrExist)  {
+				if err != nil && !errors.Is(err, os.ErrExist) {
 					log.Printf("Error trying to create %s\\rich-destiny folder: %s", home, err)
 					break
 				}
@@ -140,7 +216,7 @@ func main() {
 				if err != nil {
 					log.Printf("Error moving rich-destiny.exe to new location: %s", err)
 				}
-				
+
 				fmt.Println(" Successfully moved.")
 				moved = true
 				break
@@ -173,27 +249,11 @@ func main() {
 
 		fmt.Println(" Done! Waiting for rich-destiny to start...")
 
-		var success bool
-		for i := 0; i <= 10; i++ {
-			if i == 0 || i == 5 {
-				err = s.Start()
-				if err != nil {
-					log.Printf("Error starting rich-destiny: %s", err)
-					return
-				}
-			}
-			_, err := http.Get("http://localhost:35893")
-			if err != nil {
-				time.Sleep(3 * time.Second)
-			} else {
-				success = true
-				break
-			}
-		}
-
-		if !success {
-			fmt.Println(" It seems rich-destiny didn't want to start at all..." +
-				"Try seeing if there is any information in the logs folder where rich-destiny was installed or head to the Discord server for help ( https://discord.gg/UNU4UXp ).")
+		started, err := successfullyStartService()
+		if err != nil {
+			log.Printf("Error trying to start rich-destiny: %s", err)
+			return
+		} else if !started {
 			return
 		}
 
@@ -247,8 +307,8 @@ func (p *program) run() {
 	// Wait for a decent computer to have booted, no internet connection means trouble
 	// TODO: Way better way of handling internet connection status; this is pretty terrible
 	time.Sleep(10 * time.Second)
-	
-	debugText = "";
+
+	debugText = ""
 
 	// Kinda useless since browser tabs cannot be opened from a service, but leaving it in
 	if _, err = getStorage(); err != nil {
@@ -279,7 +339,7 @@ func (p *program) run() {
 			s.Stop()
 			return
 		}
-		
+
 		initPresence()
 	}()
 
@@ -410,18 +470,18 @@ func startWebServer() {
 		}
 		res.Header().Set("Content-Type", "application/json")
 		action := req.URL.Query().Get("a")
-		
+
 		switch action {
 		case "":
 			res.WriteHeader(http.StatusBadRequest)
 			fmt.Fprint(res, "error 400: Bad Request")
 			return
-		
+
 		case "current":
 			d := currentProgramStatus{
-				Version: version,
-				Debug: "NA",
-				Status: "Not logged in",
+				Version:  version,
+				Debug:    "NA",
+				Status:   "Not logged in",
 				Presence: previousActivity,
 			}
 
@@ -435,7 +495,7 @@ func startWebServer() {
 			d.AutoUpdate = storage.AutoUpdate
 			d.JoinGameButton = storage.JoinGameButton
 			d.JoinOnlySocial = storage.JoinOnlySocial
-			
+
 			if previousActivity.Details == "" {
 				d.Status = "Not playing Destiny 2"
 				returnStructAsJSON(res, d)
@@ -490,14 +550,14 @@ func startWebServer() {
 			} else {
 				fmt.Fprintf(res, "Update installed successfully; will be applied next startup (or restart rich-destiny from the Services manager). New version: %s", newVersion)
 			}
-		// case "restart":
-		// 	err := s.Restart()
-		// 	if err != nil {
-		// 		res.WriteHeader(http.StatusInternalServerError)
-		// 		fmt.Fprintf(res, "Error trying to restart: %s", err)
-		// 	}
+			// case "restart":
+			// 	err := s.Restart()
+			// 	if err != nil {
+			// 		res.WriteHeader(http.StatusInternalServerError)
+			// 		fmt.Fprintf(res, "Error trying to restart: %s", err)
+			// 	}
 
-		// 	fmt.Fprintf(res, "OK")
+			// 	fmt.Fprintf(res, "OK")
 		}
 	})
 
@@ -515,6 +575,12 @@ func startWebServer() {
 
 func makePath(e string) string {
 	return filepath.Join(currentDirectory, e)
+}
+
+func readUserInput() (string, error) {
+	var r string
+	_, err := fmt.Scanln(&r)
+	return strings.ToLower(r), err
 }
 
 func enableCors(res *http.ResponseWriter, req *http.Request) {
