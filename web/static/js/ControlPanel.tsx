@@ -146,8 +146,14 @@ export default function() {
                 <a href="http://localhost:35893/login" className="button" target="_blank"
                     rel="noopener noreferrer" data-tip="In case the refresh token has expired, or
                     you want to log in with a different account.">Authenticate</a>
+                
+                <a onClick={() => {
+                    doSimpleGetRequest("http://localhost:35893/action?a=reconnect", 0, () => {});
+                }} href="#" className="button" data-tip="Reconnect to Discord. This is only supposed to be
+                    used when this site says you're playing the game, but Discord isn't.">Reconnect</a>
+                    {requiresVersion("v0.2.1")}
 
-                    <a onClick={() => {
+                <a onClick={() => {
                     document.getElementById("update").innerHTML = "Updating...";
                     doSimpleGetRequest("http://localhost:35893/action?a=update", 0, () => {
                         document.getElementById("update").innerHTML = "Update";

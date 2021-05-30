@@ -577,6 +577,21 @@ func startWebServer() {
 				fmt.Fprintf(res, "Error trying to stop service: %s", err)
 				return
 			}
+		case "reconnect":
+			if previousActivity.Details != "" {
+				richgo.Logout()
+				err := richgo.Login("726090012877258762")
+				if err != nil {
+					fmt.Fprintf(res, "Couldn't connect to Discord: %s", err)
+					return
+				}
+				forcePresenceUpdate = true
+			} else {
+				fmt.Fprintf(res, "Can't reconnect when there's nothing to connect to! You're not playing Destiny 2.")
+				return
+			}
+
+			fmt.Fprint(res, "Successfully reconnected.")
 		// case "restart":
 		// 	err := s.Restart()
 		// 	if err != nil {
