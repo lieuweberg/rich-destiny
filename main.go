@@ -527,9 +527,15 @@ func startWebServer() {
 			d.Debug = debugText
 			returnStructAsJSON(res, d)
 		case "save":
+			if storage == nil {
+				res.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprint(res, "Please Authenticate before saving settings.")
+				return
+			}
 			if req.Method != http.MethodPost {
 				return
 			}
+
 			data, err := ioutil.ReadAll(req.Body)
 			req.Body.Close()
 			if err != nil {
