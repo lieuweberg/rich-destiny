@@ -124,7 +124,7 @@ func main() {
 		// This works because it deletes/starts/detects by name. Path does not matter, except when installing.
 		createService()
 		status, err := s.Status()
-		if err != nil {
+		if err != nil && !errors.Is(err, service.ErrNotInstalled) {
 			log.Printf("Error trying to detect service status: %s", err)
 		}
 
@@ -187,7 +187,6 @@ func main() {
 			fmt.Printf("\n → Current: %s", currentDirectory)
 		}
 
-		var moved bool
 		for {
 			fmt.Print("\n\n  > Choose a location: [Default/")
 			if !downloadDir {
@@ -206,7 +205,7 @@ func main() {
 				err = os.Mkdir(defaultDirectory, os.ModePerm)
 				if err != nil && !errors.Is(err, os.ErrExist) {
 					log.Printf("Error trying to create %s\\rich-destiny folder: %s", home, err)
-					break
+					return
 				}
 
 				oldExe := exe
@@ -234,29 +233,25 @@ func main() {
 					err = os.Rename(oldExe, exe)
 					if err != nil {
 						log.Printf("Error moving rich-destiny.exe to new location: %s", err)
+						return
+					}
 				}
 
 				fmt.Println(" Successfully moved.")
-				moved = true
 				break
 			} else if strings.Contains(r, "c") {
 				if downloadDir {
 					fmt.Println(" Okay, move this program to a different directory manually and run it from there.")
-				} else {
-					fmt.Println(" Okay, installing at the current location.")
+					return
 				}
+				fmt.Println(" Okay, installing at the current location.")
 				break
 			} else if strings.Contains(r, "x") {
 				fmt.Println(" Okay, exiting. If you intend to move this program to another folder, make sure to close this window first.")
-				// Hacky way to stop :)
-				downloadDir = true
-				break
+				return
 			} else {
 				fmt.Println(" Invalid response. Please reply with Default, Current or Exit.")
 			}
-		}
-		if downloadDir && !moved {
-			return
 		}
 
 		createService()
