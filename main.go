@@ -212,9 +212,28 @@ func main() {
 				oldExe := exe
 				exe = filepath.Join(defaultDirectory, "rich-destiny.exe")
 
-				err = os.Rename(oldExe, exe)
-				if err != nil {
-					log.Printf("Error moving rich-destiny.exe to new location: %s", err)
+				if oldExe[0] != exe[0] {
+					newFile, err := os.Create(exe)
+					if err != nil {
+						log.Printf("Error creating file at new location: %s", err)
+						return
+					}
+					oldFile, err := os.Open(oldExe)
+					if err != nil {
+						log.Printf("Error opening old file: %s", err)
+						return
+					}
+					_, err = io.Copy(newFile, oldFile)
+					if err != nil {
+						log.Printf("Error copying file: %s", err)
+						return
+					}
+					newFile.Close()
+					oldFile.Close()
+				} else {
+					err = os.Rename(oldExe, exe)
+					if err != nil {
+						log.Printf("Error moving rich-destiny.exe to new location: %s", err)
 				}
 
 				fmt.Println(" Successfully moved.")
