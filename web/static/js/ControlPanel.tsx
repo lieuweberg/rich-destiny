@@ -115,32 +115,22 @@ export default function() {
                         &nbsp; <span data-tip="Text to display on the second line of the presence. See
                         the preview to the right. Leave empty to disable.">&#x1f6c8;</span>
                     </label> <br/>
-                    <label>
-                        Auto update: <input type="checkbox" id="autoUpdate" checked={autoUpdateValue}
-                            onChange={e => setAutoUpdateValue(e.target.checked)} />
-                        &nbsp; <span data-tip="Whether to update to the latest releases of rich-destiny
-                        automatically. If unticked, you can use the Update button below.">&#x1f6c8;</span>
-                    </label> <br/>
+                    
+                    <CheckboxInput name="Auto update" id="autoUpdate" value={autoUpdateValue}
+                        update={setAutoUpdateValue} text="Whether to update to the latest releases of
+                        rich-destiny automatically. If unticked, you can use the Update button below." />
                 </div>
 
                 <h4>Join Game button</h4>
                 <div>
-                    <label>
-                        Enabled: <input type="checkbox" id="joinGameButton" checked={joinGameButtonValue}
-                            onChange={e => setJoinGameButtonValue(e.target.checked)} />
-                        &nbsp; <span data-tip="Adds a 'Join Game' button to your status that allows anyone
-                        (including people without rich-destiny) to join your fireteam, simply by clicking
-                        it.">&#x1f6c8;</span>
-                    </label> <br/>
-                    <label>
-                        Orbit or social spaces only: <input type="checkbox" id="joinOnlySocial"
-                        checked={joinOnlySocialValue}
-                            onChange={e => setJoinOnlySocialValue(e.target.checked)} />
-                        &nbsp; <span data-tip="When ticked, the Join Game button will appear only when you're
-                        in orbit or social spaces like the Tower, preventing people from joining mid-game
-                        or when you're trying to complete an activity solo, like a dungeon.">&#x1f6c8;
-                        </span> {requiresVersion("v0.1.9")}
-                    </label> <br/>
+                    <CheckboxInput name="Enabled" id="joinGameButton" value={joinGameButtonValue}
+                        update={setJoinGameButtonValue} text="Adds a 'Join Game' button to your status that
+                        allows anyone (including people without rich-destiny) to join your fireteam, simply
+                        by clicking it." /> {requiresVersion("v0.2.1")}
+                    <CheckboxInput name="Orbit or social spaces only" id="joinOnlySocial"
+                        value={joinOnlySocialValue} update={setJoinOnlySocialValue} text="When ticked, the Join
+                        Game button will appear only when you're in orbit or social spaces like the Tower,
+                        preventing people from joining mid-game" /> {requiresVersion("v0.1.9")}
                 </div>
                 <a href="#" className="button" onClick={handleFormSubmit}>Save Settings</a>
             </form>
@@ -153,17 +143,28 @@ export default function() {
             <h2>Actions</h2>
             <a href="http://localhost:35893/login" className="button" target="_blank"
                 rel="noopener noreferrer" data-tip="In case the refresh token has expired, or
-                you want to log in with a different account.">Reauthenticate</a> <br/>
+                you want to log in with a different account.">Authenticate</a> <br/>
             <a onClick={() => {
                 document.getElementById("update").innerHTML = "Updating...";
                 doSimpleGetRequest("http://localhost:35893/action?a=update", 0, () => {
                     document.getElementById("update").innerHTML = "Update";
                 });
             }} href="#" className="button" id="update" data-tip="Force finding and installing of
-            the latest version of the program. If the version is the same, nothing happens. If it's
-            newer, it's installed, but the program has to be restarted for an update to apply.">Update</a>
+            the latest version of the program. If it's newer, it's installed, but the program
+            has to be restarted for an update to apply.">Update</a>
         </div>
     </div> <ReactTooltip effect="solid" backgroundColor="#18191C"/> </>
+}
+
+function CheckboxInput({name, id, value, update, text}) {
+
+    return <>
+        <label>
+            {name}: <input type="checkbox" id={id} checked={value}
+            onChange={e => update(e.target.checked)} /> &nbsp;
+            <span data-tip={text}>&#x1f6c8;</span>
+        </label> <br/>
+    </>
 }
 
 function handleHTTPError(err) {
