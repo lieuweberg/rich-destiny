@@ -217,10 +217,11 @@ a:not(#nav a, .button) {
 .button {
     display: inline-block;
     margin: 10px 7px 0;
-    padding: 10px 0;
-    width: 180px;
+    padding: 8px 0;
+    min-width: 160px;
 
     border-radius: 5px;
+    border: 2px solid #6c82cf;
     outline: none;
     color: white;
     background-color: #6c82cf;
@@ -229,6 +230,10 @@ a:not(#nav a, .button) {
     text-align: center;
     line-height: 1rem;
     text-decoration: none;
+
+    &:hover, &:focus {
+        border-color: white;
+    }
 
     &:active {
         outline: none;
