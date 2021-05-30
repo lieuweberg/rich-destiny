@@ -127,6 +127,7 @@ export default function() {
                         update={setJoinGameButtonValue} text="Adds a 'Join Game' button to your status that
                         allows anyone (including people without rich-destiny) to join your fireteam, simply
                         by clicking it." /> {requiresVersion("v0.2.1")}
+
                     <CheckboxInput name="Orbit or social spaces only" id="joinOnlySocial"
                         value={joinOnlySocialValue} update={setJoinOnlySocialValue} text="When ticked, the Join
                         Game button will appear only when you're in orbit or social spaces like the Tower,
@@ -141,17 +142,25 @@ export default function() {
         </div>
         <div>
             <h2>Actions</h2>
-            <a href="http://localhost:35893/login" className="button" target="_blank"
-                rel="noopener noreferrer" data-tip="In case the refresh token has expired, or
-                you want to log in with a different account.">Authenticate</a> <br/>
-            <a onClick={() => {
-                document.getElementById("update").innerHTML = "Updating...";
-                doSimpleGetRequest("http://localhost:35893/action?a=update", 0, () => {
-                    document.getElementById("update").innerHTML = "Update";
-                });
-            }} href="#" className="button" id="update" data-tip="Force finding and installing of
-            the latest version of the program. If it's newer, it's installed, but the program
-            has to be restarted for an update to apply.">Update</a>
+            <div id="actions">
+                <a href="http://localhost:35893/login" className="button" target="_blank"
+                    rel="noopener noreferrer" data-tip="In case the refresh token has expired, or
+                    you want to log in with a different account.">Authenticate</a>
+
+                    <a onClick={() => {
+                    document.getElementById("update").innerHTML = "Updating...";
+                    doSimpleGetRequest("http://localhost:35893/action?a=update", 0, () => {
+                        document.getElementById("update").innerHTML = "Update";
+                    });
+                }} href="#" className="button" id="update" data-tip="Force finding and installing of
+                    the latest version of the program. If it's newer, it's installed, but the program
+                    has to be restarted for an update to apply.">Update</a>
+
+                <a onClick={() => {
+                    doSimpleGetRequest("http://localhost:35893/action?a=uninstall", 0, () => {});
+                }} href="#" className="button" data-tip="Uninstall rich-destiny from the service manager. Files
+                    need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
+            </div>
         </div>
     </div> <ReactTooltip effect="solid" backgroundColor="#18191C"/> </>
 }

@@ -564,14 +564,27 @@ func startWebServer() {
 			} else {
 				fmt.Fprintf(res, "Update installed successfully; will be applied next startup (or restart rich-destiny from the Services manager). New version: %s", newVersion)
 			}
-			// case "restart":
-			// 	err := s.Restart()
-			// 	if err != nil {
-			// 		res.WriteHeader(http.StatusInternalServerError)
-			// 		fmt.Fprintf(res, "Error trying to restart: %s", err)
-			// 	}
+		case "uninstall":
+			err := s.Uninstall()
+			if err != nil {
+				res.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprintf(res, "Error trying to uninstall: %s", err)
+				return
+			}
+			err = s.Stop()
+			if err != nil {
+				res.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprintf(res, "Error trying to stop service: %s", err)
+				return
+			}
+		// case "restart":
+		// 	err := s.Restart()
+		// 	if err != nil {
+		// 		res.WriteHeader(http.StatusInternalServerError)
+		// 		fmt.Fprintf(res, "Error trying to restart: %s", err)
+		// 	}
 
-			// 	fmt.Fprintf(res, "OK")
+		// 	fmt.Fprintf(res, "OK")
 		}
 	})
 
