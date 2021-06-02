@@ -145,7 +145,7 @@ func updatePresence() {
 						newActivity.State = "Garden of Salvation"
 						newActivity.LargeImage = "raid"
 					default:
-						newActivity.Details = "In orbit"
+						newActivity.Details = "In Orbit"
 						newActivity.LargeImage = "destinylogo"
 						if storage.OrbitText != "" {
 							newActivity.State = storage.OrbitText
