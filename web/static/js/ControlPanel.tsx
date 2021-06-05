@@ -138,7 +138,7 @@ export default function() {
         </div>
         <div>
             <h4>Orbit presence preview</h4>
-            <PresenceCard description="In orbit" state={orbitTextValue} largeImage="destinylogo"/>
+            <PresenceCard description="In Orbit" state={orbitTextValue} largeImage="destinylogo"/>
         </div>
         <div>
             <h2>Actions</h2>
