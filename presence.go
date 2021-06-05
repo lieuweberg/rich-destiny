@@ -145,7 +145,7 @@ func updatePresence() {
 						newActivity.State = "Garden of Salvation"
 						newActivity.LargeImage = "raid"
 					default:
-						newActivity.Details = "In orbit"
+						newActivity.Details = "In Orbit"
 						newActivity.LargeImage = "destinylogo"
 						if storage.OrbitText != "" {
 							newActivity.State = storage.OrbitText
@@ -312,7 +312,7 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 		}
 
 		if storage.JoinGameButton {
-			if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In orbit") {
+			if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
 				newActivity.Buttons = []*richgo.Button{
 					{
 						Label: "Join Game",

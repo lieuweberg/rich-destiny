@@ -109,7 +109,7 @@ export default function() {
 
 const examplePresences = [
     {i:"strikes",d:"Normal Strikes - Nessus",s:"The Insight Terminus",t:"08:42"},
-    {i:"destinylogo",d:"In orbit",s:"space 🌌 (customisable)",t:"04:13"},
+    {i:"destinylogo",d:"In Orbit",s:"space 🌌 (customisable)",t:"04:13"},
     {i:"storypvecoopheroic",d:"Story - Europa",s:"The New Kell",t:"13:24"},
     {i:"raid",d:"Raid - The Dreaming City",s:"Last Wish",t:"02:15:11"},
     {i:"control",d:"Control - The Crucible",s:"Pacifica",t:"05:58"},
