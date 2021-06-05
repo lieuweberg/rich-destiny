@@ -164,6 +164,9 @@ func updatePresence() {
 					newActivity.Details = "Social - Earth"
 					newActivity.State = "H.E.L.M."
 					newActivity.LargeImage = "socialall"
+				case activity.DP.Name == "Last City: Eliksni Quarter":
+					newActivity.Details = "Eliksni Quarter - The Last City"
+					newActivity.LargeImage = "storypvecoopheroic"
 				case activityMode.DP.Name == "Explore":
 					// Remove double place
 					newActivity.Details = "Explore - " + place.DP.Name
