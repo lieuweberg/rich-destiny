@@ -1,9 +1,9 @@
-github.com/hugolgst/rich-go v0.0.0-20200319172754-527649f3d36d h1:HYFRni7r+C/z96mu/Ur+JZrcnsCvlA8WEFBEhyGpXH8=
-github.com/hugolgst/rich-go v0.0.0-20200319172754-527649f3d36d/go.mod h1:J5UWekI/HHIt5ID+GVPAW+M19kxXLTFnAdTGDl4mRF0=
 github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf h1:WfD7VjIE6z8dIvMsI4/s+1qr5EL+zoIGev1BQj1eoJ8=
 github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf/go.mod h1:hyb9oH7vZsitZCiBt0ZvifOrB+qc8PS5IiilCIb87rg=
 github.com/kardianos/service v1.1.0 h1:QV2SiEeWK42P0aEmGcsAgjApw/lRxkwopvT+Gu6t1/0=
 github.com/kardianos/service v1.1.0/go.mod h1:RrJI2xn5vve/r32U5suTbeaSGoMU6GbNPoj36CVYcHc=
+github.com/lieuweberg/rich-go v0.0.0-20210618211050-91adb7bc8afe h1:cE+ywn23mex6G6kSIRmVee7Tc19qiJ29svEmn6dJ8Fk=
+github.com/lieuweberg/rich-go v0.0.0-20210618211050-91adb7bc8afe/go.mod h1:0yLM5HZrohQZ/RLIIM4Pje5ito/s7yXe028MOJtAMHs=
 github.com/mattn/go-sqlite3 v1.14.5 h1:1IdxlwTNazvbKJQSxoJ5/9ECbEeaTTyeU7sEAZ5KKTQ=
 github.com/mattn/go-sqlite3 v1.14.5/go.mod h1:WVKg1VTActs4Qso6iwGbiFih2UIHo0ENGwNd0Lj+XmI=
 github.com/mitchellh/go-ps v1.0.0 h1:i6ampVEEF4wQFF+bkYfwYgY+F/uYJDktmvLPf7qIgjc=

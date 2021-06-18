@@ -1,6 +1,6 @@
 package main
 
-import richgo "github.com/hugolgst/rich-go/client"
+import richgo "github.com/lieuweberg/rich-go/client"
 
 // Internal structs
 // here: MSID means MembershipID

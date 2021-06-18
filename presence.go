@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	richgo "github.com/hugolgst/rich-go/client"
+	richgo "github.com/lieuweberg/rich-go/client"
 	"github.com/mitchellh/go-ps"
 )
 

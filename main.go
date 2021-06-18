@@ -17,8 +17,8 @@ import (
 
 	"time"
 
-	richgo "github.com/hugolgst/rich-go/client"
 	"github.com/kardianos/service"
+	richgo "github.com/lieuweberg/rich-go/client"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -598,14 +598,14 @@ func startWebServer() {
 			}
 
 			fmt.Fprint(res, "Successfully reconnected.")
-		// case "restart":
-		// 	err := s.Restart()
-		// 	if err != nil {
-		// 		res.WriteHeader(http.StatusInternalServerError)
-		// 		fmt.Fprintf(res, "Error trying to restart: %s", err)
-		// 	}
+			// case "restart":
+			// 	err := s.Restart()
+			// 	if err != nil {
+			// 		res.WriteHeader(http.StatusInternalServerError)
+			// 		fmt.Fprintf(res, "Error trying to restart: %s", err)
+			// 	}
 
-		// 	fmt.Fprintf(res, "OK")
+			// 	fmt.Fprintf(res, "OK")
 		}
 	})
 
