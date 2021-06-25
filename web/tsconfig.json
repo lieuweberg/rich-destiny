@@ -3,6 +3,6 @@
       "jsx": "react",
       "esModuleInterop": true,
       "resolveJsonModule": true,
-      "lib": ["dom", "es2016"]
+      "lib": ["dom", "es2017"]
     }
 }

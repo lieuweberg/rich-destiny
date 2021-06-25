@@ -1,4 +1,6 @@
-// Fonts
+/* =======
+    FONTS
+   ======= */
 @font-face {
     font-family: "Whitney";
     font-weight: 400;
@@ -19,8 +21,11 @@
 }
 
 @import "mixins.scss";
+@import "colors.scss";
 
-// Site-wide
+/* ========
+    GLOBAL
+   ======== */
 body {
     height: 100vh;
     margin: 0;
@@ -54,12 +59,14 @@ body {
 }
 
 .Toastify__progress-bar--dark {
-    background-color: #6c82cf !important;
+    background-color: $blurple !important;
 }
 
-// Site-wide rendered content
+/* ===================
+    NON-PAGE ELEMENTS
+   =================== */
 #info-banner {
-    background-color: #6c82cf;
+    background-color: $blurple;
     text-align: center;
     font-size: 0.9rem;
     font-weight: 500;
@@ -175,11 +182,28 @@ body {
     }
 }
 
-// Global defaults and other widely used css
+/* ============================
+    DEFAULT VALUES AND CLASSES
+   ============================ */
 p, h1, h2, h3, h4, a, li, label, input[type=submit], .__react_component_tooltip {
     color: white;
     font-family: 'Segoe UI', Geneva, Verdana, sans-serif;
-    word-wrap: normal;
+}
+
+h1:not(#title>h1) {
+    display: inline;
+    border-top: 3px solid #4b4b4b;
+    &::after {
+        content: '';
+        display: block;
+        height: 3px;
+        width: 75px;
+        background-color: #4b4b4b;
+    }
+}
+
+.grey {
+    color: #a3a3a3;
 }
 
 code {
@@ -190,7 +214,6 @@ code {
 }
 
 a:not(#nav a, .button) {
-    padding-bottom: 1px;
     text-decoration: none;
     border-bottom: 2px dashed #aeaeae;
 
@@ -202,10 +225,10 @@ a:not(#nav a, .button) {
 .generic-text {
     margin: 0 auto;
     &:not(.no-padding) {
-        padding: 45px 20px 60px;
-    }
-    &.top-text {
         padding: 0 20px 60px;
+    }
+    &.top-padding {
+        padding-top: 45px;
     }
     width: min(calc(100% - 40px), 1000px);
 }
@@ -221,11 +244,11 @@ a:not(#nav a, .button) {
     min-width: 160px;
 
     border-radius: 5px;
-    border: 2px solid #6c82cf;
+    border: 2px solid $blurple;
     outline: none;
     color: white;
-    background-color: #6c82cf;
-    box-shadow: -7px 7px #050505;
+    background-color: $blurple;
+    box-shadow: 0 0 10px #050505;
     
     text-align: center;
     line-height: 1rem;
@@ -236,8 +259,13 @@ a:not(#nav a, .button) {
     }
 
     &:active {
-        outline: none;
-        box-shadow: -3px 3px #050505;
-        transform: translate(-4px, 4px);
+        transform: scale(.96);
     }
+}
+
+.boxed {
+    padding: 30px;
+    background-color: $dark-box;
+    border-radius: 10px;
+    box-shadow: 0 0 8px #131313;
 }

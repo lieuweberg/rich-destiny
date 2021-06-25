@@ -1,4 +1,5 @@
 @import "mixins.scss";
+@import "colors.scss";
 
 #title {
     display: grid;
@@ -86,7 +87,7 @@
     justify-content: center;
     gap: 50px;
     padding: 70px 0;
-    background-color: #252525;
+    background-color: $dark-box;
 
     @include isMobile() {
         flex-direction: column;
@@ -108,7 +109,7 @@
 
     .image {
         border-radius: 10px;
-        background-color: #6c82cf;
+        background-color: $blurple;
         overflow: hidden;
 
         img {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import marked from "marked";
@@ -23,8 +23,19 @@ interface Asset {
     browser_download_url:   string;
 }
 
+interface ParsedRelease {
+    version:    string;
+    body:       string;
+    url:        string;
+    size:       string;
+    downloads:  number;
+    date:       string;
+    year:       number;
+}
+
 export default function() {
     const [releases, setReleases] = useMemoryState("githubReleases", []) as [GitHubRelease[], Function];
+    const [releaseIndex, setReleaseIndex] = useState(0);
 
     if (releases.length == 0) {
         axios.get("https://api.github.com/repos/lieuweberg/rich-destiny/releases", {
@@ -48,48 +59,88 @@ export default function() {
         })
     }
 
-    let latest: GitHubRelease;
+    function parseRelease(githubRelease: GitHubRelease): ParsedRelease {
+        let asset = githubRelease.assets[0];
+        let d = (new Date(githubRelease.published_at));
+        let r: ParsedRelease = {
+            version: githubRelease.name,
+            body: githubRelease.body,
+            url: asset.browser_download_url,
+            size: (asset.size / 1e6).toFixed(1),
+            downloads: asset.download_count,
+            date: d.toLocaleString("en-us", { day: "2-digit", month: "long" }),
+            year: d.getFullYear()
+        };
+
+        return r;
+    }
+
+    let selectedReleases: ParsedRelease[] = [];
     for (let r of releases) {
         if (!(r.prerelease || r.draft)) {
-            latest = r;
-            break;
+            if (selectedReleases.length == 5) {
+                break;
+            } else {
+                selectedReleases.push(parseRelease(r));
+            }
+        }
+    }
+
+    let r = selectedReleases[releaseIndex];
+    if (!r) {
+        r = {
+            version: "vX.Y.Z",
+            body: "Fetching releases...",
+            url: "https://github.com/lieuweberg/rich-destiny/releases/latest",
+            size: "??",
+            downloads: Infinity,
+            date: "Soon™",
+            year: 2077
         }
     }
     
-    let version = "vX.Y.Z";
-    let url = "https://github.com/lieuweberg/rich-destiny/releases/latest";
-    let size = "??";
-    // let downloads = ":(";
-    if (latest) {
-        let asset = latest.assets[0];
-        version = latest.name;
-        url = asset.browser_download_url;
-        size = (asset.size / 1e6).toFixed(1).toString();
-        // downloads = asset.download_count.toString();
-    }
-
     return <>
-        <div className="generic-text top-text">
+        <div className="generic-text">
             <h1>Download</h1>
+
             <p>You can download the latest release here. Source code (in case you want to view that) can be
             found in the <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
-            rel="noopener noreferrer">GitHub</a> repo alongside old releases. Note that old releases
-            don't do anything special, please download the most recent release. Clicking the download
+            rel="noopener noreferrer">GitHub</a> repo alongside old releases. Clicking the download
             button here downloads the same file as GitHub releases provides.</p>
             <p>Installation instructions can be found below. It is recommended
-            to fully read these prior to installation.</p></div>
-            <div className="generic-text no-padding">
+            to fully read these prior to installation.</p>
 
-            <a id="release-link" className="button" href={url}>Download {version}</a>
-            <p>Size: {size}MiB <br/>
-            {/* Downloads: {downloads}</p> */}</p>
-            <div id="release-info" dangerouslySetInnerHTML= {{ __html: marked(latest ? latest.body : "") }} />
+            <div id="download-box" className="boxed">
+                <div>
+                    <a className="button" href={r.url}>Download {r.version}</a>
+                    <div dangerouslySetInnerHTML= {{ __html: marked(r ? r.body : "") }} />
+                </div>
+                <div>
+                    <h2>About</h2>
+                    <p>Version: {r.version}<br/>
+                    Size: {r.size}MiB <br/>
+                    Date: {r.date} {r.year} <br/>
+                    Downloads: {r.downloads}</p>
+                </div>
+                <div>
+                    <h2>History</h2>
+                    <p>Click to view release notes.</p>
+                    <ul id="old-releases">
+                        {selectedReleases.map((release, i) => (
+                            <li key={i}><a href="#" onClick={e => {
+                                e.preventDefault();
+                                setReleaseIndex(i);
+                            }}>{release.version}</a> <span className="grey"> — {release.date}</span></li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
         </div>
         <div className="generic-text">
             <h1>Installation</h1>
             <ol id="install-steps">
                 <li>
-                    <p>Download rich-destiny by clicking the 'Download {version}' button above.</p>
+                    <p>Download rich-destiny by clicking the 'Download {r.version}' button above.</p>
                 </li>
                 <li>
                     <p>Double click <code>rich-destiny.exe</code>. Windows SmartScreen will pop up saying
@@ -103,8 +154,8 @@ export default function() {
                 </li>
                 <li>
                     <p>A text window will pop up. It will ask where you want to download rich-destiny. Unless
-                    you well know what you're doing, <b>type 'default' and hit enter</b>. A browser tab will shortly
-                    open to log in with Bungie.net.</p>
+                    you well know what you're doing, <b>type 'default' and hit enter</b>. A browser tab
+                    will shortly open to log in with Bungie.net.</p>
                     <p>That's it. You're done. Head to the <Link to="/cp">control panel</Link> to
                     configure rich-destiny! Enjoy :) If you have any questions, feel free to ask in
                     the <a href="https://discord.gg/UNU4UXp" target="_blank"

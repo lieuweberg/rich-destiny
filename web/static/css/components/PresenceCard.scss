@@ -1,8 +1,10 @@
+@import "../colors.scss";
+
 .presence-wrapper {
     width: 250px - 32px;
     height: 128px - 32px;
 
-    background-color: #6c82cf;
+    background-color: $blurple;
     border-radius: 8px;
     padding: 16px;
     
@@ -56,6 +58,6 @@
         width: 20px;
 
         border-radius: 50%;
-        border: 2px solid #6c82cf;
+        border: 2px solid $blurple;
     }
 }

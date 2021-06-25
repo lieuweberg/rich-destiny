@@ -94,7 +94,7 @@ export default function() {
             </div>
         </div>
 
-        <div className="generic-text">
+        <div className="generic-text top-padding">
             <h1>What's so special about this?</h1>
             <p>After <Link to="/download">downloading</Link>, this program installs itself into the
             Windows service manager. Every time you now start your computer, this program will also

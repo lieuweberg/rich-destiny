@@ -9,15 +9,25 @@ import PresenceCard from "./components/PresenceCard";
 import "../css/controlPanel.scss";
 import useMemoryState from "./MemoryState";
 
-interface APIResponse {
-    status:         string;
-    debug:          string;
-    version:        string;
-    name:           string;
+interface Settings {
     orbitText:      string;
     autoUpdate:     boolean;
     joinGameButton: boolean;
     joinOnlySocial: boolean;
+}
+
+const defaultSettings: Settings = {
+    orbitText: "",
+    autoUpdate: true,
+    joinGameButton: false,
+    joinOnlySocial: false
+}
+
+interface ProgramState extends Settings {
+    status:         string;
+    debug:          string;
+    version:        string;
+    name:           string;
     presence:       Presence;
 }
 
@@ -32,15 +42,12 @@ interface Presence {
     Buttons?:       any;
 }
 
-const DefaultData: APIResponse = {
+const defaultProgramState: ProgramState = {
     status: "Not installed",
     debug: "NA",
     version: "vX.Y.Z",
     name: "Not logged in",
-    orbitText: "",
-    autoUpdate: true,
-    joinGameButton: false,
-    joinOnlySocial: false,
+    ...defaultSettings,
     presence: {
         Details: "Not playing...",
         State: "",
@@ -50,35 +57,25 @@ const DefaultData: APIResponse = {
 }
 
 export default function() {
-    const [data, setData] = useMemoryState("controlPanelData", DefaultData) as [APIResponse, Function];
-    const [intervalID, setIntervalID] = React.useState(-1);
-    const [orbitTextValue, setOrbitTextValue] = React.useState("");
-    const [autoUpdateValue, setAutoUpdateValue] = React.useState(false);
-    const [joinGameButtonValue, setJoinGameButtonValue] = React.useState(false);
-    const [joinOnlySocialValue, setJoinOnlySocialValue] = React.useState(false);
+    const [data, setData] = useMemoryState("controlPanelData", defaultProgramState) as [ProgramState, Function];
+    const [settings, setSettings] = React.useState<Settings>(defaultSettings);
 
-    if (intervalID == -1) {
+    // Clear the interval when switching to another page. This acts as component unmount.
+    React.useEffect(() => {
+        getData(setData, -1);
         let interval = setInterval(() => {
             getData(setData, interval)
         }, 3000)
-        getData(setData, interval);
-        setIntervalID(interval);
-    }
 
-    // Clear the interval when switching to another page. [intervalID] makes it so this only happens
-    // when intervalID changes, and that is once, so stonks. This acts as component unmount.
+        return () => clearInterval(interval);
+    }, [])
+
+    // Update settings when new data comes in
     React.useEffect(() => {
-        return () => {
-            clearInterval(intervalID);
-        }
-    }, [intervalID])
-    React.useEffect(() => {
-        // update settings when new data comes in
-        setOrbitTextValue(data.orbitText);
-        setAutoUpdateValue(data.autoUpdate);
-        setJoinGameButtonValue(data.joinGameButton);
-        setJoinOnlySocialValue(data.joinOnlySocial)
-    }, [data.orbitText, data.joinGameButton, data.autoUpdate, data.joinOnlySocial])
+        let obj = { ...settings };
+        Object.keys(obj).forEach(k => obj[k] = data[k]);
+        setSettings(obj);
+    }, [data.autoUpdate, data.orbitText, data.joinGameButton, data.joinOnlySocial]);
 
     function requiresVersion(version: string) {
         if (data.version == "dev" || data.version == "vX.Y.Z") return null;
@@ -86,97 +83,108 @@ export default function() {
         else return <code>{version} needed! (current: {data.version})</code>;
     }
 
-    // if (requiresVersion("v0.2.0") == null) {
-    //     window.location.href = "https://richdestiny.app/cp";
-    // }
+    function setSetting(k, v) {
+        let obj = { ...settings };
+        obj[k] = v;
+        setSettings(obj);
+    }
 
-    return <> <div id="cp" className="generic-text top-text">
-        <div>
-            <h1>Control Panel</h1>
-            <p>Status: {data.status}<br/>
-            Logged in as: {data.name}<br/>
-            Debug: {data.debug}<br/>
-            Version: {data.version}</p>
+    return <> <div id="cp" className="generic-text">
+        <div className="boxed">
+            <div>
+                <h1>Control Panel</h1>
+                <p>Status: {data.status}<br/>
+                Logged in as: {data.name}<br/>
+                Debug: {data.debug}<br/>
+                Version: {data.version}</p>
+            </div>
+            <div style={{marginLeft: "auto"}}>
+                <h4>Current presence preview</h4>
+                <PresenceCard description={data.presence.Details} state={data.presence.State}
+                    largeImage={data.presence.LargeImage} smallImage={data.presence.SmallImage}
+                    initialTime={data.presence.Timestamps ? data.presence.Timestamps.Start : null}/>
+            </div>
+            <div>
+                <h4>Orbit presence preview</h4>
+                <PresenceCard description="In Orbit" state={settings.orbitText} largeImage="destinylogo"/>
+            </div>
         </div>
-        <div>
-            <h4>Current presence preview</h4>
-            <PresenceCard description={data.presence.Details} state={data.presence.State}
-                largeImage={data.presence.LargeImage} smallImage={data.presence.SmallImage}
-                initialTime={data.presence.Timestamps ? data.presence.Timestamps.Start : null}/>
-        </div>
-        <div>
+        <div className="boxed">
             <h2>Settings</h2>
             <form>
                 <h4>General</h4>
                 <div>
                     <label>
                         Orbit state text: <input type="text" id="orbitText" placeholder="empty up here..."
-                            value={orbitTextValue} onChange={e => setOrbitTextValue(e.target.value)} />
+                            value={settings.orbitText} onChange={e => setSetting("orbitText", e.target.value)} />
                         &nbsp; <span data-tip="Text to display on the second line of the presence. See
-                        the preview to the right. Leave empty to disable.">&#x1f6c8;</span>
+                        the Orbit presence preview to the left. Leave empty to disable.">&#x1f6c8;</span>
                     </label> <br/>
                     
-                    <CheckboxInput name="Auto update" id="autoUpdate" value={autoUpdateValue}
-                        update={setAutoUpdateValue} text="Whether to update to the latest releases of
+                    <CheckboxInput name="Auto update" json="autoUpdate" value={settings.autoUpdate}
+                        update={setSetting} text="Whether to update to the latest releases of
                         rich-destiny automatically. If unticked, you can use the Update button below." />
                 </div>
 
                 <h4>Join Game button</h4>
                 <div>
-                    <CheckboxInput name="Enabled" id="joinGameButton" value={joinGameButtonValue}
-                        update={setJoinGameButtonValue} text="Adds a 'Join Game' button to your status that
+                    <CheckboxInput name="Enabled" json="joinGameButton" value={settings.joinGameButton}
+                        update={setSetting} text="Adds a 'Join Game' button to your status that
                         allows anyone (including people without rich-destiny) to join your fireteam, simply
                         by clicking it." /> {requiresVersion("v0.2.1")}
 
-                    <CheckboxInput name="Orbit or social spaces only" id="joinOnlySocial"
-                        value={joinOnlySocialValue} update={setJoinOnlySocialValue} text="When ticked, the Join
+                    <CheckboxInput name="Orbit or social spaces only" json="joinOnlySocial"
+                        value={settings.joinOnlySocial} update={setSetting} text="When ticked, the Join
                         Game button will appear only when you're in orbit or social spaces like the Tower,
                         preventing people from joining mid-game" /> {requiresVersion("v0.1.9")}
                 </div>
-                <a href="#" className="button" onClick={handleFormSubmit}>Save Settings</a>
+                <a href="#" className="button" onClick={e => {handleFormSubmit(e, settings)}}>Save Settings</a>
             </form>
         </div>
-        <div>
-            <h4>Orbit presence preview</h4>
-            <PresenceCard description="In Orbit" state={orbitTextValue} largeImage="destinylogo"/>
-        </div>
-        <div>
+        <div className="boxed">
             <h2>Actions</h2>
             <div id="actions">
                 <a href="http://localhost:35893/login" className="button" target="_blank"
                     rel="noopener noreferrer" data-tip="In case the refresh token has expired, or
                     you want to log in with a different account.">Authenticate</a>
                 
-                <a onClick={() => {
+                <a onClick={e => {
+                    e.preventDefault();
                     doSimpleGetRequest("http://localhost:35893/action?a=reconnect", 0, () => {});
                 }} href="#" className="button" data-tip="Reconnect to Discord. This is only supposed to be
                     used when this site says you're playing the game, but Discord isn't.">Reconnect</a>
                     {requiresVersion("v0.2.1")}
 
-                <a onClick={() => {
+                <a onClick={e => {
+                    e.preventDefault();
                     document.getElementById("update").innerHTML = "Updating...";
                     doSimpleGetRequest("http://localhost:35893/action?a=update", 0, () => {
                         document.getElementById("update").innerHTML = "Update";
                     });
-                }} href="#" className="button" id="update" data-tip="Force finding and installing of
-                    the latest version of the program. If it's newer, it's installed, but the program
-                    has to be restarted for an update to apply.">Update</a>
+                }} href="#" className="button" id="update" data-tip="Force finding and downloading of
+                    the latest version of the program. If it's newer, it's downloaded, but the program
+                    has to be restarted for the update to apply.">Update</a>
 
-                <a onClick={() => {
+                <a onClick={e => {
+                    e.preventDefault();
                     doSimpleGetRequest("http://localhost:35893/action?a=uninstall", 0, () => {});
                 }} href="#" className="button" data-tip="Uninstall rich-destiny from the service manager. Files
                     need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
             </div>
         </div>
+        <div className="boxed">
+            <h2>Hey you...</h2>
+            <p>... yeah you. You're awesome, you know that? ✨ If you like rich-destiny, <span>consider
+            sharing</span> it with your friends.</p>
+        </div>
     </div> <ReactTooltip effect="solid" backgroundColor="#18191C"/> </>
 }
 
-function CheckboxInput({name, id, value, update, text}) {
-
+function CheckboxInput({name, json, value, update, text}) {
     return <>
         <label>
-            {name}: <input type="checkbox" id={id} checked={value}
-            onChange={e => update(e.target.checked)} /> &nbsp;
+            {name}: <input type="checkbox" id={json} checked={value}
+            onChange={e => update(json, e.target.checked)} /> &nbsp;
             <span data-tip={text}>&#x1f6c8;</span>
         </label> <br/>
     </>
@@ -198,23 +206,19 @@ function getData(setData: Function, interval: number) {
     }).then(res => {
         for (let key of Object.keys(res.data.presence)) {
             if (res.data.presence[key] == "" || res.data.presence[key] == null) {
-                res.data.presence[key] = DefaultData.presence[key];
+                res.data.presence[key] = defaultProgramState.presence[key];
             }
         }
-        setData({ ...DefaultData, ...res.data });
+        setData({ ...defaultProgramState, ...res.data });
     }).catch(err => {
         handleHTTPError(err)
         clearInterval(interval)
     })
 }
 
-function handleFormSubmit() {
-    axios.post("http://localhost:35893/action?a=save", {
-        orbitText: (document.getElementById("orbitText") as HTMLInputElement).value,
-        autoUpdate: (document.getElementById("autoUpdate") as HTMLInputElement).checked,
-        joinGameButton: (document.getElementById("joinGameButton") as HTMLInputElement).checked,
-        joinOnlySocial: (document.getElementById("joinOnlySocial") as HTMLInputElement).checked
-    }, { timeout: 1000 })
+function handleFormSubmit(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, settings: Settings) {
+    e.preventDefault();
+    axios.post("http://localhost:35893/action?a=save", { ...settings }, { timeout: 1000 })
     .then(res => {
         toast.dark("Settings saved!")
     }).catch(err => handleHTTPError(err));

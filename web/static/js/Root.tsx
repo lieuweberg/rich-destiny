@@ -56,7 +56,7 @@ function Root() {
                     <ControlPanel />
                 </Route>
                 <Route path="*">
-                    <div className="generic-text top-text">
+                    <div className="generic-text">
                         <h1>404</h1>
                         <p>This page does not exist or was removed.</p>
                         <p>Head back <Link to="/">home</Link>.</p>
