@@ -135,8 +135,9 @@ func main() {
 			fmt.Println(" rich-destiny is already installed but not running. Attempting to start it...")
 			started, err := successfullyStartService()
 			if err != nil {
-				if err.Error() == "The system cannot find the file specified." {
-					fmt.Println(" Windows can't find the file where you installed rich-destiny previously.\n\n Do you want to uninstall the original location so you can reinstall here?")
+				if err.Error() != "The system cannot find the file specified." {
+					fmt.Printf(" An error occured, but rich-destiny doesn't recognise it: %s\n\n" +
+						"Is this similar or does this translate to \"The system cannot find the file specified.\"?", err)
 					for {
 						fmt.Print("\n Choose: [Yes/No]: ")
 						r, err := readUserInput()
@@ -145,11 +146,6 @@ func main() {
 							return
 						}
 						if strings.Contains(r, "y") {
-							err = s.Uninstall()
-							if err != nil {
-								log.Printf("Error trying to uninstall the service: %s", err)
-							}
-							fmt.Print("\n Uninstalled. Starting new installation now.\n\n")
 							break
 						} else if strings.Contains(r, "n") {
 							fmt.Println(" Okay. If you need help, please join the support server!  https://discord.gg/UNU4UXp")
@@ -157,6 +153,28 @@ func main() {
 						} else {
 							fmt.Println(" Invalid response.")
 						}
+					}
+				}
+				fmt.Println(" Windows can't find the file where you installed rich-destiny previously.\n\n Do you want to uninstall the original location so you can reinstall here?")
+				for {
+					fmt.Print("\n Choose: [Yes/No]: ")
+					r, err := readUserInput()
+					if err != nil {
+						log.Printf(" Unable to read your input...: %s", err)
+						return
+					}
+					if strings.Contains(r, "y") {
+						err = s.Uninstall()
+						if err != nil {
+							log.Printf("Error trying to uninstall the service: %s", err)
+						}
+						fmt.Print("\n Uninstalled. Starting new installation now.\n\n")
+						break
+					} else if strings.Contains(r, "n") {
+						fmt.Println(" Okay. If you need help, please join the support server!  https://discord.gg/UNU4UXp")
+						return
+					} else {
+						fmt.Println(" Invalid response.")
 					}
 				}
 			} else if started {
