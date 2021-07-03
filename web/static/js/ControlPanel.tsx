@@ -62,7 +62,7 @@ export default function() {
 
     // Clear the interval when switching to another page. This acts as component unmount.
     React.useEffect(() => {
-        getData(setData, -1);
+        getData(setData, 0);
         let interval = setInterval(() => {
             getData(setData, interval)
         }, 3000)
@@ -136,7 +136,7 @@ export default function() {
                     <CheckboxInput name="Orbit or social spaces only" json="joinOnlySocial"
                         value={settings.joinOnlySocial} update={setSetting} text="When ticked, the Join
                         Game button will appear only when you're in orbit or social spaces like the Tower,
-                        preventing people from joining mid-game" /> {requiresVersion("v0.1.9")}
+                        preventing people from joining mid-game." /> {requiresVersion("v0.1.9")}
                 </div>
                 <a href="#" className="button" onClick={e => {handleFormSubmit(e, settings)}}>Save Settings</a>
             </form>
@@ -146,13 +146,13 @@ export default function() {
             <div id="actions">
                 <a href="http://localhost:35893/login" className="button" target="_blank"
                     rel="noopener noreferrer" data-tip="In case the refresh token has expired, or
-                    you want to log in with a different account.">Authenticate</a>
+                    you want to log in with a different account.">Login with Bungie</a>
                 
                 <a onClick={e => {
                     e.preventDefault();
                     doSimpleGetRequest("http://localhost:35893/action?a=reconnect", 0, () => {});
                 }} href="#" className="button" data-tip="Reconnect to Discord. This is only supposed to be
-                    used when this site says you're playing the game, but Discord isn't.">Reconnect</a>
+                    used when this site says you're playing the game, but Discord isn't.">Reconnect to Discord</a>
                     {requiresVersion("v0.2.1")}
 
                 <a onClick={e => {
@@ -211,8 +211,10 @@ function getData(setData: Function, interval: number) {
         }
         setData({ ...defaultProgramState, ...res.data });
     }).catch(err => {
-        handleHTTPError(err)
-        clearInterval(interval)
+        if (interval != 0) {
+            handleHTTPError(err)
+            clearInterval(interval)
+        }
     })
 }
 
