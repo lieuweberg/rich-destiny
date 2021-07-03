@@ -628,6 +628,10 @@ func makePath(e string) string {
 func readUserInput() (string, error) {
 	var r string
 	_, err := fmt.Scanln(&r)
+    // trigger invalid input instead of an error
+    if err != nil && err.Error() == "unexpected newline" {
+        err = nil
+    }
 	return strings.ToLower(r), err
 }
 
