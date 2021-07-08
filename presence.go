@@ -128,9 +128,9 @@ func updatePresence() {
 						newActivity.Details = "Battleground - " + place.DP.Name
 						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
 						newActivity.LargeImage = "storypvecoopheroic"
-					case activity.DP.Name == "Vault of Glass":
+					case strings.Contains(activity.DP.Name, "Vault of Glass"):
 						newActivity.Details = "Raid - Venus"
-						newActivity.State = "Vault of Glass"
+						newActivity.State = activity.DP.Name
 						newActivity.LargeImage = "raid"
 					case activity.DP.Name == "Deep Stone Crypt":
 						newActivity.Details = "Raid - Europa"
