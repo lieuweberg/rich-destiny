@@ -115,6 +115,7 @@ func updatePresence() {
 			if err != nil { // Error indicates orbit. ~~Seems to have been working reliably.~~
 				debugText = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
 
+				// lol, https://github.com/Bungie-net/api/issues/910, scroll down for all my comments and edits
 				if activity != nil {
 					switch {
 					case strings.Contains(activity.DP.Name, "Expunge:"):
@@ -134,15 +135,15 @@ func updatePresence() {
 						newActivity.LargeImage = "raid"
 					case activity.DP.Name == "Deep Stone Crypt":
 						newActivity.Details = "Raid - Europa"
-						newActivity.State = "Deep Stone Crypt"
+						newActivity.State = activity.DP.Name
 						newActivity.LargeImage = "raid"
 					case activity.DP.Name == "Prophecy":
 						newActivity.Details = "Dungeon - IX Realms"
-						newActivity.State = "Prophecy"
+						newActivity.State = activity.DP.Name
 						newActivity.LargeImage = "dungeon"
 					case activity.DP.Name == "Garden of Salvation":
 						newActivity.Details = "Raid - Black Garden"
-						newActivity.State = "Garden of Salvation"
+						newActivity.State = activity.DP.Name
 						newActivity.LargeImage = "raid"
 					default:
 						newActivity.Details = "In Orbit"
@@ -162,7 +163,7 @@ func updatePresence() {
 				case activity.DP.Name == "H.E.L.M.":
 					// Explore - EDZ
 					newActivity.Details = "Social - Earth"
-					newActivity.State = "H.E.L.M."
+					newActivity.State = activity.DP.Name
 					newActivity.LargeImage = "socialall"
 				case activity.DP.Name == "Last City: Eliksni Quarter":
 					newActivity.Details = "Eliksni Quarter - The Last City"
@@ -174,7 +175,7 @@ func updatePresence() {
 						newActivity.State = activity.DP.Name
 					}
 				case activityMode.DP.Name == "Gambit":
-					newActivity.Details = "Gambit"
+					newActivity.Details = activityMode.DP.Name
 					newActivity.State = activity.DP.Name
 				// case activityHash == 707826522  || activityHash == 1454880421 || activityHash == -420675050:
 				// 	newActivity.Details = activity.DP.Name
@@ -192,7 +193,7 @@ func updatePresence() {
 				case activity.DP.Name == "The Shattered Throne":
 					// Story - The Dreaming City | The Shattered Throne
 					newActivity.Details = "Dungeon - The Dreaming City"
-					newActivity.State = "The Shattered Throne"
+					newActivity.State = activity.DP.Name
 					newActivity.LargeImage = "dungeon"
 				case activityMode.DP.Name == "Raid" && place.DP.Name == "The Dreaming City":
 					// Remove Level: XX from the state
