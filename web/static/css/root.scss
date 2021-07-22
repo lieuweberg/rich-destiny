@@ -159,11 +159,13 @@ body {
 #footer {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0 15%;
     width: 70%;
-    height: 80px;
+
     @include isMobile() {
-        padding: 10px;
+        flex-direction: column;
+        padding: 5px 10px 20px;
         width: calc(100% - 20px);
     }
 
@@ -172,14 +174,8 @@ body {
 
     background-color: #2a2a2a;
 
-    div {
-        flex-grow: 1;
-        &:last-child {
-            text-align: right;
-            :last-child {
-                margin-left: 30px;
-            }
-        }
+    a:not(:first-child) {
+        margin-left: 10px;
     }
 }
 

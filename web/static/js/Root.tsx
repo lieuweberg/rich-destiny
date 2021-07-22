@@ -75,6 +75,8 @@ function Root() {
                     rel="noopener noreferrer">Discord</a>
                 <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
                     rel="noopener noreferrer">GitHub</a>
+                <a href="https://twitter.com/richdestinyapp" target="_blank"
+                    rel="noopener noreferrer">Twitter</a>
             </div>
         </div>
     </BrowserRouter>
