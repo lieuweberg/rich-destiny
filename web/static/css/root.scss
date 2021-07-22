@@ -107,51 +107,52 @@ body {
     label, input {
         display: none;
     }
-}
 
-#nav-logo {
-    margin-right: 20px;
-    display: flex;
-    float: left;
-    font-size: 20px;
-}
-
-#nav-items {
-    margin: 0;
-    padding: 0;
-    
-    list-style: none;
-}
-
-.nav-item {
-    display: inline;
-    margin: 0px 20px;
-}
-
-@include isMobile() {
-    #nav-logo {
-        position: absolute;
-    }
-
-    #nav label {
-        display: block;
-        margin: 0px 20px;
-        text-align: right;
-        font-size: 20px;
-        color: white;
-    }   
-
-    #nav-items li {
-        display: block;
-    }
-
-    #nav-items {
-        display: none;
-        margin-top: 10px;
-    }
-    #nav input:checked ~ #nav-items {
+    // The logo
+    >a {
+        margin-right: 20px;
         display: flex;
-        flex-direction: column;
+        float: left;
+        font-size: 20px;
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+        
+        list-style: none;
+    
+        li {
+            display: inline;
+            margin: 0px 20px;
+        }
+    }
+
+    @include isMobile() {
+        >a {
+            position: absolute;
+        }
+    
+        label {
+            display: block;
+            margin: 0px 20px;
+            text-align: right;
+            font-size: 20px;
+            color: white;
+        }   
+    
+        li {
+            display: block;
+        }
+    
+        ul {
+            display: none;
+            margin-top: 10px;
+        }
+        input:checked ~ ul {
+            display: flex;
+            flex-direction: column;
+        }
     }
 }
 

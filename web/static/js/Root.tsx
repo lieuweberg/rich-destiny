@@ -19,25 +19,24 @@ function Root() {
         {/* <InfoBanner /> */}
 
         <div id="nav">
-            <Link to="/" id="nav-logo">
+            <Link to="/">
                 <img src={logo} alt="icon" width="40" height="40"/>
                 &nbsp;&nbsp;rich-destiny
             </Link>
             <label htmlFor="hamburger">&#9776;</label>
             <input type="checkbox" id="hamburger"/>
-            <ul id="nav-items" onClick={() =>
-                (document.getElementById("hamburger") as HTMLInputElement).checked = false}>
-                <li className="nav-item">
+            <ul onClick={() => (document.getElementById("hamburger") as HTMLInputElement).checked = false}>
+                <li>
                     <Link to="/download">Download</Link>
                 </li>
-                <li className="nav-item">
+                <li>
                     <Link to="/cp">Control Panel</Link>
                 </li>
-                <li className="nav-item float-right">
+                <li className="float-right">
                     <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
                     rel="noopener noreferrer">GitHub</a>
                 </li>
-                <li className="nav-item float-right">
+                <li className="float-right">
                     <a href="https://discord.gg/UNU4UXp" target="_blank" rel="noopener noreferrer">Discord</a>
                 </li>
             </ul>
