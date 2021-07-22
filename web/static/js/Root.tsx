@@ -16,7 +16,7 @@ function Root() {
     return <BrowserRouter>
         <ToastContainer autoClose={10000} />
 
-        <InfoBanner />
+        {/* <InfoBanner /> */}
 
         <div id="nav">
             <Link to="/" id="nav-logo">
@@ -82,6 +82,10 @@ function Root() {
 }
 
 function InfoBanner() {
+    // The ID of the latest banner. Add 1 to this number when you create a new one! This way it is
+    // dismissable across sessions. Yes, it could probably be done better.
+    //
+    // If you add a new banner, you may have to uncomment the InfoBanner on the actual page above.
     let bannerID = "1";
     let [dismissed, setDismissed] = useState(localStorage.getItem("bannerDismissed"));
     useEffect(() => {}, [dismissed]);
