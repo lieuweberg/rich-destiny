@@ -1,0 +1,13 @@
+#contents {
+    width: fit-content;
+
+    h2 {
+        display: inline;
+    }
+}
+
+section {
+    &:not(:first-child) {
+        margin-top: 2rem;
+    }
+}

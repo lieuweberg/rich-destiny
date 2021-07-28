@@ -1,0 +1,32 @@
+[
+    {
+        "q": "The control panel won't connect!",
+        "a": "Are you using **Brave Browser**? [Turn off Shields](https://imgur.com/a/j9jfmat).\n\nElse, run rich-destiny.exe again, which can be found in the folder where you installed it.",
+        "id": "control-panel-wont-connect"
+    },
+    {
+        "q": "The control panel connects, but it's not showing in my Discord status!",
+        "a": "1. Make sure you have **only one Discord client** open. Then, click Reconnect to Discord on the control panel. Wait 30 seconds and check your Discord status.\n2. Enable Activity Status in the Discord user settings.",
+        "id": "connects-but-no-status"
+    },
+    {
+        "q": "How do I restart rich-destiny?",
+        "a": "To restart rich-destiny:\n- restart your computer\n\nOR\n- go to windows search => type Services, hit enter => find rich-destiny => click Restart.\n\nIn case of an update, rich-destiny will have to be restarted twice before the update is applied. Once for downloading, a second for applying.",
+        "id": "restart-rich-destiny"
+    },
+    {
+        "q": "How do I uninstall rich-destiny?",
+        "a": "Press the button labeled 'Uninstall' on the control panel.",
+        "id": "uninstall-rich-destiny"
+    },
+    {
+        "q": "Will I get banned from Destiny for using this program?",
+        "a": "No. Destiny bans you when you have cheats installed, use disallowed overlays (i.e. not Steam and Gamebar) or try messing with the game's files and/or read game state, and for other reasons. This program is just like DIM, Braytech and light.gg, except it's not fully a website. It interacts with the Bungie API, and Bungie fully supports that.",
+        "id": "will-i-get-banned"
+    },
+    {
+        "q": "What are all these files rich-destiny is creating?",
+        "a": "Files that very likely belong to rich-destiny:\n\n- `storage.db` (stores settings and authentication data)\n- `manifest.db` (a file containing information about all of Destiny's activities, items, quests, etc.)\n- logs folder and any date-named .txt file within (info and errors are saved here. new file for every time rich-destiny is started)\n- `rich-destiny.exe.old` (necessary file when updating to a new version)",
+        "id": "what-are-these-files"
+    }
+]

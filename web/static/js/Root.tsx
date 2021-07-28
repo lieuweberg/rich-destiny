@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 
 import Home from "./Home";
 import Download from "./Download";
+import FAQ from "./FAQ";
 import ControlPanel from "./ControlPanel";
 
 function Root() {
@@ -28,6 +29,9 @@ function Root() {
             <ul onClick={() => (document.getElementById("hamburger") as HTMLInputElement).checked = false}>
                 <li>
                     <Link to="/download">Download</Link>
+                </li>
+                <li>
+                    <Link to="/faq">FAQ</Link>
                 </li>
                 <li>
                     <Link to="/cp">Control Panel</Link>
@@ -50,6 +54,9 @@ function Root() {
                 </Route>
                 <Route path="/download">
                     <Download />
+                </Route>
+                <Route path="/faq">
+                    <FAQ />
                 </Route>
                 <Route path="/cp">
                     <ControlPanel />
