@@ -111,12 +111,12 @@ const examplePresences = [
     {i:"strikes",d:"Normal Strikes - Nessus",s:"The Insight Terminus",t:"08:42"},
     {i:"destinylogo",d:"In Orbit",s:"space 🌌 (customisable)",t:"04:13"},
     {i:"storypvecoopheroic",d:"Story - Europa",s:"The New Kell",t:"13:24"},
-    {i:"raid",d:"Raid - The Dreaming City",s:"Last Wish",t:"02:15:11"},
+    {i:"raid",d:"Last Wish - The Dreaming City",s:"Shuro Chi, The Corrupted (2/5)",t:"02:15:11"},
     {i:"control",d:"Control - The Crucible",s:"Pacifica",t:"05:58"},
     {i:"gambit",d:"Gambit",s:"Emerald Coast",t:"07:26"},
     {i:"crucible",d:"Mayhem - The Crucible",s:"Javelin-4",t:"02:55"},
     {i:"socialall",d:"Social - Earth",s:"Tower",t:"13:17"},
-    {i:"raid",d:"Raid - Europa",s:"Deep Stone Crypt",t:"59:08"},
+    {i:"raid",d:"Deep Stone Crypt - Europa",s:"Atraks-1, Fallen Exo (2/4)",t:"59:08"},
     {i:"strikes",d:"Nightfall: The Ordeal - The Cosmodrome",s:"Difficulty: Master",t:"29:33"},
     {i:"dungeon",d:"Dungeon - IX Realms",s:"Prophecy",t:"43:22"},
     {i:"explore",d:"Explore - The Moon",s:"",t:"06:14"},
@@ -125,5 +125,5 @@ const examplePresences = [
     {i:"strikes",d:"Normal Strikes - The Tangled Shore",s:"Broodhold",t:"13:01"},
     {i:"nightmarehunt",d:"Nightmare Hunt - The Moon",s:"Insanity: Legend",t:"08:32"},
     {i:"trialsofosiris",d:"Trials of Osiris - The Crucible",s:"Convergence",t:"04:50"},
-    {i:"raid",d:"Raid - Black Garden",s:"Garden of Salvation",t:"1:37:12"}
+    {i:"raid",d:"Vault of Glass - Venus",s:"Atheon, Time's Conflux (5/5)",t:"1:37:12"}
 ];
