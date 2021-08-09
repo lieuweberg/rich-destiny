@@ -16,6 +16,12 @@ func initPresence() {
 	quitPresenceTicker = make(chan struct{})
 	loggedIn := false
 	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Print("PANIC!\n", err)
+			}
+		}()
+		
 		for {
 			select {
 			case <- exeCheckTicker.C:
