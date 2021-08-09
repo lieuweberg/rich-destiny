@@ -45,3 +45,10 @@ var classImageMap = map[int64]string{
 }
 
 var scoredLostSectors = []string{"K1", "Concealed", "E15", "Perdition", "2A", "Veles", "Quarry", "Scavenger's", "XII", "Empty Tank"}
+
+var raidProgressionMap = map[string][]string{
+	// "gos": {}, // Unimplemented in milestone
+	"dsc": {"Desolation/Crypt Security", "Atraks-1, Fallen Exo", "The Descent", "Taniks, The Abomination"}, // 4
+	"lw": {"Kalli, The Corrupted", "Shuro Chi, The Corrupted", "Morgeth, The Spirekeeper", "The Vault", "Riven of a Thousand Voices"}, // 5
+	"vog": {"Spire/The Confluxes", "The Oracles", "The Templar", "The Gatekeeper", "Atheon, Time's Conflux"}, // 5
+}

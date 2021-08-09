@@ -96,32 +96,32 @@ type globalDisplayProperties struct {
 }
 
 // /Destiny2/{MSType}/Profile/{ActualMSID}?components=204,200
-type characterActivitiesDefinition struct {
-	Response    caDefReponse    `json:"Response"`
-	ErrorStatus string          `json:"ErrorStatus"`
-	Message     string          `json:"Message"`
+type profileDef struct {
+	Response    profileDefReponse	`json:"Response"`
+	ErrorStatus string          	`json:"ErrorStatus"`
+	Message     string          	`json:"Message"`
 }
 
-type caDefReponse struct {
-	CharacterActivities caDefActivities `json:"characterActivities"`
-	Characters          caDefCharacters `json:"characters"`
+type profileDefReponse struct {
+	CharacterActivities profileDefActivities `json:"characterActivities"`
+	Characters          profileDefCharacters 	`json:"characters"`
 }
 
-type caDefActivities struct {
-	Data    map[string]caDefCharacter   `json:"data"`
+type profileDefActivities struct {
+	Data    map[string]profileDefCharacter   `json:"data"`
 }
 
-type caDefCharacter struct {
+type profileDefCharacter struct {
 	DateActivityStarted     string  `json:"dateActivityStarted"`
 	CurrentActivityHash     int64   `json:"currentActivityHash"`
 	CurrentActivityModeHash int64   `json:"currentActivityModeHash"`
 }
 
-type caDefCharacters struct {
-	Data    map[string]clDefDatum   `json:"data"`
+type profileDefCharacters struct {
+	Data    map[string]profileDefCharInfo   `json:"data"`
 }
 
-type clDefDatum struct {
+type profileDefCharInfo struct {
 	Light       int64   `json:"light"`
 	ClassType   int64   `json:"classType"`
 }
@@ -178,4 +178,36 @@ type currentActivityModeDefinition struct {
 // Manifest: DestinyPlaceDefinition
 type placeDefinition struct {
 	DP globalDisplayProperties `json:"displayProperties"`
+}
+
+// /Destiny2/{MSType}/Profile/{ActualMSID}/Character/{charID}?components=202
+type progressions struct {
+	Response        progressionsResponse    `json:"Response"`
+	ErrorStatus     string      `json:"ErrorStatus"`
+	Message     string          	`json:"Message"`
+}
+
+type progressionsResponse struct {
+	Progressions progressionsClass `json:"progressions"`
+}
+
+type progressionsClass struct {
+	Data    progressionsData  `json:"data"`
+}
+
+type progressionsData struct {
+	Milestones	map[string]progressionsMilestone	`json:"milestones"`
+}
+
+type progressionsMilestone struct {
+	Activities      []progressionsActivity       `json:"activities"`
+}
+
+type progressionsActivity struct {
+	ActivityHash           int64           `json:"activityHash"`
+	Phases                 *[]progressionsPhase         `json:"phases"`                          
+}
+
+type progressionsPhase struct {
+	Complete  bool  `json:"complete"`
 }

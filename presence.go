@@ -55,7 +55,7 @@ func initPresence() {
 }
 
 func updatePresence() {
-	var ca *characterActivitiesDefinition
+	var ca *profileDef
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/?components=204,200", storage.MSType, storage.ActualMSID), &ca)
 	if err != nil || ca.ErrorStatus != "Success" {
 		if err == nil {
@@ -133,10 +133,12 @@ func updatePresence() {
 						newActivity.Details = "Raid - Venus"
 						newActivity.State = activity.DP.Name
 						newActivity.LargeImage = "raid"
+						getActivityPhases(id, "vog", activityHash, &newActivity)
 					case activity.DP.Name == "Deep Stone Crypt":
 						newActivity.Details = "Raid - Europa"
 						newActivity.State = activity.DP.Name
 						newActivity.LargeImage = "raid"
+						getActivityPhases(id, "dsc", activityHash, &newActivity)
 					case activity.DP.Name == "Prophecy":
 						newActivity.Details = "Dungeon - IX Realms"
 						newActivity.State = activity.DP.Name
@@ -145,6 +147,7 @@ func updatePresence() {
 						newActivity.Details = "Raid - Black Garden"
 						newActivity.State = activity.DP.Name
 						newActivity.LargeImage = "raid"
+						// getActivityPhases(id, "gos", activityHash, &newActivity)
 					default:
 						newActivity.Details = "In Orbit"
 						newActivity.LargeImage = "destinylogo"
@@ -201,6 +204,7 @@ func updatePresence() {
 					// Remove Level: XX from the state
 					newActivity.Details = "Raid - The Dreaming City"
 					newActivity.State = "Last Wish"
+					getActivityPhases(id, "lw", activityHash, &newActivity)
 				case activity.ActivityTypeHash == 332181804:
 					// Story - The Moon | Nightmare Hunt: name: difficulty
 					newActivity.Details = "Nightmare Hunt - " + place.DP.Name
@@ -280,6 +284,33 @@ func transformPlace(place *placeDefinition, activity *activityDefinition) {
 		}
 	} else if place.DP.Name == "Rathmore Chaos, Europa" {
 		place.DP.Name = "Europa"
+	}
+}
+
+func getActivityPhases(charID, shortName string, activityHash int32, newActivity *richgo.Activity) {
+	var p progressions
+	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/Character/%s?components=202", storage.MSType, storage.ActualMSID, charID), &p)
+	if err != nil {
+		log.Print(err)
+	}
+	if p.ErrorStatus != "Success" {
+		log.Println(p.ErrorStatus, p.Message)
+	}
+
+	for _, m := range p.Response.Progressions.Data.Milestones {
+		for _, a := range m.Activities {
+			if a.ActivityHash == int64(activityHash) {
+				if a.Phases != nil {
+					for i, phase := range *a.Phases {
+						if !phase.Complete {
+							newActivity.Details = fmt.Sprintf("%s - %s", newActivity.State, strings.SplitN(newActivity.Details, " - ", 2)[1])
+							newActivity.State = fmt.Sprintf("%s (%d/%d)", raidProgressionMap[shortName][i], i+1, len(raidProgressionMap[shortName]))
+							return
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
