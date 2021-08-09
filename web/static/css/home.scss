@@ -33,22 +33,24 @@
     & > div {
         display: grid;
         grid-auto-flow: column;
-        column-gap: 80px;
+        column-gap: 60px;
     }
 
     .slider-item {
         display: grid;
         grid-auto-flow: column;
-        column-gap: 80px;
+        column-gap: 60px;
     }
 
     .animated-row-1 {
         animation: 30s linear infinite animate-row-1;
     }
 
+    $width: (300px + 60px) * -1;
+
     @keyframes animate-row-1 {
         from {
-            transform: translateX(-330px * $numberOfItems);
+            transform: translateX($width * $numberOfItems);
         }
         to {
             transform: translateX(0);
@@ -61,7 +63,7 @@
 
     @keyframes animate-row-3 {
         from {
-            transform: translateX(-330px * $numberOfItems);
+            transform: translateX($width * $numberOfItems);
         }
         to {
             transform: translateX(0);
@@ -77,7 +79,7 @@
             transform: translateX(0);
         }
         to {
-            transform: translateX(-330px * $numberOfItems);
+            transform: translateX($width * $numberOfItems);
         }
     }
 }

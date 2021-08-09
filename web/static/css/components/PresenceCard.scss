@@ -1,12 +1,13 @@
 @import "../colors.scss";
 
 .presence-wrapper {
-    width: 250px - 32px;
+    width: 300px - 32px;
     height: 128px - 32px;
 
-    background-color: $blurple;
+    background-color: $presence;
     border-radius: 8px;
-    padding: 16px;
+    border: 1px solid #383a3f;
+    padding: 15px;
     
     p {
         display: block;
@@ -58,6 +59,6 @@
         width: 20px;
 
         border-radius: 50%;
-        border: 2px solid $blurple;
+        border: 2px solid $presence;
     }
 }
