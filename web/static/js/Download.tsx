@@ -109,6 +109,10 @@ export default function() {
             button here downloads the same file as GitHub releases provides.</p>
             <p>Installation instructions can be found below. It is recommended
             to fully read these prior to installation.</p>
+            <p><b>By clicking the Download button below, you agree to
+            the <a href="https://github.com/lieuweberg/rich-destiny/blob/master/LICENSE.md" target="_blank"
+            rel="noopener noreferrer">Terms and Conditions</a></b>, including section 15
+            (Disclaimer of Warranty) and 16 (Limitation of Liability).</p>
 
             <div id="download-box" className="boxed">
                 <div>
