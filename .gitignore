@@ -9,6 +9,7 @@ out/
 *.db
 *.zip
 
+# client
 versioninfo.json
 *.syso
 
