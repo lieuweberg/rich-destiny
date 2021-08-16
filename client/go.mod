@@ -1,4 +1,4 @@
-module github.com/lieuweberg/rich-destiny
+module github.com/lieuweberg/rich-destiny/client
 
 go 1.14
 
