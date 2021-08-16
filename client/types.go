@@ -47,6 +47,7 @@ type releaseElement struct {
 	Draft       bool            `json:"draft"`
 	Prerelease  bool            `json:"prerelease"`
 	Assets      []releaseAsset  `json:"assets"`
+	Body		string			`json:"body"`
 }
 
 type releaseAsset struct {
