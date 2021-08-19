@@ -73,7 +73,7 @@ func setAuth(data []byte) (err error) {
 	// Subtracting five to make sure tokens are refreshed on-time, and not a few milliseconds late (sometimes causing 401's)
 	storage.RefreshAt = time.Now().Unix() + storage.ExpiresIn - 5
 	storage.ReAuthAt = time.Now().Unix() + storage.RefreshExpiresIn - 5
-	
+
 	var lp *linkedProfiles
 	err = requestComponents(fmt.Sprintf("/Destiny2/254/Profile/%s/LinkedProfiles/", storage.BungieMSID), &lp)
 	if err != nil {
@@ -197,7 +197,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 		cookieJar, err := cookiejar.New(nil)
 		if err == nil {
 			bungieHTTPClient = &http.Client{
-				Jar: cookieJar,
+				Jar:     cookieJar,
 				Timeout: time.Second * 10,
 			}
 		} else {
@@ -212,7 +212,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 		return
 	}
 	req.Header.Set("X-API-Key", config.APIKey)
-	req.Header.Set("Authorization", "Bearer " + storage.AccessToken)
+	req.Header.Set("Authorization", "Bearer "+storage.AccessToken)
 
 	res, err := bungieHTTPClient.Do(req)
 	if err != nil {

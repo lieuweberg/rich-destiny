@@ -28,7 +28,7 @@ func attemptApplicationUpdate() (string, error) {
 		return "", fmt.Errorf("No newer version found.")
 	}
 
-	for i := len(releases)-1; i >= 0; i-- {
+	for i := len(releases) - 1; i >= 0; i-- {
 		path := "rich-destiny.exe.dump"
 		if i == len(releases)-1 {
 			path = "rich-destiny.exe.old"
@@ -66,7 +66,7 @@ func getNewReleases() (releases releasesFromGithub, err error) {
 	return filterReleases(releases), nil
 }
 
-func filterReleases(releases releasesFromGithub) (releasesFromGithub) {
+func filterReleases(releases releasesFromGithub) releasesFromGithub {
 	for i, r := range releases {
 		if !r.Draft && !r.Prerelease {
 			if semver.Compare(r.Name, version) == 1 {
@@ -94,8 +94,8 @@ func updateWithOldSavePath(release releaseElement, path string) error {
 			}
 
 			err = update.Apply(res.Body, update.Options{
-				Checksum: checksum,
-				Patcher: update.NewBSDiffPatcher(),
+				Checksum:    checksum,
+				Patcher:     update.NewBSDiffPatcher(),
 				OldSavePath: path,
 			})
 			if err != nil {

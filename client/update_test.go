@@ -6,37 +6,37 @@ func TestFilterReleases(t *testing.T) {
 	version = "v0.2.2"
 	got := filterReleases(releasesFromGithub{
 		releaseElement{
-			Name: "v0.2.4",
-			Draft: false,
+			Name:       "v0.2.4",
+			Draft:      false,
 			Prerelease: false,
-			Assets: []releaseAsset{},
+			Assets:     []releaseAsset{},
 		},
 		releaseElement{
-			Name: "v0.2.4-1",
-			Draft: false,
+			Name:       "v0.2.4-1",
+			Draft:      false,
 			Prerelease: true,
-			Assets: []releaseAsset{},
+			Assets:     []releaseAsset{},
 		},
 		releaseElement{
-			Name: "v0.2.3",
-			Draft: false,
+			Name:       "v0.2.3",
+			Draft:      false,
 			Prerelease: false,
-			Assets: []releaseAsset{},
+			Assets:     []releaseAsset{},
 		},
 		releaseElement{
-			Name: "v0.2.2",
-			Draft: false,
+			Name:       "v0.2.2",
+			Draft:      false,
 			Prerelease: false,
-			Assets: []releaseAsset{},
+			Assets:     []releaseAsset{},
 		},
 		releaseElement{
-			Name: "v0.2.1",
-			Draft: false,
+			Name:       "v0.2.1",
+			Draft:      false,
 			Prerelease: false,
-			Assets: []releaseAsset{},
+			Assets:     []releaseAsset{},
 		},
 	})
-	
+
 	if len(got) != 3 {
 		t.Errorf("filterReleases was incorrect, got: %d, want %d, struct: %+v", len(got), 3, got)
 	}

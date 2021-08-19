@@ -5,82 +5,82 @@ import richgo "github.com/lieuweberg/rich-go/client"
 // Internal structs
 // here: MSID means MembershipID
 type storageStruct struct {
-	AccessToken         string  `json:"access_token"`
-	TokenType           string  `json:"token_type"`
-	ExpiresIn           int64   `json:"expires_in"`
-	RefreshToken        string  `json:"refresh_token"`
-	RefreshExpiresIn    int64   `json:"refresh_expires_in"`
-	BungieMSID          string  `json:"membership_id"`
+	AccessToken      string `json:"access_token"`
+	TokenType        string `json:"token_type"`
+	ExpiresIn        int64  `json:"expires_in"`
+	RefreshToken     string `json:"refresh_token"`
+	RefreshExpiresIn int64  `json:"refresh_expires_in"`
+	BungieMSID       string `json:"membership_id"`
 
 	ActualMSID  string
 	MSType      int64
 	DisplayName string
-	SteamID64	string
+	SteamID64   string
 	RefreshAt   int64
 	ReAuthAt    int64
 
 	// Custom settings
-	OrbitText       string  `json:"orbitText"`
-	AutoUpdate      bool    `json:"autoUpdate"`
-	JoinGameButton	bool	`json:"joinGameButton"`
-	JoinOnlySocial	bool	`json:"joinOnlySocial"`
+	OrbitText      string `json:"orbitText"`
+	AutoUpdate     bool   `json:"autoUpdate"`
+	JoinGameButton bool   `json:"joinGameButton"`
+	JoinOnlySocial bool   `json:"joinOnlySocial"`
 }
 
 type currentProgramStatus struct {
-	Status     	    string `json:"status"`
-	Debug      	    string `json:"debug"`
-	Version    	    string `json:"version"`
-	Name            string `json:"name"`
+	Status  string `json:"status"`
+	Debug   string `json:"debug"`
+	Version string `json:"version"`
+	Name    string `json:"name"`
 
-	OrbitText       string `json:"orbitText"`
-	AutoUpdate      bool   `json:"autoUpdate"`
-	JoinGameButton  bool 	`json:"joinGameButton"`
-	JoinOnlySocial	bool	`json:"joinOnlySocial"`
-	
-	Presence    richgo.Activity `json:"presence"`
+	OrbitText      string `json:"orbitText"`
+	AutoUpdate     bool   `json:"autoUpdate"`
+	JoinGameButton bool   `json:"joinGameButton"`
+	JoinOnlySocial bool   `json:"joinOnlySocial"`
+
+	Presence richgo.Activity `json:"presence"`
 }
 
 type releasesFromGithub []releaseElement
 
 type releaseElement struct {
-	Name        string          `json:"name"`
-	Draft       bool            `json:"draft"`
-	Prerelease  bool            `json:"prerelease"`
-	Assets      []releaseAsset  `json:"assets"`
-	Body		string			`json:"body"`
+	Name       string         `json:"name"`
+	Draft      bool           `json:"draft"`
+	Prerelease bool           `json:"prerelease"`
+	Assets     []releaseAsset `json:"assets"`
+	Body       string         `json:"body"`
 }
 
 type releaseAsset struct {
-	BrowserDownloadURL  string  `json:"browser_download_url"`
-	Name                string  `json:"name"`
+	BrowserDownloadURL string `json:"browser_download_url"`
+	Name               string `json:"name"`
 }
 
 // API/Manifest structs
 // /Destiny2/Manifest
 type manifestData struct {
-	Response        manifestResponse    `json:"Response"`
-	ErrorCode       int64               `json:"ErrorCode"`
-	ThrottleSeconds int64               `json:"ThrottleSeconds"`
-	ErrorStatus     string              `json:"ErrorStatus"`
-	Message         string              `json:"Message"`
+	Response        manifestResponse `json:"Response"`
+	ErrorCode       int64            `json:"ErrorCode"`
+	ThrottleSeconds int64            `json:"ThrottleSeconds"`
+	ErrorStatus     string           `json:"ErrorStatus"`
+	Message         string           `json:"Message"`
 }
 
 type manifestResponse struct {
-	MobileWorldContentPaths manifestWorldContentPaths   `json:"mobileWorldContentPaths"`
+	MobileWorldContentPaths manifestWorldContentPaths `json:"mobileWorldContentPaths"`
 }
 
 type manifestWorldContentPaths struct {
-	En  string  `json:"en"`
+	En string `json:"en"`
 }
 
 // /Destiny2/254/Profile/{BungieMSID}/LinkedProfiles
 type linkedProfiles struct {
-	Response    lPResponse  `json:"Response"`
-	ErrorCode   int64       `json:"ErrorCode"`
+	Response  lPResponse `json:"Response"`
+	ErrorCode int64      `json:"ErrorCode"`
 }
 
 type lPResponse struct {
-	Profiles    []lPProfile `json:"profiles"`
+	Profiles []lPProfile `json:"profiles"`
 }
 
 type lPProfile struct {
@@ -93,61 +93,60 @@ type lPProfile struct {
 // DisplayProperties used for most Manifest structs
 type globalDisplayProperties struct {
 	// Description string `json:"description"`
-	Name    string  `json:"name"`
+	Name string `json:"name"`
 }
 
 // /Destiny2/{MSType}/Profile/{ActualMSID}?components=204,200
 type profileDef struct {
-	Response    profileDefReponse	`json:"Response"`
-	ErrorStatus string          	`json:"ErrorStatus"`
-	Message     string          	`json:"Message"`
+	Response    profileDefReponse `json:"Response"`
+	ErrorStatus string            `json:"ErrorStatus"`
+	Message     string            `json:"Message"`
 }
 
 type profileDefReponse struct {
 	CharacterActivities profileDefActivities `json:"characterActivities"`
-	Characters          profileDefCharacters 	`json:"characters"`
+	Characters          profileDefCharacters `json:"characters"`
 }
 
 type profileDefActivities struct {
-	Data    map[string]profileDefCharacter   `json:"data"`
+	Data map[string]profileDefCharacter `json:"data"`
 }
 
 type profileDefCharacter struct {
-	DateActivityStarted     string  `json:"dateActivityStarted"`
-	CurrentActivityHash     int64   `json:"currentActivityHash"`
-	CurrentActivityModeHash int64   `json:"currentActivityModeHash"`
+	DateActivityStarted     string `json:"dateActivityStarted"`
+	CurrentActivityHash     int64  `json:"currentActivityHash"`
+	CurrentActivityModeHash int64  `json:"currentActivityModeHash"`
 }
 
 type profileDefCharacters struct {
-	Data    map[string]profileDefCharInfo   `json:"data"`
+	Data map[string]profileDefCharInfo `json:"data"`
 }
 
 type profileDefCharInfo struct {
-	Light       int64   `json:"light"`
-	ClassType   int64   `json:"classType"`
+	Light     int64 `json:"light"`
+	ClassType int64 `json:"classType"`
 }
 
 // /User/GetCredentialTypesForTargetAccount/{ActualMSID}/
 type credentialsTargetAccount struct {
-	Response        []ctaResponse  `json:"Response"`       
-	ErrorCode       int64          `json:"ErrorCode"`
-	ErrorStatus     string         `json:"ErrorStatus"`
+	Response    []ctaResponse `json:"Response"`
+	ErrorCode   int64         `json:"ErrorCode"`
+	ErrorStatus string        `json:"ErrorStatus"`
 }
 
 type ctaResponse struct {
-	CredentialType        int64   `json:"credentialType"`
-	CredentialAsString    string  `json:"credentialAsString"`
+	CredentialType     int64  `json:"credentialType"`
+	CredentialAsString string `json:"credentialAsString"`
 }
-
 
 // Manifest: DestinyActivityDefinition
 type activityDefinition struct {
-	DP                          globalDisplayProperties			`json:"displayProperties"`
+	DP globalDisplayProperties `json:"displayProperties"`
 	// ActivityLevel             int64              	`json:"activityLevel"`
 	// ActivityLightLevel        int64              	`json:"activityLightLevel"`
-	DestinationHash             int64              	`json:"destinationHash"`
-	PlaceHash                   int64              	`json:"placeHash"`
-	ActivityTypeHash            int64              	`json:"activityTypeHash"`
+	DestinationHash  int64 `json:"destinationHash"`
+	PlaceHash        int64 `json:"placeHash"`
+	ActivityTypeHash int64 `json:"activityTypeHash"`
 	// Tier                      int64              	`json:"tier"`
 	// IsPlaylist                bool               	`json:"isPlaylist"`
 	// Matchmaking               caDefMatchmaking   	`json:"matchmaking"`
@@ -183,9 +182,9 @@ type placeDefinition struct {
 
 // /Destiny2/{MSType}/Profile/{ActualMSID}/Character/{charID}?components=202
 type progressions struct {
-	Response        progressionsResponse    `json:"Response"`
-	ErrorStatus     string      `json:"ErrorStatus"`
-	Message     string          	`json:"Message"`
+	Response    progressionsResponse `json:"Response"`
+	ErrorStatus string               `json:"ErrorStatus"`
+	Message     string               `json:"Message"`
 }
 
 type progressionsResponse struct {
@@ -193,22 +192,22 @@ type progressionsResponse struct {
 }
 
 type progressionsClass struct {
-	Data    progressionsData  `json:"data"`
+	Data progressionsData `json:"data"`
 }
 
 type progressionsData struct {
-	Milestones	map[string]progressionsMilestone	`json:"milestones"`
+	Milestones map[string]progressionsMilestone `json:"milestones"`
 }
 
 type progressionsMilestone struct {
-	Activities      []progressionsActivity       `json:"activities"`
+	Activities []progressionsActivity `json:"activities"`
 }
 
 type progressionsActivity struct {
-	ActivityHash           int64           `json:"activityHash"`
-	Phases                 *[]progressionsPhase         `json:"phases"`                          
+	ActivityHash int64                `json:"activityHash"`
+	Phases       *[]progressionsPhase `json:"phases"`
 }
 
 type progressionsPhase struct {
-	Complete  bool  `json:"complete"`
+	Complete bool `json:"complete"`
 }

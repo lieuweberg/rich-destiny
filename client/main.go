@@ -136,7 +136,7 @@ func main() {
 			started, err := successfullyStartService()
 			if err != nil {
 				if err.Error() != "The system cannot find the file specified." {
-					fmt.Printf(" An error occured, but rich-destiny doesn't recognise it: %s\n\n" +
+					fmt.Printf(" An error occured, but rich-destiny doesn't recognise it: %s\n\n"+
 						"Is this similar or does this translate to \"The system cannot find the file specified.\"?", err)
 					for {
 						fmt.Print("\n Choose: [Yes/No]: ")
@@ -647,10 +647,10 @@ func makePath(e string) string {
 func readUserInput() (string, error) {
 	var r string
 	_, err := fmt.Scanln(&r)
-    // trigger invalid input instead of an error
-    if err != nil && err.Error() == "unexpected newline" {
-        err = nil
-    }
+	// trigger invalid input instead of an error
+	if err != nil && err.Error() == "unexpected newline" {
+		err = nil
+	}
 	return strings.ToLower(r), err
 }
 

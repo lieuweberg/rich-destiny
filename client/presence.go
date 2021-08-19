@@ -21,10 +21,10 @@ func initPresence() {
 				log.Print("PANIC!\n", err)
 			}
 		}()
-		
+
 		for {
 			select {
-			case <- exeCheckTicker.C:
+			case <-exeCheckTicker.C:
 				exeFound := false
 				pl, _ := ps.Processes()
 				for _, p := range pl {
@@ -53,7 +53,7 @@ func initPresence() {
 					loggedIn = false
 					previousActivity = richgo.Activity{}
 				}
-			case <- quitPresenceTicker:
+			case <-quitPresenceTicker:
 				exeCheckTicker.Stop()
 			}
 		}
@@ -68,7 +68,7 @@ func updatePresence() {
 			if ca.ErrorStatus == "SystemDisabled" {
 				setActivity(richgo.Activity{
 					LargeImage: "destinylogo",
-					Details: "Waiting for maintenance to end",
+					Details:    "Waiting for maintenance to end",
 				}, time.Now(), 0)
 				return
 			}
@@ -81,7 +81,7 @@ func updatePresence() {
 
 	newActivity := richgo.Activity{
 		LargeImage: "destinylogo",
-		Details: "Launching the game...",
+		Details:    "Launching the game...",
 	}
 
 	var activityModeHash int32
@@ -97,7 +97,7 @@ func updatePresence() {
 						LargeImage: "destinylogo",
 					}
 				} else {
-					continue;
+					continue
 				}
 			}
 
@@ -106,8 +106,8 @@ func updatePresence() {
 			}
 
 			var (
-				activity *activityDefinition
-				place *placeDefinition
+				activity     *activityDefinition
+				place        *placeDefinition
 				activityMode *currentActivityModeDefinition
 			)
 			activityHash, err := getFromTableByHash("DestinyActivityDefinition", d.CurrentActivityHash, &activity)
@@ -323,11 +323,11 @@ func getActivityPhases(charID, shortName string, activityHash int32, newActivity
 // setActivity sets the rich presence status.
 func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int32) {
 	// Condition that decides whether to update the presence or not
-	if (previousActivity.Details != newActivity.Details ||
+	if previousActivity.Details != newActivity.Details ||
 		previousActivity.State != newActivity.State ||
 		previousActivity.SmallText != newActivity.SmallText ||
-		forcePresenceUpdate) {
-		
+		forcePresenceUpdate {
+
 		if forcePresenceUpdate {
 			forcePresenceUpdate = false
 		}
@@ -359,12 +359,12 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 				newActivity.Buttons = []*richgo.Button{
 					{
 						Label: "Join Game",
-						Url: fmt.Sprintf("steam://rungame/1085660/%s", storage.SteamID64),
+						Url:   fmt.Sprintf("steam://rungame/1085660/%s", storage.SteamID64),
 					},
 				}
 			}
 		}
-		
+
 		previousActivity = newActivity
 		err := richgo.SetActivity(newActivity)
 		if err != nil {
