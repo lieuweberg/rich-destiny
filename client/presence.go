@@ -37,6 +37,17 @@ func initPresence() {
 								break
 							}
 							loggedIn = true
+
+							if storage.AutoUpdate {
+								go func() {
+									// This only runs once when the game has been started, I don't really care whether it displays an error then
+									// even though it's not really an error at all.
+									_, err := attemptApplicationUpdate()
+									if err != nil {
+										log.Printf("Error trying to update: %s", err)
+									}
+								}()
+							}
 						}
 
 						getStorage()

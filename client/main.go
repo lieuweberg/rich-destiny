@@ -350,7 +350,7 @@ func (p *program) run() {
 			go func() {
 				_, err = attemptApplicationUpdate()
 				if err != nil {
-					log.Print(err)
+					log.Printf("Error trying to update: %s", err)
 				}
 			}()
 		}

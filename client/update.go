@@ -14,10 +14,20 @@ import (
 	"golang.org/x/mod/semver"
 )
 
+var isUpdating bool
+
 func attemptApplicationUpdate() (string, error) {
 	if version == "dev" {
-		return "", fmt.Errorf("version 'dev' does not allow updates")
+		return "", fmt.Errorf("Version 'dev' does not allow updates")
 	}
+
+	if isUpdating {
+		return "", fmt.Errorf("Not so fast! Already trying to update")
+	}
+	isUpdating = true
+	defer func() {
+		isUpdating = false
+	}()
 
 	releases, err := getNewReleases()
 	if err != nil {
