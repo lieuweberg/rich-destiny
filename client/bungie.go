@@ -198,6 +198,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 		if err == nil {
 			bungieHTTPClient = &http.Client{
 				Jar: cookieJar,
+				Timeout: time.Second * 10,
 			}
 		} else {
 			bungieHTTPClient = &http.Client{}
