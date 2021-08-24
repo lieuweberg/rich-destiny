@@ -14,7 +14,12 @@ import (
 	"golang.org/x/mod/semver"
 )
 
+func init() {
+	tryPatches = true
+}
+
 var isUpdating bool
+var tryPatches bool
 
 func attemptApplicationUpdate() (string, error) {
 	if version == "dev" {
@@ -35,22 +40,34 @@ func attemptApplicationUpdate() (string, error) {
 	}
 
 	if len(releases) == 0 {
-		return "", fmt.Errorf("No newer version found.")
+		return "", fmt.Errorf("No newer version aaaa found.")
 	}
 
-	for i := len(releases) - 1; i >= 0; i-- {
-		path := "rich-destiny.exe.dump"
-		if i == len(releases)-1 {
-			path = "rich-destiny.exe.old"
+	if tryPatches {
+		for i := len(releases) - 1; i >= 0; i-- {
+			path := "rich-destiny.exe.dump"
+			if i == len(releases)-1 {
+				path = "rich-destiny.exe.old"
+			}
+			err = updateWithOldSavePath(releases[i], path)
+			if err != nil {
+				log.Printf("Error trying to apply update with patches: %s. Trying exe...", err)
+				tryPatches = false
+				// the returned function will run before the defer, so explicitly setting it to false here prevents the Not so fast error
+				isUpdating = false
+				return attemptApplicationUpdate()
+				// return "", err
+			}
 		}
-		err = updateWithOldSavePath(releases[i], path)
+	} else {
+		err = updateWithOldSavePath(releases[0], "rich-destiny.exe.old")
 		if err != nil {
 			return "", err
 		}
 	}
 
 	// We patched twice, so we should remove the .dump file since that's not in active use nor needed in the future
-	if len(releases) > 1 {
+	if len(releases) > 1 && tryPatches {
 		err = os.Remove("rich-destiny.exe.dump")
 		if err != nil {
 			return "", fmt.Errorf("Error removing the .dump file, %s", err)
@@ -89,9 +106,15 @@ func filterReleases(releases releasesFromGithub) releasesFromGithub {
 }
 
 func updateWithOldSavePath(release releaseElement, path string) error {
+	assetType := "patch"
+	if !tryPatches {
+		assetType = "exe"
+	}
+
+	log.Printf("Attempting to apply update for version %s", release.Name)
+
 	for _, asset := range release.Assets {
-		if asset.Name == "rich-destiny.patch" {
-			log.Printf("Attempting to apply patch for version %s", release.Name)
+		if asset.Name == "rich-destiny."+assetType {
 
 			res, err := http.Get(asset.BrowserDownloadURL)
 			if err != nil {
@@ -103,22 +126,26 @@ func updateWithOldSavePath(release releaseElement, path string) error {
 				return fmt.Errorf("Error decoding checksum: %s", err)
 			}
 
-			err = update.Apply(res.Body, update.Options{
+			opts := update.Options{
 				Checksum:    checksum,
-				Patcher:     update.NewBSDiffPatcher(),
 				OldSavePath: path,
-			})
+			}
+			if tryPatches {
+				opts.Patcher = update.NewBSDiffPatcher()
+			}
+
+			err = update.Apply(res.Body, opts)
 			if err != nil {
 				if rerr := update.RollbackError(err); rerr != nil {
 					return fmt.Errorf("Failed to roll back from bad update: %s", rerr)
 				}
 				return fmt.Errorf("Error while applying update: %s", err)
 			}
-			log.Printf("Successfully applied update for version %s", release.Name)
+			log.Printf("Successfully applied update for version %s with %s", release.Name, assetType)
 			return nil
 		}
 	}
-	return fmt.Errorf("Release does not seem to include a rich-destiny.patch file, no update happened")
+	return fmt.Errorf("Release does not seem to include a rich-destiny.%s file, no update happened", assetType)
 }
 
 func getChecksumFromBody(s string) string {
