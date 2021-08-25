@@ -187,9 +187,6 @@ func updatePresence() {
 					newActivity.LargeImage = "socialall"
 				// case activity.DP.Name == "European Aerial Zone":
 				// 	newActivity.Details = activity.DP.Name
-				case activity.DP.Name == "Last City: Eliksni Quarter":
-					newActivity.Details = "Eliksni Quarter - The Last City"
-					newActivity.LargeImage = "storypvecoopheroic"
 				case activityMode.DP.Name == "Explore":
 					// Remove double place
 					newActivity.Details = "Explore - " + place.DP.Name
@@ -227,6 +224,9 @@ func updatePresence() {
 					newActivity.Details = "Nightmare Hunt - " + place.DP.Name
 					newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
 					newActivity.LargeImage = "nightmarehunt"
+				case activity.DP.Name == "Last City: Eliksni Quarter":
+					newActivity.Details = "Eliksni Quarter - The Last City"
+					newActivity.LargeImage = "storypvecoopheroic"
 				default:
 					// This part specifies overrides that do not use simple conditions and can't fit in a case statement. Switch/case is prettier than a giant if/else imo
 					// if forge, ok := forgeHashMap[activityHash]; ok {
