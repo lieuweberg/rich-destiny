@@ -185,8 +185,8 @@ func updatePresence() {
 					newActivity.Details = "Social - Earth"
 					newActivity.State = activity.DP.Name
 					newActivity.LargeImage = "socialall"
-				case activity.DP.Name == "European Aerial Zone":
-					newActivity.Details = activity.DP.Name
+				// case activity.DP.Name == "European Aerial Zone":
+				// 	newActivity.Details = activity.DP.Name
 				case activity.DP.Name == "Last City: Eliksni Quarter":
 					newActivity.Details = "Eliksni Quarter - The Last City"
 					newActivity.LargeImage = "storypvecoopheroic"
