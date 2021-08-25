@@ -138,17 +138,18 @@ func updatePresence() {
 					case strings.HasPrefix(activity.DP.Name, "Astral Alignment"):
 						newActivity.Details = "Astral Alignment - " + place.DP.Name
 						newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
+						newActivity.LargeImage = "seasonlost"
 					case strings.HasPrefix(activity.DP.Name, "Expunge:"):
 						newActivity.Details = "Expunge - " + place.DP.Name
 						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
-						newActivity.LargeImage = "storypvecoopheroic"
+						newActivity.LargeImage = "seasonsplicer"
 					case strings.HasPrefix(activity.DP.Name, "Override:"):
 						newActivity.Details = strings.Replace(activity.DP.Name, ": ", " - ", 1)
-						newActivity.LargeImage = "storypvecoopheroic"
+						newActivity.LargeImage = "seasonsplicer"
 					case strings.HasPrefix(activity.DP.Name, "Battleground:"):
 						newActivity.Details = "Battleground - " + place.DP.Name
 						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
-						newActivity.LargeImage = "storypvecoopheroic"
+						newActivity.LargeImage = "seasonchosen"
 					case strings.HasPrefix(activity.DP.Name, "Vault of Glass"):
 						newActivity.Details = "Raid - Venus"
 						newActivity.State = activity.DP.Name
@@ -199,6 +200,7 @@ func updatePresence() {
 				case strings.HasPrefix(activity.DP.Name, "Shattered Realm"):
 					newActivity.Details = "Shattered Realm - The Dreaming City"
 					newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
+					newActivity.LargeImage = "seasonlost"
 				case activityMode.DP.Name == "Gambit":
 					newActivity.Details = activityMode.DP.Name
 					newActivity.State = activity.DP.Name
