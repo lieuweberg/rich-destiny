@@ -135,18 +135,18 @@ func updatePresence() {
 				// lol, https://github.com/Bungie-net/api/issues/910, scroll down for all my comments and edits
 				if activity != nil {
 					switch {
-					case strings.Contains(activity.DP.Name, "Expunge:"):
+					case strings.HasPrefix(activity.DP.Name, "Expunge:"):
 						newActivity.Details = "Expunge - " + place.DP.Name
 						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
 						newActivity.LargeImage = "storypvecoopheroic"
-					case strings.Contains(activity.DP.Name, "Override:"):
+					case strings.HasPrefix(activity.DP.Name, "Override:"):
 						newActivity.Details = strings.Replace(activity.DP.Name, ": ", " - ", 1)
 						newActivity.LargeImage = "storypvecoopheroic"
-					case strings.Contains(activity.DP.Name, "Battleground:"):
+					case strings.HasPrefix(activity.DP.Name, "Battleground:"):
 						newActivity.Details = "Battleground - " + place.DP.Name
 						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
 						newActivity.LargeImage = "storypvecoopheroic"
-					case strings.Contains(activity.DP.Name, "Vault of Glass"):
+					case strings.HasPrefix(activity.DP.Name, "Vault of Glass"):
 						newActivity.Details = "Raid - Venus"
 						newActivity.State = activity.DP.Name
 						newActivity.LargeImage = "raid"
