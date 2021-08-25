@@ -193,6 +193,9 @@ func updatePresence() {
 					if strings.Contains(strings.ToLower(activity.DP.Name), "mission") {
 						newActivity.State = activity.DP.Name
 					}
+				case strings.HasPrefix(activity.DP.Name, "Shattered Realm"):
+					newActivity.Details = "Shattered Realm - The Dreaming City"
+					newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
 				case activityMode.DP.Name == "Gambit":
 					newActivity.Details = activityMode.DP.Name
 					newActivity.State = activity.DP.Name
