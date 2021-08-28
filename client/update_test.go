@@ -1,44 +1,17 @@
 package main
 
-import "testing"
+import (
+	"log"
+	"testing"
+)
 
-func TestFilterReleases(t *testing.T) {
-	version = "v0.2.2"
-	got := filterReleases(releasesFromGithub{
-		releaseElement{
-			Name:       "v0.2.4",
-			Draft:      false,
-			Prerelease: false,
-			Assets:     []releaseAsset{},
-		},
-		releaseElement{
-			Name:       "v0.2.4-1",
-			Draft:      false,
-			Prerelease: true,
-			Assets:     []releaseAsset{},
-		},
-		releaseElement{
-			Name:       "v0.2.3",
-			Draft:      false,
-			Prerelease: false,
-			Assets:     []releaseAsset{},
-		},
-		releaseElement{
-			Name:       "v0.2.2",
-			Draft:      false,
-			Prerelease: false,
-			Assets:     []releaseAsset{},
-		},
-		releaseElement{
-			Name:       "v0.2.1",
-			Draft:      false,
-			Prerelease: false,
-			Assets:     []releaseAsset{},
-		},
-	})
+func TestGetNewReleases(t *testing.T) {
+	version = "v0.2.1"
+	got, _ := getNewReleases()
 
-	if len(got) != 3 {
-		t.Errorf("filterReleases was incorrect, got: %d, want %d, struct: %+v", len(got), 3, got)
+	log.Println("Don't worry if this is incorrect. You'll have to change the version number manually to test it.")
+	if len(got) != 2 {
+		t.Errorf("getNewReleases was incorrect, got: %d, want %d, struct: %+v", len(got), 3, got)
 	}
 }
 

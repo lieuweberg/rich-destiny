@@ -40,7 +40,7 @@ func attemptApplicationUpdate() (string, error) {
 	}
 
 	if len(releases) == 0 {
-		return "", fmt.Errorf("No newer version aaaa found.")
+		return "", fmt.Errorf("No newer version found.")
 	}
 
 	if tryPatches {
@@ -96,13 +96,13 @@ func getNewReleases() (releases releasesFromGithub, err error) {
 func filterReleases(releases releasesFromGithub) releasesFromGithub {
 	for i, r := range releases {
 		if !r.Draft && !r.Prerelease {
-			if semver.Compare(r.Name, version) == 1 {
-				releases = releases[:i+1]
+			if semver.Compare(r.Name, version) != 1 {
+				return releases[:i]
 			}
 		}
 	}
 
-	return releases
+	return []releaseElement{}
 }
 
 func updateWithOldSavePath(release releaseElement, path string) error {
