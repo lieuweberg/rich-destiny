@@ -62,6 +62,16 @@ export default function() {
 
     // Clear the interval when switching to another page. This acts as component unmount.
     React.useEffect(() => {
+        (async () => {
+            let script = document.createElement("script");
+            script.src = "https://platform.twitter.com/widgets.js";
+            script.onload = () => {
+                // @ts-ignore
+                twttr.widgets.load(document.getElementsByClassName("twitter-timeline")[0])
+            }
+            document.head.appendChild(script);
+        })()
+
         getData(setData, 0);
         let interval = setInterval(() => {
             getData(setData, interval)
@@ -109,6 +119,7 @@ export default function() {
                 <PresenceCard description="In Orbit" state={settings.orbitText} largeImage="destinylogo"/>
             </div>
         </div>
+
         <div className="boxed">
             <h2>Settings</h2>
             <form>
@@ -141,6 +152,7 @@ export default function() {
                 <a href="#" className="button" onClick={e => {handleFormSubmit(e, settings)}}>Save Settings</a>
             </form>
         </div>
+
         <div className="boxed">
             <h2>Actions</h2>
             <div id="actions">
@@ -172,10 +184,37 @@ export default function() {
                     need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
             </div>
         </div>
+
         <div className="boxed">
             <h2>Hey you...</h2>
-            <p>... yeah you. You're awesome, you know that? ✨ If you like rich-destiny, <span>consider
-            sharing</span> it with your friends.</p>
+            <p>... yeah you. You're awesome, you know that? ✨ You're unique, you're you, you're special.</p>
+        </div>
+
+        <div className="boxed">
+            <h2>Come hang out</h2>
+            <p>Got feedback, questions or interesting ideas? Need a place to vent out about how the Scorn keep
+                going immune, or just be with some friendly people? Or just come for the opt-in pings when
+                there's a new release. Come join the Discord server!</p>
+            <a href="https://discord.gg/UNU4UXp" target="_blank" rel="noopener noreferrer">
+                <img alt="Discord" src="https://img.shields.io/discord/604679605630009384
+                    ?label=Discord&color=6c82cf"/>
+            </a>
+                
+            <h3>Or show some support</h3>
+            <p>By leaving a star on GitHub :)</p>
+            <a href="https://github.com/lieuweberg/rich-destiny" target="_blank" rel="noopener noreferrer">
+                <img alt="GitHub stars" src="https://img.shields.io/github/stars/lieuweberg/rich-destiny
+                    ?label=GitHub%20stars&color=6c82cf"></img>
+            </a>
+        </div>
+
+        <div className="boxed">
+            <h2>Tweets</h2>
+            <div>
+                <a className="twitter-timeline" data-lang="en" data-dnt="true" data-theme="dark"
+                    data-chrome="noscrollbar nofooter noheader transparent"
+                    href="https://twitter.com/richdestinyapp">Loading @richdestinyapp tweets...</a>
+            </div>
         </div>
     </div> <ReactTooltip effect="solid" backgroundColor="#18191C"/> </>
 }
