@@ -6,6 +6,9 @@ import ScrollToTop from "./components/ScrollToTop";
 
 // @ts-expect-error
 import logo from "../images/rich-destiny.png";
+// @ts-expect-error
+import footerWaves from "../images/footer-waves.svg";
+
 import 'react-toastify/dist/ReactToastify.min.css';
 
 import Home from "./Home";
@@ -69,6 +72,8 @@ function Root() {
                     </div>
                 </Route>
             </Switch>
+
+            <img className="svg-spacer" src={footerWaves} alt="" />
         </div>
 
         <div id="footer">

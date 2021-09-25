@@ -55,7 +55,10 @@ body {
 }
 
 #view {
-    padding-bottom: 80px;
+    padding-bottom: 50px;
+    @include isMobile() {
+        padding-bottom: 80px;
+    }
 }
 
 .Toastify__progress-bar--dark {
@@ -265,4 +268,14 @@ a:not(#nav a, .button) {
     background-color: $dark-box;
     border-radius: 10px;
     box-shadow: 0 0 8px #131313;
+}
+
+.svg-spacer {
+    display: block;
+    width: 100%;
+    height: max(130px, 10vw);
+
+    &.flip {
+        transform: rotate(180deg);
+    }
 }

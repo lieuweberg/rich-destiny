@@ -12,6 +12,9 @@ import home2 from "../images/home2.png";
 // @ts-expect-error
 import home3 from "../images/home3.png";
 
+// @ts-expect-error
+import homeWaves1 from "../images/home-waves1.svg";
+
 export default function() {
     let presences: PresenceCardProps[] = [];
     for (let i = 0; i < 3*6; i++) {
@@ -60,6 +63,8 @@ export default function() {
             </div>
         </div>
 
+        <img className="svg-spacer" src={homeWaves1} alt="" />
+
         <div id="info-cards">
             <div className="card">
                 <div className="image">
@@ -93,6 +98,8 @@ export default function() {
                 </div>
             </div>
         </div>
+
+        <img className="svg-spacer flip" src={homeWaves1} alt="" />
 
         <div className="generic-text top-padding">
             <h1>What's so special about this?</h1>

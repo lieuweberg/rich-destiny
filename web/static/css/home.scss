@@ -27,7 +27,7 @@
     display: grid;
     grid-auto-flow: row;
     row-gap: 20px;
-    padding: 30px 0 70px;
+    padding: 30px 0 50px;
     overflow: hidden;
 
     & > div {
@@ -88,8 +88,7 @@
     display: flex;
     justify-content: center;
     gap: 50px;
-    padding: 70px 0;
-    background-color: $dark-box;
+    background-color: #353535;
 
     @include isMobile() {
         flex-direction: column;
