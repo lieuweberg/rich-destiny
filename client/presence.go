@@ -379,7 +379,7 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 				newActivity.Buttons = []*richgo.Button{
 					{
 						Label: "Launch Game",
-						Url:   "steam://rungame/1085660/",
+						Url:   "steam://run/1085660/",
 					},
 				}
 			}
