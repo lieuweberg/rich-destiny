@@ -68,15 +68,25 @@ export default function() {
         <div id="info-cards">
             <div className="card">
                 <div className="image">
+                    <img src={home1} alt="screenshot showing tooltip" />
+                </div>
+                <hr />
+                <div>
+                    <h3>Forge your fireteam</h3>
+                    <p>Anyone playing Destiny 2 on Steam can easily launch the game through your status. <small>(optional, previously Join Game)</small></p>
+                </div>
+            </div>
+            {/* <div className="card">
+                <div className="image">
                     <img src={home1} alt="screenshot showing join game button"/>
                 </div>
                 <hr/>
                 <div>
                     <h3>Forge your fireteam</h3>
                     <p>No more sharing join codes: have anyone effortlessly join your fireteam by clicking a button in
-                        your status. <small>(optional)</small></p>
+                        your status. <small>(disabled)</small></p>
                 </div>
-            </div>
+            </div> */}
             <div className="card">
                 <div className="image">
                     <img src={home2} alt="screenshot showing tooltip"/>
