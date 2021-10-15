@@ -197,6 +197,10 @@ func updatePresence() {
 					if strings.Contains(strings.ToLower(activity.DP.Name), "mission") {
 						newActivity.State = activity.DP.Name
 					}
+				case activity.DP.Name == "Haunted Sectors":
+					newActivity.Details = "Haunted Sector"
+					newActivity.State = place.DP.Name
+					newActivity.LargeImage = "hauntedforest"
 				case strings.HasPrefix(activity.DP.Name, "Shattered Realm"):
 					newActivity.Details = "Shattered Realm - The Dreaming City"
 					newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
@@ -204,9 +208,6 @@ func updatePresence() {
 				case activityMode.DP.Name == "Gambit":
 					newActivity.Details = activityMode.DP.Name
 					newActivity.State = activity.DP.Name
-				// case activityHash == 707826522  || activityHash == 1454880421 || activityHash == -420675050:
-				// 	newActivity.Details = activity.DP.Name
-				// 	newActivity.LargeImage = "hauntedforest"
 				// case activity.ActivityTypeHash == 400075666:
 				// 	if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
 				// 		// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
