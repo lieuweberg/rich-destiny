@@ -137,17 +137,18 @@ export default function() {
                         rich-destiny automatically. If unticked, you can use the Update button below." />
                 </div>
 
-                <h4>Join Game button</h4>
+                <h4>Launch Game button</h4>
                 <div>
                     <CheckboxInput name="Enabled" json="joinGameButton" value={settings.joinGameButton}
-                        update={setSetting} text="Adds a 'Join Game' button to your status that
-                        allows anyone (including people without rich-destiny) to join your fireteam, simply
+                        update={setSetting} text="Adds a 'Launch Game' button to your status that
+                        allows anyone (including people without rich-destiny) to launch Destiny 2, simply
                         by clicking it." /> {requiresVersion("v0.2.1")}
 
                     <CheckboxInput name="Orbit or social spaces only" json="joinOnlySocial"
-                        value={settings.joinOnlySocial} update={setSetting} text="When ticked, the Join
-                        Game button will appear only when you're in orbit or social spaces like the Tower,
-                        preventing people from joining mid-game." /> {requiresVersion("v0.1.9")}
+                        value={settings.joinOnlySocial} update={setSetting} text="When ticked, the Launch
+                        Game button will appear only when you're in orbit or social spaces like the Tower.
+                        This feature is still here for backwards compatibility, but isn't really necessary
+                        since the Join Game button was removed." /> {requiresVersion("v0.1.9")}
                 </div>
                 <a href="#" className="button" onClick={e => {handleFormSubmit(e, settings)}}>Save Settings</a>
             </form>
