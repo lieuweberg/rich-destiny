@@ -61,13 +61,15 @@ export default function() {
 
     function parseRelease(githubRelease: GitHubRelease): ParsedRelease {
         let asset = githubRelease.assets[0];
+        console.log(githubRelease);
         let d = (new Date(githubRelease.published_at));
         let r: ParsedRelease = {
             version: githubRelease.name,
             body: githubRelease.body,
             url: asset.browser_download_url,
             size: (asset.size / 1e6).toFixed(1),
-            downloads: asset.download_count,
+            downloads: asset.download_count
+                + (githubRelease.assets[1] ? githubRelease.assets[1].download_count : 0),
             date: d.toLocaleString("en-us", { day: "2-digit", month: "long" }),
             year: d.getFullYear()
         };
