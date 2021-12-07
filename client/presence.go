@@ -135,6 +135,10 @@ func updatePresence() {
 				// lol, https://github.com/Bungie-net/api/issues/910, scroll down for all my comments and edits
 				if activity != nil {
 					switch {
+					case strings.HasPrefix(activity.DP.Name, "Grasp of Avarice"):
+						newActivity.Details = "Dungeon - The Cosmodrome"
+						newActivity.State = activity.DP.Name
+						newActivity.LargeImage = "dungeon"
 					case strings.HasPrefix(activity.DP.Name, "Astral Alignment"):
 						newActivity.Details = "Astral Alignment - " + place.DP.Name
 						newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
