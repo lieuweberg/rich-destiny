@@ -197,6 +197,15 @@ func updatePresence() {
 					if strings.Contains(strings.ToLower(activity.DP.Name), "mission") {
 						newActivity.State = activity.DP.Name
 					}
+					// Unknown Space is Eternity
+					if place.DP.Name == "Unknown Space" {
+						newActivity.Details = "Traversing Eternity"
+						newActivity.LargeImage = "anniversary"
+					}
+				case activityMode.DP.Name == "Dares of Eternity":
+					newActivity.Details = activityMode.DP.Name
+					newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
+					newActivity.LargeImage = "anniversary"
 				case activity.DP.Name == "Haunted Sectors":
 					newActivity.Details = "Haunted Sector"
 					newActivity.State = place.DP.Name
