@@ -9,16 +9,16 @@ import (
 	"os"
 )
 
-func getManifest() {
-	log.Print("hello")
+var definitionsExist bool
+
+func getDefinitions() {
 	if quitPresenceTicker != nil {
 		close(quitPresenceTicker)
 	}
-	log.Print("hello2")
-	var manifestExists bool
-	// The following section returns on most errors, so defer this function (long manifest downloads can cause issues for initPresence, too)
+
+	// The following section returns on most errors, so defer this function
 	defer func() {
-		if manifestExists {
+		if definitionsExist {
 			var err error
 			manifest, err = sql.Open("sqlite3", makePath("manifest.db"))
 			if err != nil {
@@ -36,24 +36,26 @@ func getManifest() {
 	}()
 
 	// Check if a new manifest has to be downloaded, if so do that, then open the db
-	manifestRes, err := getManifestData()
+	var manifestRes *manifestData
+	err := requestComponents("/Destiny2/Manifest/", &manifestRes)
 	if err != nil {
 		log.Printf("Error getting manifest data: %s", err)
+		return
 	}
 
-	var lastManifestURL string
-	err = db.QueryRow("SELECT value FROM data WHERE key='lastManifestURL'").Scan(&lastManifestURL)
+	var lastDefinitionsURL string
+	err = db.QueryRow("SELECT value FROM data WHERE key='lastManifestURL'").Scan(&lastDefinitionsURL)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Printf("Error querying database for lastManifestURL. Obtaining new manifest: %s", err)
 		}
 	}
 
-	if _, err := os.Stat(makePath("manifest.db")); os.IsNotExist(err) || manifestRes.Response.MobileWorldContentPaths.En != lastManifestURL {
+	if _, err := os.Stat(makePath("manifest.db")); os.IsNotExist(err) || manifestRes.Response.MobileWorldContentPaths.En != lastDefinitionsURL {
 		if os.IsNotExist(err) {
 			log.Print("Manifest doesn't exist, downloading one...")
 		} else {
-			manifestExists = true
+			definitionsExist = true
 			log.Print("Manifest is outdated, downloading a new one...")
 		}
 
@@ -104,7 +106,7 @@ func getManifest() {
 			return
 		}
 		log.Print("Manifest downloaded and unzipped!")
-		manifestExists = true
+		definitionsExist = true
 
 		err = os.Remove(makePath("manifest.zip"))
 		if err != nil {
@@ -119,6 +121,6 @@ func getManifest() {
 			return
 		}
 	} else {
-		manifestExists = true
+		definitionsExist = true
 	}
 }

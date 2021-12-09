@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
+	"syscall"
 
 	"time"
 
@@ -158,10 +160,8 @@ func (p *program) run() {
 		log.Printf("Error creating storage.db table: %s", err)
 	}
 
-	log.Print("hello3")
 	startWebServer()
 
-	log.Print("hello4")
 	// Wait for a decent computer to have booted, no internet connection means trouble
 	// TODO: Way better way of handling internet connection status; this is pretty terrible
 	time.Sleep(10 * time.Second)
@@ -182,8 +182,7 @@ func (p *program) run() {
 		}
 	}
 
-	log.Print("hello666")
-	go getManifest()
+	go getDefinitions()
 }
 
 func makePath(e string) string {

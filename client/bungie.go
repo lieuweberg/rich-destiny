@@ -212,7 +212,9 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 		return
 	}
 	req.Header.Set("X-API-Key", config.APIKey)
-	req.Header.Set("Authorization", "Bearer "+storage.AccessToken)
+	if url != "/Destiny2/Manifest/" {
+		req.Header.Set("Authorization", "Bearer "+storage.AccessToken)
+	}
 
 	res, err := bungieHTTPClient.Do(req)
 	if err != nil {
