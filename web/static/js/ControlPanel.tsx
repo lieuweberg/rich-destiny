@@ -12,6 +12,7 @@ import useMemoryState from "./MemoryState";
 interface Settings {
     orbitText:      string;
     autoUpdate:     boolean;
+    prereleases:    boolean;
     joinGameButton: boolean;
     joinOnlySocial: boolean;
 }
@@ -19,6 +20,7 @@ interface Settings {
 const defaultSettings: Settings = {
     orbitText: "",
     autoUpdate: true,
+    prereleases: false,
     joinGameButton: false,
     joinOnlySocial: false
 }
@@ -85,7 +87,7 @@ export default function() {
         let obj = { ...settings };
         Object.keys(obj).forEach(k => obj[k] = data[k]);
         setSettings(obj);
-    }, [data.autoUpdate, data.orbitText, data.joinGameButton, data.joinOnlySocial]);
+    }, [data.autoUpdate, data.orbitText, data.prereleases, data.joinGameButton, data.joinOnlySocial]);
 
     function requiresVersion(version: string) {
         if (data.version == "dev" || data.version == "vX.Y.Z") return null;
@@ -135,6 +137,13 @@ export default function() {
                     <CheckboxInput name="Auto update" json="autoUpdate" value={settings.autoUpdate}
                         update={setSetting} text="Whether to update to the latest releases of
                         rich-destiny automatically. If unticked, you can use the Update button below." />
+
+                    <CheckboxInput name="Prereleases ⚠️" json="prereleases" value={settings.prereleases}
+                        update={setSetting} text="Enables prereleases. This option is ⚠️IRREVERSIBLE⚠️. You
+                        are fairly expected to report any errors in the support server, however that is of
+                        course optional. This option will grant access to early releases that include new
+                        features that may possibly not work well. Turning off prereleases will update to a
+                        stable NEWER release, and not downgrade." /> {requiresVersion("v0.2.5-1")}
                 </div>
 
                 <h4>Launch Game button</h4>
