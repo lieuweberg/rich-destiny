@@ -92,7 +92,7 @@ func getNewReleases() (releases releasesFromGithub, err error) {
 
 func filterReleases(releases releasesFromGithub) releasesFromGithub {
 	for i, r := range releases {
-		if !r.Draft && !r.Prerelease {
+		if !r.Draft && (storage.Prereleases || !r.Prerelease) {
 			if semver.Compare(r.Name, updatedVersion) != 1 {
 				return releases[:i]
 			}

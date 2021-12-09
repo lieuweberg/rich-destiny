@@ -22,6 +22,7 @@ type storageStruct struct {
 	// Custom settings
 	OrbitText      string `json:"orbitText"`
 	AutoUpdate     bool   `json:"autoUpdate"`
+	Prereleases    bool   `json:"prereleases"`
 	JoinGameButton bool   `json:"joinGameButton"`
 	JoinOnlySocial bool   `json:"joinOnlySocial"`
 }
@@ -34,6 +35,7 @@ type currentProgramStatus struct {
 
 	OrbitText      string `json:"orbitText"`
 	AutoUpdate     bool   `json:"autoUpdate"`
+	Prereleases    bool   `json:"prereleases"`
 	JoinGameButton bool   `json:"joinGameButton"`
 	JoinOnlySocial bool   `json:"joinOnlySocial"`
 

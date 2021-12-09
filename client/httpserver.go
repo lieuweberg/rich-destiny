@@ -74,6 +74,7 @@ func startWebServer() {
 			d.Name = storage.DisplayName
 			d.OrbitText = storage.OrbitText
 			d.AutoUpdate = storage.AutoUpdate
+			d.Prereleases = storage.Prereleases
 			d.JoinGameButton = storage.JoinGameButton
 			d.JoinOnlySocial = storage.JoinOnlySocial
 
