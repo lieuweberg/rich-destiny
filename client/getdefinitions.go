@@ -12,10 +12,6 @@ import (
 var definitionsExist bool
 
 func getDefinitions() {
-	if quitPresenceTicker != nil {
-		close(quitPresenceTicker)
-	}
-
 	// The following section returns on most errors, so defer this function
 	defer func() {
 		if definitionsExist {
@@ -57,6 +53,10 @@ func getDefinitions() {
 		} else {
 			definitionsExist = true
 			log.Print("Manifest is outdated, downloading a new one...")
+		}
+		
+		if quitPresenceTicker != nil {
+			close(quitPresenceTicker)
 		}
 
 		res, err := http.Get("https://www.bungie.net" + manifestRes.Response.MobileWorldContentPaths.En)

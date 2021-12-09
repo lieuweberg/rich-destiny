@@ -30,6 +30,12 @@ func initPresence() {
 				for _, p := range pl {
 					if p.Executable() == "destiny2.exe" {
 						exeFound = true
+						
+						getStorage()
+						if storage == nil {
+							break
+						}
+
 						if !loggedIn {
 							err := richgo.Login("726090012877258762")
 							if err != nil {
@@ -37,6 +43,8 @@ func initPresence() {
 								break
 							}
 							loggedIn = true
+
+							getDefinitions()
 
 							if storage.AutoUpdate {
 								go func() {
@@ -49,11 +57,7 @@ func initPresence() {
 								}()
 							}
 						}
-
-						getStorage()
-						if storage == nil {
-							break
-						}
+						
 						updatePresence()
 						break
 					}
