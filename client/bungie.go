@@ -174,21 +174,6 @@ func openOauthTab() {
 	}
 }
 
-// getManifestData gets the manifest info url
-func getManifestData() (d manifestData, err error) {
-	res, err := http.Get("https://www.bungie.net/Platform/Destiny2/Manifest/")
-	if err != nil {
-		return
-	}
-	body, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	if err != nil {
-		return
-	}
-	err = json.Unmarshal(body, &d)
-	return
-}
-
 // requestComponents is a helper function to request an endpoint/component from the bungie api.
 // You MUST make sure that auth is populated.
 // url MUST start with a '/'!
