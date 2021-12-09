@@ -14,15 +14,13 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-func init() {
-	tryPatches = true
-}
-
 var isUpdating bool
-var tryPatches bool
+var tryPatches = true
+// The version after an update. Else it will try updating itself again because the actual version variable hasn't changed.
+var updatedVersion = version
 
 func attemptApplicationUpdate() (string, error) {
-	if version == "dev" {
+	if updatedVersion == "dev" {
 		return "", fmt.Errorf("Version 'dev' does not allow updates")
 	}
 
@@ -56,7 +54,6 @@ func attemptApplicationUpdate() (string, error) {
 				// the returned function will run before the defer, so explicitly setting it to false here prevents the Not so fast error
 				isUpdating = false
 				return attemptApplicationUpdate()
-				// return "", err
 			}
 		}
 	} else {
@@ -96,7 +93,7 @@ func getNewReleases() (releases releasesFromGithub, err error) {
 func filterReleases(releases releasesFromGithub) releasesFromGithub {
 	for i, r := range releases {
 		if !r.Draft && !r.Prerelease {
-			if semver.Compare(r.Name, version) != 1 {
+			if semver.Compare(r.Name, updatedVersion) != 1 {
 				return releases[:i]
 			}
 		}
@@ -142,6 +139,7 @@ func updateWithOldSavePath(release releaseElement, path string) error {
 				return fmt.Errorf("Error while applying update: %s", err)
 			}
 			log.Printf("Successfully applied update for version %s with %s", release.Name, assetType)
+			updatedVersion = release.Name
 			return nil
 		}
 	}

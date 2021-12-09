@@ -6,12 +6,12 @@ import (
 )
 
 func TestGetNewReleases(t *testing.T) {
-	version = "v0.2.1"
+	updatedVersion = "v0.2.2"
 	got, _ := getNewReleases()
 
 	log.Println("Don't worry if this is incorrect. You'll have to change the version number manually to test it.")
 	if len(got) != 2 {
-		t.Errorf("getNewReleases was incorrect, got: %d, want %d, struct: %+v", len(got), 3, got)
+		t.Errorf("getNewReleases was incorrect, got: %d, want %d, struct: %+v", len(got), 2, got)
 	}
 }
 
