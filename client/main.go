@@ -134,7 +134,15 @@ func (p *program) run() {
 		log.Printf("Couldn't create log file: %s", err)
 	} else {
 		log.SetOutput(logFile)
-		os.Stderr = logFile
+
+		if runtime.GOOS == "windows" {
+			stdErrorHandle := syscall.STD_ERROR_HANDLE
+			r0, _, e1 := syscall.Syscall(syscall.MustLoadDLL("kernel32").MustFindProc("SetStdHandle").Addr(),
+				2, uintptr(stdErrorHandle), logFile.Fd(), 0)
+			if r0 == 0 {
+				log.Printf("Couldn't set stderr handle: %d", e1)
+			}
+		}
 	}
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
