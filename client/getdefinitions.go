@@ -27,8 +27,10 @@ func getDefinitions() {
 			s.Stop()
 			return
 		}
-
-		initPresence()
+		
+		if quitPresenceTicker == nil {
+			initPresence()
+		}
 	}()
 
 	// Check if a new manifest has to be downloaded, if so do that, then open the db
@@ -53,10 +55,6 @@ func getDefinitions() {
 		} else {
 			definitionsExist = true
 			log.Print("Manifest is outdated, downloading a new one...")
-		}
-		
-		if quitPresenceTicker != nil {
-			close(quitPresenceTicker)
 		}
 
 		res, err := http.Get("https://www.bungie.net" + manifestRes.Response.MobileWorldContentPaths.En)

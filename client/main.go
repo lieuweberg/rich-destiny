@@ -34,7 +34,7 @@ var (
 	bungieHTTPClient *http.Client
 
 	// Close this channel to stop the presence loop
-	quitPresenceTicker  chan (struct{})
+	quitPresenceTicker  chan bool
 	previousActivity    richgo.Activity
 	forcePresenceUpdate bool
 	debugText           string
@@ -51,7 +51,7 @@ func (p *program) Stop(s service.Service) (err error) {
 	log.Print("OS termination received")
 	db.Close()
 	manifest.Close()
-	close(quitPresenceTicker)
+	quitPresenceTicker <- true
 	server.Close()
 	log.Print("Gracefully exited, bye bye")
 	return
@@ -182,7 +182,7 @@ func (p *program) run() {
 		}
 	}
 
-	go getDefinitions()
+	getDefinitions()
 }
 
 func makePath(e string) string {

@@ -13,7 +13,7 @@ import (
 
 func initPresence() {
 	exeCheckTicker := time.NewTicker(15 * time.Second)
-	quitPresenceTicker = make(chan struct{})
+	quitPresenceTicker = make(chan bool)
 	loggedIn := false
 	go func() {
 		defer func() {
