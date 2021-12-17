@@ -192,7 +192,7 @@ func startWebServer() {
 
 func enableCors(res *http.ResponseWriter, req *http.Request) {
 	origin := req.Header.Get("Origin")
-	allowedOrigins := [...]string{"https://lieuweberg.com", "http://localhost:1234", `https://richdestiny.app`}
+	allowedOrigins := [...]string{"https://lieuweberg.com", "http://localhost:1234", "https://richdestiny.app", "https://beta.richdestiny.app"}
 	for _, o := range allowedOrigins {
 		if o == origin {
 			(*res).Header().Set("Access-Control-Allow-Origin", origin)
