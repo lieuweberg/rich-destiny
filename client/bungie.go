@@ -209,7 +209,6 @@ func requestComponents(endpoint string, responseStruct interface{}) (err error) 
 	if err != nil {
 		return
 	}
-	log.Print("hello2")
 	err = json.Unmarshal(body, &responseStruct)
 
 	return
