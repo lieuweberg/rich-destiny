@@ -92,7 +92,7 @@ export default function() {
     function requiresVersion(version: string) {
         if (data.version == "dev" || data.version == "vX.Y.Z") return null;
         else if (semverGte(data.version, version)) return null;
-        else return <code>{version} needed! (current: {data.version})</code>;
+        else return <code>{version} needed)</code>;
     }
 
     function setSetting(k, v) {
@@ -172,10 +172,13 @@ export default function() {
                 
                 <a onClick={e => {
                     e.preventDefault();
-                    doSimpleGetRequest("http://localhost:35893/action?a=reconnect", 0, () => {});
-                }} href="#" className="button" data-tip="Reconnect to Discord. This is only supposed to be
-                    used when this site says you're playing the game, but Discord isn't.">Reconnect to Discord</a>
-                    {requiresVersion("v0.2.1")}
+                    document.getElementById("reconnect").innerHTML = "Reconnecting...";
+                    doSimpleGetRequest("http://localhost:35893/action?a=reconnect", 0, () => {
+                        document.getElementById("reconnect").innerHTML = "Reconnect to Discord";
+                    });
+                }} href="#" className="button" id="reconnect" data-tip="Reconnect to Discord. This is only
+                    supposed to be used when this site says you're playing the game, but Discord
+                    isn't.">Reconnect to Discord</a> {requiresVersion("v0.2.1")}
 
                 <a onClick={e => {
                     e.preventDefault();
@@ -189,9 +192,12 @@ export default function() {
 
                 <a onClick={e => {
                     e.preventDefault();
-                    doSimpleGetRequest("http://localhost:35893/action?a=uninstall", 0, () => {});
-                }} href="#" className="button" data-tip="Uninstall rich-destiny from the service manager. Files
-                    need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
+                    document.getElementById("uninstall").innerHTML = "Uninstalling... :(";
+                    doSimpleGetRequest("http://localhost:35893/action?a=uninstall", 0, () => {
+                        document.getElementById("uninstall").innerHTML = "Uninstalled :(";
+                    });
+                }} href="#" className="button" id="uninstall" data-tip="Uninstall rich-destiny from the service
+                    manager. Files need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
             </div>
         </div>
 
