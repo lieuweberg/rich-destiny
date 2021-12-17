@@ -12,6 +12,7 @@ import (
 var definitionsExist bool
 
 func getDefinitions() {
+	log.Print("hello")
 	// The following section returns on most errors, so defer this function
 	defer func() {
 		if definitionsExist {
@@ -33,14 +34,20 @@ func getDefinitions() {
 		}
 	}()
 
+	log.Print("hello")
+
 	// Check if a new manifest has to be downloaded, if so do that, then open the db
 	var manifestRes *manifestData
+	log.Print("hello")
 	err := requestComponents("/Destiny2/Manifest/", &manifestRes)
+	log.Print("hello")
 	if err != nil {
+	log.Print("hello")
 		log.Printf("Error getting manifest data: %s", err)
 		return
 	}
 
+	log.Print("hello")
 	var lastDefinitionsURL string
 	err = db.QueryRow("SELECT value FROM data WHERE key='lastManifestURL'").Scan(&lastDefinitionsURL)
 	if err != nil {
@@ -49,6 +56,7 @@ func getDefinitions() {
 		}
 	}
 
+	log.Print("hello")
 	if _, err := os.Stat(makePath("manifest.db")); os.IsNotExist(err) || manifestRes.Response.MobileWorldContentPaths.En != lastDefinitionsURL {
 		if os.IsNotExist(err) {
 			log.Print("Manifest doesn't exist, downloading one...")

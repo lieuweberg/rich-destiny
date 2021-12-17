@@ -175,9 +175,9 @@ func openOauthTab() {
 }
 
 // requestComponents is a helper function to request an endpoint/component from the bungie api.
-// You MUST make sure that auth is populated.
-// url MUST start with a '/'!
-func requestComponents(url string, responseStruct interface{}) (err error) {
+// You MUST make sure that storage is populated.
+// endpoint MUST start with a '/'!
+func requestComponents(endpoint string, responseStruct interface{}) (err error) {
 	if bungieHTTPClient == nil {
 		cookieJar, err := cookiejar.New(nil)
 		if err == nil {
@@ -191,13 +191,12 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 		}
 	}
 
-	url = "https://www.bungie.net/Platform" + url
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", "https://www.bungie.net/Platform" + endpoint, nil)
 	if err != nil {
 		return
 	}
 	req.Header.Set("X-API-Key", config.APIKey)
-	if url != "/Destiny2/Manifest/" {
+	if endpoint != "/Destiny2/Manifest/" {
 		req.Header.Set("Authorization", "Bearer "+storage.AccessToken)
 	}
 
@@ -210,6 +209,7 @@ func requestComponents(url string, responseStruct interface{}) (err error) {
 	if err != nil {
 		return
 	}
+	log.Print("hello2")
 	err = json.Unmarshal(body, &responseStruct)
 
 	return
