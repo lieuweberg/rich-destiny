@@ -92,7 +92,7 @@ export default function() {
     function requiresVersion(version: string) {
         if (data.version == "dev" || data.version == "vX.Y.Z") return null;
         else if (semverGte(data.version, version)) return null;
-        else return <code>{version} needed)</code>;
+        else return <code>{version} needed</code>;
     }
 
     function setSetting(k, v) {
