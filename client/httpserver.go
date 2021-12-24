@@ -15,7 +15,6 @@ import (
 func startWebServer() {
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		enableCors(&res, req)
-		fmt.Fprint(res, "hello")
 	})
 
 	var generatedState string
