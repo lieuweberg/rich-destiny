@@ -20,6 +20,8 @@
     src: url("../fonts/whitney-700.woff");
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
 @import "mixins.scss";
 @import "colors.scss";
 
@@ -30,7 +32,13 @@ body {
     height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: #1e1e1e;
+
+    background: no-repeat radial-gradient(ellipse 150% 100vh at 100% 0%, #306a53 10%, #174b36 30%, #1e1e1e),
+    #1e1e1e;
+
+    @include isMobile() {
+        background: no-repeat radial-gradient(ellipse 150% 100vh at 100% 0%, #174b36, #1e1e1e), #1e1e1e;
+    }
 }
 
 ::-webkit-scrollbar {
@@ -69,7 +77,7 @@ body {
     NON-PAGE ELEMENTS
    =================== */
 #info-banner {
-    background-color: $blurple;
+    background-color: #174b36;
     text-align: center;
     font-size: 0.9rem;
     font-weight: 500;
@@ -95,7 +103,7 @@ body {
 
     font: 500 15px sans-serif;
     line-height: 40px;
-    border-bottom: 1px dashed #454545;
+    // border-bottom: 1px dashed #454545;
 
     a {
         text-decoration: none;
@@ -142,6 +150,7 @@ body {
             text-align: right;
             font-size: 20px;
             color: white;
+            text-shadow: black 3px 3px 1px;
         }   
     
         li {
@@ -190,15 +199,23 @@ p, h1, h2, h3, h4, a, li, label, input[type=submit], .__react_component_tooltip 
     font-family: 'Segoe UI', Geneva, Verdana, sans-serif;
 }
 
+h1, h2, h3, h4 {
+    font-family: 'Montserrat', 'Segoe UI', Geneva, Verdana, sans-serif;
+    color: transparent;
+    background-image: linear-gradient(to right, #95c788, #3daf00);
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
 h1:not(#title>h1) {
     display: inline;
-    border-top: 3px solid #4b4b4b;
+    border-top: 3px solid #ecfff3;
     &::after {
         content: '';
         display: block;
         height: 3px;
         width: 75px;
-        background-color: #4b4b4b;
+        background-color: #ecfff3;
     }
 }
 
@@ -277,5 +294,23 @@ a:not(#nav a, .button) {
 
     &.flip {
         transform: rotate(180deg);
+    }
+}
+
+.sidebar-decoration {
+    @media screen and (max-width: 1400px) {
+        display: none;
+    }
+    position: absolute;
+    filter: drop-shadow(rgba(0, 0, 0, 0.5) 10px 10px 5px);
+    animation: hovering 3s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;
+}
+
+@keyframes hovering {
+    0% {
+        transform: translateY(20px);
+    }
+    100% {
+        transform: translateY(0px);
     }
 }

@@ -5,8 +5,12 @@ import "../css/faq.scss";
 
 import questions from "../faq-questions.json";
 
+// @ts-expect-error
+import voidbuddy from "../images/voidbuddy.png";
+
 export default function() {
     return <>
+        <img id="voidbuddy" className="sidebar-decoration" src={voidbuddy} alt="" />
         <div className="generic-text">
             <h1>Frequently Asked Questions</h1>
             <p>This FAQ functions as an FAQ and troubleshooter in one. Find your question,

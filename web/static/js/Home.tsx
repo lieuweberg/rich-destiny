@@ -6,6 +6,9 @@ import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
 import "../css/home.scss";
 
 // @ts-expect-error
+import banner from "../images/hero-savathun.png"
+
+// @ts-expect-error
 import home1 from "../images/home1.png";
 // @ts-expect-error
 import home2 from "../images/home2.png";
@@ -28,6 +31,10 @@ export default function() {
     }
 
     return <>
+        <div id="hero">
+            <img src={banner} alt="" />
+        </div>
+
         <div id="title">
             <h1>rich-destiny</h1>
             <p>a discord rich presence tool for destiny 2 (pc)</p>

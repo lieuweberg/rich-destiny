@@ -1,6 +1,12 @@
 @import "mixins.scss";
 @import "colors.scss";
 
+#hiveghost {
+    top: 350px;
+    right: 5%;
+    width: 300px;
+}
+
 #download-box {
     display: grid;
     grid-template: auto 1fr / 2fr 1fr;

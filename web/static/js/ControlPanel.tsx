@@ -9,6 +9,11 @@ import PresenceCard from "./components/PresenceCard";
 import "../css/controlPanel.scss";
 import useMemoryState from "./MemoryState";
 
+// @ts-expect-error
+import hiveghost from "../images/hiveghost.png";
+// @ts-expect-error
+import voidbuddy from "../images/voidbuddy.png";
+
 interface Settings {
     orbitText:      string;
     autoUpdate:     boolean;
@@ -101,138 +106,146 @@ export default function() {
         setSettings(obj);
     }
 
-    return <> <div id="cp" className="generic-text">
-        <div className="boxed">
-            <div>
-                <h1>Control Panel</h1>
-                <p>Status: {data.status}<br/>
-                Logged in as: {data.name}<br/>
-                Debug: {data.debug}<br/>
-                Version: {data.version}</p>
-            </div>
-            <div style={{marginLeft: "auto"}}>
-                <h4>Current presence preview</h4>
-                <PresenceCard description={data.presence.Details} state={data.presence.State}
-                    largeImage={data.presence.LargeImage} smallImage={data.presence.SmallImage}
-                    initialTime={data.presence.Timestamps ? data.presence.Timestamps.Start : null}/>
-            </div>
-            <div>
-                <h4>Orbit presence preview</h4>
-                <PresenceCard description="In Orbit" state={settings.orbitText} largeImage="destinylogo"/>
-            </div>
+    return <>
+        <div className="transform-flip">
+            <img id="cp-hiveghost" className="sidebar-decoration" src={hiveghost} alt="" />
+            <img id="cp-voidbuddy" className="sidebar-decoration" src={voidbuddy} alt="" />
         </div>
 
-        <div className="boxed">
-            <h2>Settings</h2>
-            <form>
-                <h4>General</h4>
+        <div id="cp" className="generic-text">
+            <div className="boxed">
                 <div>
-                    <label>
-                        Orbit state text: <input type="text" id="orbitText" placeholder="empty up here..."
-                            value={settings.orbitText} onChange={e => setSetting("orbitText", e.target.value)} />
-                        &nbsp; <span data-tip="Text to display on the second line of the presence. See
-                        the Orbit presence preview to the left. Leave empty to disable.">&#x1f6c8;</span>
-                    </label> <br/>
-                    
-                    <CheckboxInput name="Auto update" json="autoUpdate" value={settings.autoUpdate}
-                        update={setSetting} text="Whether to update to the latest releases of
-                        rich-destiny automatically. If unticked, you can use the Update button below." />
-
-                    <CheckboxInput name="Prereleases ⚠️" json="prereleases" value={settings.prereleases}
-                        update={setSetting} text="Enables prereleases. This option is ⚠️IRREVERSIBLE⚠️. You
-                        are fairly expected to report any errors in the support server, however that is of
-                        course optional. This option will grant access to early releases that include new
-                        features that may possibly not work well. Turning off prereleases will update to a
-                        stable NEWER release, and not downgrade." /> {requiresVersion("v0.2.5-1")}
+                    <h1>Control Panel</h1>
+                    <p>Status: {data.status}<br/>
+                    Logged in as: {data.name}<br/>
+                    Debug: {data.debug}<br/>
+                    Version: {data.version}</p>
                 </div>
-
-                <h4>Launch Game button</h4>
+                <div style={{marginLeft: "auto"}}>
+                    <h4>Current presence preview</h4>
+                    <PresenceCard description={data.presence.Details} state={data.presence.State}
+                        largeImage={data.presence.LargeImage} smallImage={data.presence.SmallImage}
+                        initialTime={data.presence.Timestamps ? data.presence.Timestamps.Start : null}/>
+                </div>
                 <div>
-                    <CheckboxInput name="Enabled" json="joinGameButton" value={settings.joinGameButton}
-                        update={setSetting} text="Adds a 'Launch Game' button to your status that
-                        allows anyone (including people without rich-destiny) to launch Destiny 2, simply
-                        by clicking it." /> {requiresVersion("v0.2.1")}
-
-                    <CheckboxInput name="Orbit or social spaces only" json="joinOnlySocial"
-                        value={settings.joinOnlySocial} update={setSetting} text="When ticked, the Launch
-                        Game button will appear only when you're in orbit or social spaces like the Tower.
-                        This feature is still here for backwards compatibility, but isn't really necessary
-                        since the Join Game button was removed." /> {requiresVersion("v0.1.9")}
+                    <h4>Orbit presence preview</h4>
+                    <PresenceCard description="In Orbit" state={settings.orbitText} largeImage="destinylogo"/>
                 </div>
-                <a href="#" className="button" onClick={e => {handleFormSubmit(e, settings)}}>Save Settings</a>
-            </form>
-        </div>
+            </div>
 
-        <div className="boxed">
-            <h2>Actions</h2>
-            <div id="actions">
-                <a href="http://localhost:35893/login" className="button" target="_blank"
-                    rel="noopener noreferrer" data-tip="In case the refresh token has expired, or
-                    you want to log in with a different account.">Login with Bungie</a>
-                
-                <a onClick={e => {
-                    e.preventDefault();
-                    document.getElementById("reconnect").innerHTML = "Reconnecting...";
-                    doSimpleGetRequest("http://localhost:35893/action?a=reconnect", 0, () => {
-                        document.getElementById("reconnect").innerHTML = "Reconnect to Discord";
-                    });
-                }} href="#" className="button" id="reconnect" data-tip="Reconnect to Discord. This is only
-                    supposed to be used when this site says you're playing the game, but Discord
-                    isn't.">Reconnect to Discord</a> {requiresVersion("v0.2.1")}
+            <div className="boxed">
+                <h2>Settings</h2>
+                <form>
+                    <h4>General</h4>
+                    <div>
+                        <label>
+                            Orbit state text: <input type="text" id="orbitText" placeholder="empty up here..."
+                                value={settings.orbitText} onChange={e => setSetting("orbitText", e.target.value)} />
+                            &nbsp; <span data-tip="Text to display on the second line of the presence. See
+                            the Orbit presence preview to the left. Leave empty to disable.">&#x1f6c8;</span>
+                        </label> <br/>
 
-                <a onClick={e => {
-                    e.preventDefault();
-                    document.getElementById("update").innerHTML = "Updating...";
-                    doSimpleGetRequest("http://localhost:35893/action?a=update", 0, () => {
-                        document.getElementById("update").innerHTML = "Update";
-                    });
-                }} href="#" className="button" id="update" data-tip="Force finding and downloading of
-                    the latest version of the program. If it's newer, it's downloaded, but the program
-                    has to be restarted for the update to apply.">Update</a>
+                        <CheckboxInput name="Auto update" json="autoUpdate" value={settings.autoUpdate}
+                            update={setSetting} text="Whether to update to the latest releases of
+                            rich-destiny automatically. If unticked, you can use the Update button below." />
 
-                <a onClick={e => {
-                    e.preventDefault();
-                    document.getElementById("uninstall").innerHTML = "Uninstalling... :(";
-                    doSimpleGetRequest("http://localhost:35893/action?a=uninstall", 0, () => {
-                        document.getElementById("uninstall").innerHTML = "Uninstalled :(";
-                    });
-                }} href="#" className="button" id="uninstall" data-tip="Uninstall rich-destiny from the service
-                    manager. Files need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
+                        <CheckboxInput name="Prereleases ⚠️" json="prereleases" value={settings.prereleases}
+                            update={setSetting} text="Enables prereleases. This option is ⚠️IRREVERSIBLE⚠️. You
+                            are fairly expected to report any errors in the support server, however that is of
+                            course optional. This option will grant access to early releases that include new
+                            features that may possibly not work well. Turning off prereleases will update to a
+                            stable NEWER release, and not downgrade." /> {requiresVersion("v0.2.5-1")}
+                    </div>
+
+                    <h4>Launch Game button</h4>
+                    <div>
+                        <CheckboxInput name="Enabled" json="joinGameButton" value={settings.joinGameButton}
+                            update={setSetting} text="Adds a 'Launch Game' button to your status that
+                            allows anyone (including people without rich-destiny) to launch Destiny 2, simply
+                            by clicking it." /> {requiresVersion("v0.2.1")}
+
+                        <CheckboxInput name="Orbit or social spaces only" json="joinOnlySocial"
+                            value={settings.joinOnlySocial} update={setSetting} text="When ticked, the Launch
+                            Game button will appear only when you're in orbit or social spaces like the Tower.
+                            This feature is still here for backwards compatibility, but isn't really necessary
+                            since the Join Game button was removed." /> {requiresVersion("v0.1.9")}
+                    </div>
+                    <a href="#" className="button" onClick={e => {handleFormSubmit(e, settings)}}>Save Settings</a>
+                </form>
+            </div>
+
+            <div className="boxed">
+                <h2>Actions</h2>
+                <div id="actions">
+                    <a href="http://localhost:35893/login" className="button" target="_blank"
+                        rel="noopener noreferrer" data-tip="In case the refresh token has expired, or
+                        you want to log in with a different account.">Login with Bungie</a>
+
+                    <a onClick={e => {
+                        e.preventDefault();
+                        document.getElementById("reconnect").innerHTML = "Reconnecting...";
+                        doSimpleGetRequest("http://localhost:35893/action?a=reconnect", 0, () => {
+                            document.getElementById("reconnect").innerHTML = "Reconnect to Discord";
+                        });
+                    }} href="#" className="button" id="reconnect" data-tip="Reconnect to Discord. This is only
+                        supposed to be used when this site says you're playing the game, but Discord
+                        isn't.">Reconnect to Discord</a> {requiresVersion("v0.2.1")}
+
+                    <a onClick={e => {
+                        e.preventDefault();
+                        document.getElementById("update").innerHTML = "Updating...";
+                        doSimpleGetRequest("http://localhost:35893/action?a=update", 0, () => {
+                            document.getElementById("update").innerHTML = "Update";
+                        });
+                    }} href="#" className="button" id="update" data-tip="Force finding and downloading of
+                        the latest version of the program. If it's newer, it's downloaded, but the program
+                        has to be restarted for the update to apply.">Update</a>
+
+                    <a onClick={e => {
+                        e.preventDefault();
+                        document.getElementById("uninstall").innerHTML = "Uninstalling... :(";
+                        doSimpleGetRequest("http://localhost:35893/action?a=uninstall", 0, () => {
+                            document.getElementById("uninstall").innerHTML = "Uninstalled :(";
+                        });
+                    }} href="#" className="button" id="uninstall" data-tip="Uninstall rich-destiny from the service
+                        manager. Files need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
+                </div>
+            </div>
+
+            <div className="boxed">
+                <h2>Savathûn:</h2>
+                <p>Of all the enemies you've fought, how many saw your Ghost and realized, "Ah! That's why Guardians are so strong!"</p>
+            </div>
+
+            <div className="boxed">
+                <h2>Come hang out</h2>
+                <p>Got feedback, questions or interesting ideas? Need a place to vent out about how the Scorn keep
+                    going immune, or just be with some friendly people? Or just come for the opt-in pings when
+                    there's a new release. Come join the Discord server!</p>
+                <a href="https://discord.gg/UNU4UXp" target="_blank" rel="noopener noreferrer">
+                    <img alt="Discord" src="https://img.shields.io/discord/604679605630009384
+                        ?label=Discord&color=6c82cf"/>
+                </a>
+
+                <h3>Or show some support</h3>
+                <p>By leaving a star on GitHub :)</p>
+                <a href="https://github.com/lieuweberg/rich-destiny" target="_blank" rel="noopener noreferrer">
+                    <img alt="GitHub stars" src="https://img.shields.io/github/stars/lieuweberg/rich-destiny
+                        ?label=GitHub%20stars&color=6c82cf"></img>
+                </a>
+            </div>
+
+            <div className="boxed">
+                <h2>Tweets</h2>
+                <div>
+                    <a className="twitter-timeline" data-lang="en" data-dnt="true" data-theme="dark"
+                        data-chrome="noscrollbar nofooter noheader transparent"
+                        href="https://twitter.com/richdestinyapp">Loading @richdestinyapp tweets...</a>
+                </div>
             </div>
         </div>
-
-        <div className="boxed">
-            <h2>Hey you...</h2>
-            <p>... yeah you. You're awesome, you know that? ✨ You're unique, you're you, you're special.</p>
-        </div>
-
-        <div className="boxed">
-            <h2>Come hang out</h2>
-            <p>Got feedback, questions or interesting ideas? Need a place to vent out about how the Scorn keep
-                going immune, or just be with some friendly people? Or just come for the opt-in pings when
-                there's a new release. Come join the Discord server!</p>
-            <a href="https://discord.gg/UNU4UXp" target="_blank" rel="noopener noreferrer">
-                <img alt="Discord" src="https://img.shields.io/discord/604679605630009384
-                    ?label=Discord&color=6c82cf"/>
-            </a>
-                
-            <h3>Or show some support</h3>
-            <p>By leaving a star on GitHub :)</p>
-            <a href="https://github.com/lieuweberg/rich-destiny" target="_blank" rel="noopener noreferrer">
-                <img alt="GitHub stars" src="https://img.shields.io/github/stars/lieuweberg/rich-destiny
-                    ?label=GitHub%20stars&color=6c82cf"></img>
-            </a>
-        </div>
-
-        <div className="boxed">
-            <h2>Tweets</h2>
-            <div>
-                <a className="twitter-timeline" data-lang="en" data-dnt="true" data-theme="dark"
-                    data-chrome="noscrollbar nofooter noheader transparent"
-                    href="https://twitter.com/richdestinyapp">Loading @richdestinyapp tweets...</a>
-            </div>
-        </div>
-    </div> <ReactTooltip effect="solid" backgroundColor="#18191C"/> </>
+        <ReactTooltip effect="solid" backgroundColor="#18191C"/>
+    </>
 }
 
 function CheckboxInput({name, json, value, update, text}) {

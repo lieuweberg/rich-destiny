@@ -7,6 +7,9 @@ import { toast } from "react-toastify";
 import "../css/download.scss";
 import useMemoryState from "./MemoryState";
 
+// @ts-expect-error
+import hiveghost from "../images/hiveghost.png";
+
 interface GitHubRelease {
     name:           string;
     draft:          boolean;
@@ -102,6 +105,8 @@ export default function() {
     }
     
     return <>
+        <img id="hiveghost" className="sidebar-decoration" src={hiveghost} alt="" />
+
         <div className="generic-text">
             <h1>Download</h1>
 

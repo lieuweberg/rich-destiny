@@ -1,19 +1,42 @@
 @import "mixins.scss";
 @import "colors.scss";
 
+#hero {
+    position: absolute;
+    top: 0;
+    height: min(100vh, 983px);
+    width: 100%;
+
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+
+    img {
+        position: absolute;
+        right: 0;
+        @include isMobile() {
+            right: -250px;
+        }
+        object-fit: contain;
+        height: 100%;
+    }
+}
+
 #title {
     display: grid;
     margin: 50px 0;
     justify-items: center;
     text-align: center;
 
+    text-shadow: black 0px 0px 20px, black 0px 0px 40px;
+
     h1 {
+        color: white;
         margin: 0;
         font-size: 2.4em;
     }
 
     div a {
-        text-shadow: none;
         &:last-child {
             margin-left: 50px;
         }
