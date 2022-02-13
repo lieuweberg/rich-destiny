@@ -164,8 +164,8 @@ export default function() {
                     it to run in the background.</p>
                 </li>
                 <li>
-                    <p>A text window will pop up. It will ask where you want to download rich-destiny. Unless
-                    you well know what you're doing, <b>type 'default' and hit enter</b>. A browser tab
+                    <p>A text window will pop up. It will ask where you want to install rich-destiny. Unless
+                    you know what you're doing, <b>type 'default' and hit enter</b>. A browser tab
                     will shortly open to log in with Bungie.net.</p>
                     <p>That's it. You're done. Head to the <Link to="/cp">control panel</Link> to
                     configure rich-destiny! Enjoy :) If you have any questions, feel free to ask in

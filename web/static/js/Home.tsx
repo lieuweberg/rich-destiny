@@ -39,7 +39,7 @@ export default function() {
     }
 
     useEffect(() => {
-        document.addEventListener("mousemove", mouseMove)
+        document.addEventListener("mousemove", mouseMove);
 
         return () => {
             document.removeEventListener("mousemove", mouseMove);
@@ -97,7 +97,7 @@ export default function() {
                 <hr />
                 <div>
                     <h3>Forge your fireteam</h3>
-                    <p>Anyone playing Destiny 2 on Steam can easily launch the game through your status. <small>(optional, previously Join Game)</small></p>
+                    <p>Anyone playing Destiny 2 on Steam can easily launch the game through your status. <small>(optional)</small></p>
                 </div>
             </div>
             {/* <div className="card">
@@ -128,7 +128,7 @@ export default function() {
                 <hr/>
                 <div>
                     <h3>It just works</h3>
-                    <p>Runs in the background and is tiny in size. Auto updates by default. Fully self-contained.</p>
+                    <p>Runs in the background with minimal resource overhead. Auto updates by default. Fully self-contained.</p>
                 </div>
             </div>
         </div>
@@ -137,13 +137,12 @@ export default function() {
 
         <div className="generic-text top-padding">
             <h1>What's so special about this?</h1>
-            <p>After <Link to="/download">downloading</Link>, this program installs itself into the
-            Windows service manager. Every time you now start your computer, this program will also
-            be started, do some minimal work and then sit idly, waiting until you start Destiny 2.</p>
-            <p>Many Alternatives have a built-in GUI (Graphical User Interface). This adds a lot of
-            overhead while rarely being used, mostly to disk size. That's why rich-destiny allows this
-            site to communicate with itself, providing the GUI <i>through this site</i>. This has many
-            advantages, mainly hugely reduced download size (and update size) and instant GUI updates.</p>
+            <p>After <Link to="/download">downloading</Link>, when first run, this program installs itself into the
+            Windows service manager. Every time you now start your computer, this program will
+            be started in the background, do some minimal work and then sit idly, waiting until you start Destiny 2.</p>
+            <p>All alternatives have a built-in UI (User Interface). This adds a lot of
+            overhead while rarely being used. Instead, rich-destiny uses a hosted web-based interface for customising
+            settings to keep resource usage, installation size and update size minimal.</p>
         </div>
     </>
 }

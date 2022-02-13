@@ -72,23 +72,24 @@ function Root() {
                     </div>
                 </Route>
             </Switch>
-
-            <img className="svg-spacer" src={footerWaves} alt="" />
         </div>
 
         <div id="footer">
+            <img className="svg-spacer" src={footerWaves} alt="" />
             <div>
-                <p>2020-2021 &copy; <a href="https://lieuweberg.com" target="_blank"
-                    rel="noopener noreferrer">lieuwe_berg</a> <br/>
-                    Destiny 2 and its related assets belong to <s>Bungie, Inc.</s> The Witch Queen</p>
-            </div>
-            <div>
-                <a href="https://discord.gg/UNU4UXp" target="_blank"
-                    rel="noopener noreferrer">Discord</a>
-                <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
-                    rel="noopener noreferrer">GitHub</a>
-                <a href="https://twitter.com/richdestinyapp" target="_blank"
-                    rel="noopener noreferrer">Twitter</a>
+                <div>
+                    <p>2020-2022 &copy; <a href="https://lieuweberg.com" target="_blank"
+                        rel="noopener noreferrer">lieuwe_berg</a> <br/>
+                        Destiny 2 and its related assets belong to <s>Bungie, Inc.</s> The Witch Queen</p>
+                </div>
+                <div>
+                    <a href="https://discord.gg/UNU4UXp" target="_blank"
+                        rel="noopener noreferrer">Discord</a>
+                    <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
+                        rel="noopener noreferrer">GitHub</a>
+                    <a href="https://twitter.com/richdestinyapp" target="_blank"
+                        rel="noopener noreferrer">Twitter</a>
+                </div>
             </div>
         </div>
     </BrowserRouter>
