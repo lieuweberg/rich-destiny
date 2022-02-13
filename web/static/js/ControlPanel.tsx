@@ -10,9 +10,9 @@ import "../css/controlPanel.scss";
 import useMemoryState from "./MemoryState";
 
 // @ts-expect-error
-import hiveghost from "../images/hiveghost.png";
+import hiveghost from "../images/hiveghost.webp";
 // @ts-expect-error
-import voidbuddy from "../images/voidbuddy.png";
+import voidbuddy from "../images/voidbuddy.webp";
 
 interface Settings {
     orbitText:      string;
@@ -213,15 +213,16 @@ export default function() {
             </div>
 
             <div className="boxed">
-                <h2>Savathûn:</h2>
-                <p>Of all the enemies you've fought, how many saw your Ghost and realized, "Ah! That's why Guardians are so strong!"</p>
+                <h2>Guardian,</h2>
+                <p>Of all the enemies you've fought, how many saw your Ghost and realized, "Ah! That's why Guardians
+                    are so strong!"</p>
             </div>
 
             <div className="boxed">
                 <h2>Come hang out</h2>
-                <p>Got feedback, questions or interesting ideas? Need a place to vent out about how the Scorn keep
-                    going immune, or just be with some friendly people? Or just come for the opt-in pings when
-                    there's a new release. Come join the Discord server!</p>
+                <p>Got feedback, questions or interesting ideas? Need a place to vent out about teleporting Overload
+                    Captains, or just be with some friendly people? Or come for the opt-in pings when
+                    there's a new release.<br/>Come join the Discord server!</p>
                 <a href="https://discord.gg/UNU4UXp" target="_blank" rel="noopener noreferrer">
                     <img alt="Discord" src="https://img.shields.io/discord/604679605630009384
                         ?label=Discord&color=6c82cf"/>

@@ -73,6 +73,10 @@ body {
     background-color: $blurple !important;
 }
 
+.__react_component_tooltip.show {
+    opacity: 1 !important;
+}
+
 /* ===================
     NON-PAGE ELEMENTS
    =================== */

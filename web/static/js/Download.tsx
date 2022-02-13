@@ -8,7 +8,7 @@ import "../css/download.scss";
 import useMemoryState from "./MemoryState";
 
 // @ts-expect-error
-import hiveghost from "../images/hiveghost.png";
+import hiveghost from "../images/hiveghost.webp";
 
 interface GitHubRelease {
     name:           string;

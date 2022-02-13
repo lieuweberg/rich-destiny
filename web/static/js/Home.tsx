@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
@@ -6,14 +6,14 @@ import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
 import "../css/home.scss";
 
 // @ts-expect-error
-import banner from "../images/hero-savathun.png"
+import banner from "../images/hero-savathun.webp"
 
 // @ts-expect-error
-import home1 from "../images/home1.png";
+import home1 from "../images/home1.webp";
 // @ts-expect-error
-import home2 from "../images/home2.png";
+import home2 from "../images/home2.webp";
 // @ts-expect-error
-import home3 from "../images/home3.png";
+import home3 from "../images/home3.webp";
 
 // @ts-expect-error
 import homeWaves1 from "../images/home-waves1.svg";
@@ -29,6 +29,23 @@ export default function() {
             initialTime: p.t
         })
     }
+
+    function mouseMove(e: MouseEvent) {
+        let hero = document.querySelector("#hero>img");
+        let x = (window.innerWidth - e.pageX) / 150;
+        let y = (window.innerHeight - e.pageY) / 150;
+        // @ts-expect-error
+        hero.style.transform = `translateX(${x}px) translateY(${y}px)`;
+    }
+
+    useEffect(() => {
+        document.addEventListener("mousemove", mouseMove)
+
+        return () => {
+            document.removeEventListener("mousemove", mouseMove);
+        }
+    }, [])
+    
 
     return <>
         <div id="hero">
@@ -75,7 +92,7 @@ export default function() {
         <div id="info-cards">
             <div className="card">
                 <div className="image">
-                    <img src={home1} alt="screenshot showing tooltip" />
+                    <img width="300px" height="150px" src={home1} alt="screenshot showing tooltip" />
                 </div>
                 <hr />
                 <div>
@@ -96,7 +113,7 @@ export default function() {
             </div> */}
             <div className="card">
                 <div className="image">
-                    <img src={home2} alt="screenshot showing tooltip"/>
+                    <img width="300px" height="150px" src={home2} alt="screenshot showing tooltip"/>
                 </div>
                 <hr/>
                 <div>
@@ -106,7 +123,7 @@ export default function() {
             </div>
             <div className="card">
                 <div className="image">
-                    <img src={home3} title="credit: tiberaus" alt="image of errors before arrow, checkmarks after"/>
+                    <img width="300px" height="150px" src={home3} title="credit: tiberaus" alt="image of errors before arrow, checkmarks after"/>
                 </div>
                 <hr/>
                 <div>

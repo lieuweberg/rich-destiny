@@ -55,9 +55,9 @@ export default function({largeImage, description, initialTime, state, smallImage
         </div>
         <div className="presence">
             <div className="images">
-                <img className="large-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
+                <img width="60px" height="60px" className="large-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
                     + imageIdMap[largeImage] + ".png"} draggable="false" alt=""/>
-                <img className="small-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
+                <img width="20px" height="20px" className="small-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
                     + imageIdMap[smallImage] + ".png"} draggable="false" alt=""/>
             </div>
             <div className="text">

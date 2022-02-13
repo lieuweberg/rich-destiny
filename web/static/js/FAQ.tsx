@@ -6,7 +6,7 @@ import "../css/faq.scss";
 import questions from "../faq-questions.json";
 
 // @ts-expect-error
-import voidbuddy from "../images/voidbuddy.png";
+import voidbuddy from "../images/voidbuddy.webp";
 
 export default function() {
     return <>

@@ -3,7 +3,7 @@
 
 #hero {
     position: absolute;
-    top: 0;
+    top: -10px;
     height: min(100vh, 983px);
     width: 100%;
 
@@ -14,11 +14,14 @@
     img {
         position: absolute;
         right: 0;
+        object-fit: contain;
+        min-width: calc(100vw + 10px);
+
         @include isMobile() {
             right: -250px;
+            width: auto;
+            filter: blur(3px);
         }
-        object-fit: contain;
-        height: 100%;
     }
 }
 
