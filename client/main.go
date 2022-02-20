@@ -50,7 +50,7 @@ func (p *program) Start(s service.Service) (err error) {
 func (p *program) Stop(s service.Service) (err error) {
 	log.Print("OS termination received")
 	db.Close()
-	
+
 	if manifest != nil {
 		manifest.Close()
 	}

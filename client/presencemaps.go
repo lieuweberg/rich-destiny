@@ -8,7 +8,7 @@ var largeImageMap = map[string][]int32{
 		// Clash: Quickplay, Supremaxy, Crucible, Mayhem, Team Scorched, Countdown, Clash, Scorched, Lockdown
 		244324567, 910991990, 1164760504, 1264443021, 1372032677, 1505888634, 1585787840, 1668923154, 2096553452},
 	// "doubles": {-473465279, 946648766, 1703282980}, // Doubles, Crimson Doubles, All Doubles
-	"dungeon": {608898761}, // Dungeon
+	"dungeon": {608898761},  // Dungeon
 	"explore": {-797199657}, // Explore
 	// "forge": {803838459}, // Forge, doesn't really work though but oh well
 	"gambit": {1418469392, 1848252830}, // Gambit Prime, Gambit
@@ -18,9 +18,9 @@ var largeImageMap = map[string][]int32{
 	"nightmarehunt": {332181804}, // Nightmare Hunt
 	// Private Matches Rumble, - Survival, - Supremacy, - Mayhem, -, - Countdown, - Clash
 	"privatecrucible": {-1741423138, -514207857, -432922534, 116827562, 122250361, 152599670, 575409284},
-	"raid": {2043403989}, // Raid
+	"raid":            {2043403989}, // Raid
 	// "reckoning": {-400492470}, // The Reckoning
-	"socialall": {748895195, 1589650888}, // All (idk what this is but sure), Social
+	"socialall":          {748895195, 1589650888},                          // All (idk what this is but sure), Social
 	"storypvecoopheroic": {-1845790942, 175275639, 1164760493, 1686739444}, // Competitive Co-Op, Heroic Adventure, PvE, Story
 	// Strikes, Nightfall Strikes, Normal Strikes, Scored Prestige Nightfall, Scored Nightfall Strikes, Prestige Nightfall
 	"strikes": {-1900351293, -505945566, -184361721, 532484583, 547513715, 1350109474},
@@ -48,7 +48,7 @@ var scoredLostSectors = []string{"K1", "Concealed", "E15", "Perdition", "2A", "V
 
 var raidProgressionMap = map[string][]string{
 	// "gos": {}, // Unimplemented in milestone
-	"dsc": {"Desolation / Crypt Security", "Atraks-1, Fallen Exo", "The Descent", "Taniks, The Abomination"}, // 4
+	"dsc": {"Desolation / Crypt Security", "Atraks-1, Fallen Exo", "The Descent", "Taniks, The Abomination"},                           // 4
 	"lw":  {"Kalli, The Corrupted", "Shuro Chi, The Corrupted", "Morgeth, The Spirekeeper", "The Vault", "Riven of a Thousand Voices"}, // 5
-	"vog": {"Raise the Spire / Confluxes", "The Oracles", "The Templar", "The Gatekeeper", "Atheon, Time's Conflux"}, // 5
+	"vog": {"Raise the Spire / Confluxes", "The Oracles", "The Templar", "The Gatekeeper", "Atheon, Time's Conflux"},                   // 5
 }

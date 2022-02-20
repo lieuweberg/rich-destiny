@@ -27,7 +27,7 @@ func getDefinitions() {
 			s.Stop()
 			return
 		}
-		
+
 		if quitPresenceTicker == nil {
 			initPresence()
 		}

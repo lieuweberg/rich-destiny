@@ -191,7 +191,7 @@ func requestComponents(endpoint string, responseStruct interface{}) (err error) 
 		}
 	}
 
-	req, err := http.NewRequest("GET", "https://www.bungie.net/Platform" + endpoint, nil)
+	req, err := http.NewRequest("GET", "https://www.bungie.net/Platform"+endpoint, nil)
 	if err != nil {
 		return
 	}

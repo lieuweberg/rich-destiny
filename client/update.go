@@ -16,6 +16,7 @@ import (
 
 var isUpdating bool
 var tryPatches = true
+
 // The version after an update. Else it will try updating itself again because the actual version variable hasn't changed.
 var updatedVersion = version
 

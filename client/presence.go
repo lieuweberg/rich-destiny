@@ -30,7 +30,7 @@ func initPresence() {
 				for _, p := range pl {
 					if p.Executable() == "destiny2.exe" {
 						exeFound = true
-						
+
 						getStorage()
 						if storage == nil {
 							break
@@ -57,7 +57,7 @@ func initPresence() {
 								}()
 							}
 						}
-						
+
 						updatePresence()
 						break
 					}

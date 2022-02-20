@@ -1,19 +1,19 @@
 package main
 
 type configuration struct {
-	ClientID string
+	ClientID     string
 	ClientSecret string
-	RedirectURI string
-	APIKey	string
+	RedirectURI  string
+	APIKey       string
 }
 
 var config *configuration
 
 func init() {
 	config = &configuration{
-		ClientID: "CLIENTID",
+		ClientID:     "CLIENTID",
 		ClientSecret: "CLIENTSECRET",
-		RedirectURI: "REDIRECTURI",
-		APIKey: "APIKEY",
+		RedirectURI:  "REDIRECTURI",
+		APIKey:       "APIKEY",
 	}
 }
