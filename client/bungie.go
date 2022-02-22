@@ -10,6 +10,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -70,7 +71,7 @@ func setAuth(data []byte) (err error) {
 	if err != nil {
 		return
 	}
-	// Subtracting five to make sure tokens are refreshed on-time, and not a few milliseconds late (sometimes causing 401's)
+	// Subtracting five to make sure tokens are refreshed on-time, and not used a few milliseconds late
 	storage.RefreshAt = time.Now().Unix() + storage.ExpiresIn - 5
 	storage.ReAuthAt = time.Now().Unix() + storage.RefreshExpiresIn - 5
 
@@ -83,20 +84,25 @@ func setAuth(data []byte) (err error) {
 	for _, profile := range lp.Response.Profiles {
 		for _, membershipType := range profile.MembershipTypes {
 			if membershipType == 3 {
-				storage.DisplayName = profile.DisplayName
+				storage.BungieName = profile.BungieGlobalDisplayName
 				storage.ActualMSID = profile.MembershipID
 				storage.MSType = profile.MembershipType
 
-				var cta *credentialsTargetAccount
-				err = requestComponents(fmt.Sprintf("/User/GetCredentialTypesForTargetAccount/%s/", storage.ActualMSID), &cta)
-				if err != nil {
-					return
-				}
-				for _, cred := range cta.Response {
-					if cred.CredentialType == 12 {
-						storage.SteamID64 = cred.CredentialAsString
-					}
-				}
+				code := strconv.Itoa(int(profile.BungieGlobalDisplayNameCode))
+				// 0 is removed from the start of codes since the data type is an int, so we have to add them back manually
+				code = strings.Repeat("0", 4-len(code)) + code
+				storage.BungieCode = code
+
+				// var cta *credentialsTargetAccount
+				// err = requestComponents(fmt.Sprintf("/User/GetCredentialTypesForTargetAccount/%s/", storage.ActualMSID), &cta)
+				// if err != nil {
+				// 	return
+				// }
+				// for _, cred := range cta.Response {
+				// 	if cred.CredentialType == 12 {
+				// 		storage.SteamID64 = cred.CredentialAsString
+				// 	}
+				// }
 
 				break
 			}

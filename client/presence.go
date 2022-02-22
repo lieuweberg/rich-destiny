@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -96,7 +98,6 @@ func updatePresence() {
 
 	newActivity := richgo.Activity{
 		LargeImage: "destinylogo",
-		Details:    "Launching the game...",
 	}
 
 	var activityModeHash int32
@@ -123,210 +124,234 @@ func updatePresence() {
 			var (
 				activity     *activityDefinition
 				place        *placeDefinition
-				activityMode *currentActivityModeDefinition
+				activityMode *activityModeDefinition
 			)
+
 			activityHash, err := getFromTableByHash("DestinyActivityDefinition", d.CurrentActivityHash, &activity)
-			placeHash, err := getFromTableByHash("DestinyPlaceDefinition", activity.PlaceHash, &place)
-			activityModeHash, err = getFromTableByHash("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &activityMode)
+			// Something is terribly wrong :(
+			if activity == nil {
+				if err != nil {
+					log.Printf("Error getting activity %d from definitions: %s", activityHash, err)
+				}
 
-			if place != nil {
-				transformPlace(place, activity)
-			}
+				newActivity.Details = "???"
+			} else {
+				placeHash, err := getFromTableByHash("DestinyPlaceDefinition", activity.PlaceHash, &place)
+				if place == nil {
+					if err != nil {
+						log.Printf("Error getting place %d from definitions: %s", placeHash, err)
+					}
 
-			if err != nil { // Error indicates orbit. ~~Seems to have been working reliably.~~
-				debugText = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
-
-				// lol, https://github.com/Bungie-net/api/issues/910, scroll down for all my comments and edits
-				if activity != nil {
-					switch {
-					case strings.HasPrefix(activity.DP.Name, "Grasp of Avarice"):
-						newActivity.Details = "Dungeon - The Cosmodrome"
-						newActivity.State = activity.DP.Name
-						newActivity.LargeImage = "dungeon"
-					case strings.HasPrefix(activity.DP.Name, "Astral Alignment"):
-						newActivity.Details = "Astral Alignment - " + place.DP.Name
-						newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
-						newActivity.LargeImage = "seasonlost"
-					case strings.HasPrefix(activity.DP.Name, "Expunge:"):
-						newActivity.Details = "Expunge - " + place.DP.Name
-						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
-						newActivity.LargeImage = "seasonsplicer"
-					case strings.HasPrefix(activity.DP.Name, "Override:"):
-						newActivity.Details = strings.Replace(activity.DP.Name, ": ", " - ", 1)
-						newActivity.LargeImage = "seasonsplicer"
-					case strings.HasPrefix(activity.DP.Name, "Battleground:"):
-						newActivity.Details = "Battleground - " + place.DP.Name
-						newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
-						newActivity.LargeImage = "seasonchosen"
-					case strings.HasPrefix(activity.DP.Name, "Vault of Glass"):
-						newActivity.Details = "Raid - Venus"
-						newActivity.State = activity.DP.Name
-						newActivity.LargeImage = "raid"
-						getActivityPhases(id, "vog", activityHash, &newActivity)
-					case activity.DP.Name == "Deep Stone Crypt":
-						newActivity.Details = "Raid - Europa"
-						newActivity.State = activity.DP.Name
-						newActivity.LargeImage = "raid"
-						getActivityPhases(id, "dsc", activityHash, &newActivity)
-					case activity.DP.Name == "Prophecy":
-						newActivity.Details = "Dungeon - IX Realms"
-						newActivity.State = activity.DP.Name
-						newActivity.LargeImage = "dungeon"
-					case activity.DP.Name == "Garden of Salvation":
-						newActivity.Details = "Raid - Black Garden"
-						newActivity.State = activity.DP.Name
-						newActivity.LargeImage = "raid"
-						// getActivityPhases(id, "gos", activityHash, &newActivity)
-					default:
-						newActivity.Details = "In Orbit"
-						newActivity.LargeImage = "destinylogo"
-						if storage.OrbitText != "" {
-							newActivity.State = storage.OrbitText
-						}
+					place = &placeDefinition{
+						DP: globalDisplayProperties{
+							Name: "???",
+						},
 					}
 				} else {
-					newActivity.Details = "???"
-					newActivity.LargeImage = "destinylogo"
+					transformPlace(place, activity)
 				}
 
-			} else {
-				// This part specifies more specific overrides.
-				switch {
-				case activity.DP.Name == "H.E.L.M.":
-					// Explore - EDZ
-					newActivity.Details = "Social - Earth"
-					newActivity.State = activity.DP.Name
-					newActivity.LargeImage = "socialall"
-				// case activity.DP.Name == "European Aerial Zone":
-				// 	newActivity.Details = activity.DP.Name
-				case activityMode.DP.Name == "Explore":
-					// Remove double place
-					newActivity.Details = "Explore - " + place.DP.Name
-					if strings.Contains(strings.ToLower(activity.DP.Name), "mission") {
-						newActivity.State = activity.DP.Name
+				activityModeHash, err = getFromTableByHash("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &activityMode)
+
+				if activityMode == nil {
+					if err != nil {
+						log.Printf("Error getting activityMode %d from definitions: %s", activityModeHash, err)
 					}
-					// Unknown Space is Eternity
-					if place.DP.Name == "Unknown Space" {
-						newActivity.Details = "Traversing Eternity"
-						newActivity.LargeImage = "anniversary"
-					}
-				case activityMode.DP.Name == "Dares of Eternity":
-					newActivity.Details = activityMode.DP.Name
-					newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
-					newActivity.LargeImage = "anniversary"
-				case activity.DP.Name == "Haunted Sectors":
-					newActivity.Details = "Haunted Sector"
-					newActivity.State = place.DP.Name
-					newActivity.LargeImage = "hauntedforest"
-				case strings.HasPrefix(activity.DP.Name, "Shattered Realm"):
-					newActivity.Details = "Shattered Realm - The Dreaming City"
-					newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
-					newActivity.LargeImage = "seasonlost"
-				case activityMode.DP.Name == "Gambit":
-					newActivity.Details = activityMode.DP.Name
-					newActivity.State = activity.DP.Name
-				// case activity.ActivityTypeHash == 400075666:
-				// 	if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
-				// 		// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
-				// 		newActivity.Details = "The Menagerie (Heroic)"
-				// 	} else {
-				// 		// 'Normal Strikes - The Menagerie | The Menagerie'. Still unsure why it thinks it's a strike. There are about 20 activities for
-				// 		// The Menagerie, so if it's not one of the heroic ones, assume it's regular.
-				// 		newActivity.Details = "The Menagerie"
-				// 	}
-				// 	newActivity.LargeImage = "menagerie"
-				case activity.DP.Name == "The Shattered Throne":
-					// Story - The Dreaming City | The Shattered Throne
-					newActivity.Details = "Dungeon - The Dreaming City"
-					newActivity.State = activity.DP.Name
-					newActivity.LargeImage = "dungeon"
-				case activityMode.DP.Name == "Raid" && place.DP.Name == "The Dreaming City":
-					// Remove Level: XX from the state
-					newActivity.Details = "Raid - The Dreaming City"
-					newActivity.State = "Last Wish"
-					getActivityPhases(id, "lw", activityHash, &newActivity)
-				case activity.ActivityTypeHash == 332181804:
-					// Story - The Moon | Nightmare Hunt: name: difficulty
-					newActivity.Details = "Nightmare Hunt - " + place.DP.Name
-					newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
-					newActivity.LargeImage = "nightmarehunt"
-				case activity.DP.Name == "Last City: Eliksni Quarter":
-					newActivity.Details = "Eliksni Quarter - The Last City"
-					newActivity.LargeImage = "storypvecoopheroic"
-				default:
-					// This part specifies overrides that do not use simple conditions and can't fit in a case statement. Switch/case is prettier than a giant if/else imo
-					// if forge, ok := forgeHashMap[activityHash]; ok {
-					// 	// Forges are seen as 'Story - Earth | Forge Ignition'. Fixing that in here by making them 'Forge Ignition - PLACE | FORGENAME Forge'
-					// 	newActivity.Details = fmt.Sprintf("%s - %s", activity.DP.Name, place.DP.Name)
-					// 	newActivity.State = fmt.Sprintf("%s Forge", forge)
-					// 	newActivity.LargeImage = "forge"
-					if activityMode.DP.Name == "Scored Nightfall Strikes" {
-						// Scored lost sectors are seen as scored nightfall strikes
-						var didWeBreak bool
-						for _, ls := range scoredLostSectors {
-							if strings.Contains(activity.DP.Name, ls) {
-								newActivity.Details = "Lost Sector - " + place.DP.Name
-								newActivity.State = activity.DP.Name
-								newActivity.LargeImage = "lostsector"
-								didWeBreak = true
-								break
-							}
-						}
-						// It was not a lost sector
-						if !didWeBreak {
-							newActivity.Details = "Nightfall: The Ordeal - " + place.DP.Name
-							a := strings.Split(activity.DP.Name, ": ")
-							newActivity.State = "Difficulty: " + a[len(a)-1]
-						}
-					} else {
-						newActivity.Details = activityMode.DP.Name
-						if err == nil {
-							newActivity.Details += " - " + place.DP.Name
-						}
-						newActivity.State = activity.DP.Name
-					}
+
+					debugText = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
+				} else {
+					debugText = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
 				}
 
-				debugText = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
+				transformActivity(id, activityHash, activityModeHash, activity, activityMode, place, &newActivity)
 			}
 
 			class := classImageMap[ca.Response.Characters.Data[id].ClassType]
 			newActivity.SmallImage = class
 			newActivity.SmallText = strings.Title(fmt.Sprintf("%s - %d", class, ca.Response.Characters.Data[id].Light))
+			break
 		}
 	}
 
 	// This is outside of the loop. If no characters have a current activity other than 0, it indicates the game is launching
 	if isLaunching {
+		newActivity.Details = "Launching the game..."
 		setActivity(newActivity, time.Now(), 0)
 	} else {
 		setActivity(newActivity, dateActivityStarted, activityModeHash)
 	}
 }
 
-// getFromTableByHash retrieves an object from the database by hash.
+// getFromTableByHash retrieves an object from the database by hash. ErrNoRows is not returned.
 func getFromTableByHash(table string, hash int64, v interface{}) (newHash int32, err error) {
 	u := uint32(hash)
 	newHash = int32(u)
 	var d string
 	err = manifest.QueryRow(fmt.Sprintf("SELECT json FROM %s WHERE id=$1", table), newHash).Scan(&d)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return newHash, nil
+		}
 		return
 	}
 	err = json.Unmarshal([]byte(d), &v)
 	return
 }
 
-// transformPlace changes some funny or vague place names to where you actually are.
+// transformPlace changes some funny or vague place names to where you actually are
 func transformPlace(place *placeDefinition, activity *activityDefinition) {
-	if place.DP.Name == "Earth" {
+	switch place.DP.Name {
+	case "Earth":
 		if activity.DestinationHash == 2073151843 || activity.DestinationHash == 3990611421 {
 			place.DP.Name = "The Cosmodrome"
 		} else if activity.DestinationHash == 697502628 || activity.DestinationHash == 1199524104 {
 			place.DP.Name = "EDZ"
 		}
-	} else if place.DP.Name == "Rathmore Chaos, Europa" {
+	case "Rathmore Chaos, Europa":
 		place.DP.Name = "Europa"
+	}
+}
+
+// transformActivity changes the activity based on a set of prewritten overrides in case activities are badly represented
+func transformActivity(charID string, activityHash, activityModeHash int32, activity *activityDefinition, activityMode *activityModeDefinition, place *placeDefinition, newActivity *richgo.Activity) {
+	// We're gonna have to rely only on activity. https://github.com/Bungie-net/api/issues/910, scroll down for all my comments and edits
+	if activityMode == nil {
+		switch {
+		case strings.HasPrefix(activity.DP.Name, "Grasp of Avarice"):
+			newActivity.Details = "Dungeon - The Cosmodrome"
+			newActivity.State = activity.DP.Name
+			newActivity.LargeImage = "dungeon"
+		// case strings.HasPrefix(activity.DP.Name, "Astral Alignment"):
+		// 	newActivity.Details = "Astral Alignment - " + place.DP.Name
+		// 	newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
+		// 	newActivity.LargeImage = "seasonlost"
+		// case strings.HasPrefix(activity.DP.Name, "Expunge:"):
+		// 	newActivity.Details = "Expunge - " + place.DP.Name
+		// 	newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
+		// 	newActivity.LargeImage = "seasonsplicer"
+		// case strings.HasPrefix(activity.DP.Name, "Override:"):
+		// 	newActivity.Details = strings.Replace(activity.DP.Name, ": ", " - ", 1)
+		// 	newActivity.LargeImage = "seasonsplicer"
+		case strings.HasPrefix(activity.DP.Name, "Battleground:"):
+			newActivity.Details = "Battleground - " + place.DP.Name
+			name := strings.Split(activity.DP.Name, ": ")[1]
+			newActivity.State = name
+			for _, n := range chosenBattlegrounds {
+				if name == n {
+					newActivity.LargeImage = "seasonchosen"
+					return
+				}
+			}
+			newActivity.LargeImage = "seasonrisen"
+		case strings.HasPrefix(activity.DP.Name, "Vault of Glass"):
+			newActivity.Details = "Raid - Venus"
+			newActivity.State = activity.DP.Name
+			newActivity.LargeImage = "raid"
+			getActivityPhases(charID, "vog", activityHash, newActivity)
+		case activity.DP.Name == "Deep Stone Crypt":
+			newActivity.Details = "Raid - Europa"
+			newActivity.State = activity.DP.Name
+			newActivity.LargeImage = "raid"
+			getActivityPhases(charID, "dsc", activityHash, newActivity)
+		case activity.DP.Name == "Prophecy":
+			newActivity.Details = "Dungeon - IX Realms"
+			newActivity.State = activity.DP.Name
+			newActivity.LargeImage = "dungeon"
+		case activity.DP.Name == "Garden of Salvation":
+			newActivity.Details = "Raid - Black Garden"
+			newActivity.State = activity.DP.Name
+			newActivity.LargeImage = "raid"
+			// getActivityPhases(id, "gos", activityHash, &newActivity)
+		default:
+			newActivity.Details = "In Orbit"
+			if storage.OrbitText != "" {
+				newActivity.State = storage.OrbitText
+			}
+		}
+	} else {
+		// This part is for things that are incorrectly/unpleasantly formatted.
+		switch {
+		case activity.DP.Name == "H.E.L.M.":
+			// Explore - EDZ
+			newActivity.Details = "Social - Earth"
+			newActivity.State = activity.DP.Name
+			newActivity.LargeImage = "socialall"
+		// case activity.DP.Name == "European Aerial Zone":
+		// 	newActivity.Details = activity.DP.Name
+		case activityMode.DP.Name == "Explore":
+			// Remove double place
+			newActivity.Details = "Explore - " + place.DP.Name
+			if strings.Contains(strings.ToLower(activity.DP.Name), "mission") {
+				newActivity.State = activity.DP.Name
+			}
+			// Unknown Space is Eternity
+			if place.DP.Name == "Unknown Space" {
+				newActivity.Details = "Traversing Eternity"
+				newActivity.LargeImage = "anniversary"
+			}
+		case activityMode.DP.Name == "Dares of Eternity":
+			newActivity.Details = activityMode.DP.Name
+			newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
+			newActivity.LargeImage = "anniversary"
+		case activity.DP.Name == "Haunted Sectors":
+			newActivity.Details = "Haunted Sector"
+			newActivity.State = place.DP.Name
+			newActivity.LargeImage = "hauntedforest"
+		// case strings.HasPrefix(activity.DP.Name, "Shattered Realm"):
+		// 	newActivity.Details = "Shattered Realm - The Dreaming City"
+		// 	newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
+		// 	newActivity.LargeImage = "seasonlost"
+		case activityMode.DP.Name == "Gambit":
+			newActivity.Details = activityMode.DP.Name
+			newActivity.State = activity.DP.Name
+		// case activity.ActivityTypeHash == 400075666:
+		// 	if activityHash == -1785427429 || activityHash == -1785427432 || activityHash == -1785427431 {
+		// 		// 'The Menagerie - The Menagerie | The Menagerie: The Menagerie (Heroic)' Instead of thinking of strikes, it overly formats
+		// 		newActivity.Details = "The Menagerie (Heroic)"
+		// 	} else {
+		// 		// 'Normal Strikes - The Menagerie | The Menagerie'. Still unsure why it thinks it's a strike. There are about 20 activities for
+		// 		// The Menagerie, so if it's not one of the heroic ones, assume it's regular.
+		// 		newActivity.Details = "The Menagerie"
+		// 	}
+		// 	newActivity.LargeImage = "menagerie"
+		case activity.DP.Name == "The Shattered Throne":
+			// Story - The Dreaming City | The Shattered Throne
+			newActivity.Details = "Dungeon - The Dreaming City"
+			newActivity.State = activity.DP.Name
+			newActivity.LargeImage = "dungeon"
+		case activityMode.DP.Name == "Raid" && place.DP.Name == "The Dreaming City":
+			// Remove Level: XX from the state
+			newActivity.Details = "Raid - The Dreaming City"
+			newActivity.State = "Last Wish"
+			getActivityPhases(charID, "lw", activityHash, newActivity)
+		case activity.ActivityTypeHash == 332181804:
+			// Story - The Moon | Nightmare Hunt: name: difficulty
+			newActivity.Details = "Nightmare Hunt - " + place.DP.Name
+			newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
+			newActivity.LargeImage = "nightmarehunt"
+		case activity.DP.Name == "Last City: Eliksni Quarter":
+			newActivity.Details = "Eliksni Quarter - The Last City"
+			newActivity.LargeImage = "storypvecoopheroic"
+		default:
+			if activityMode.DP.Name == "Scored Nightfall Strikes" {
+				// Scored lost sectors are seen as scored nightfall strikes
+				for _, ls := range scoredLostSectors {
+					if strings.Contains(activity.DP.Name, ls) {
+						newActivity.Details = "Lost Sector - " + place.DP.Name
+						newActivity.State = activity.DP.Name
+						newActivity.LargeImage = "lostsector"
+						return
+					}
+				}
+				// It was not a lost sector
+				newActivity.Details = "Nightfall: The Ordeal - " + place.DP.Name
+				a := strings.Split(activity.DP.Name, ": ")
+				newActivity.State = "Difficulty: " + a[len(a)-1]
+			} else {
+				newActivity.Details = activityMode.DP.Name + " - " + place.DP.Name
+				newActivity.State = activity.DP.Name
+			}
+		}
 	}
 }
 
@@ -357,7 +382,7 @@ func getActivityPhases(charID, shortName string, activityHash int32, newActivity
 	}
 }
 
-// setActivity sets the rich presence status.
+// setActivity sets the rich presence status
 func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int32) {
 	// Condition that decides whether to update the presence or not
 	if previousActivity.Details != newActivity.Details ||

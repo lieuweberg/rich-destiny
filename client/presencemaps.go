@@ -29,14 +29,6 @@ var largeImageMap = map[string][]int32{
 	// "vexoffensive": {1963485238}, // Vex Offensive
 }
 
-// Maps ActivityHash to Forge name (because they are seen as story)
-// var forgeHashMap = map[int32]string{
-// 	10898844: "Bergusia",
-// 	1019949956: "Volundr",
-// 	1483179969: "Gofannon",
-// 	1878615566: "Izanami",
-// }
-
 // Maps classID to class name
 var classImageMap = map[int64]string{
 	0: "titan",
@@ -44,7 +36,8 @@ var classImageMap = map[int64]string{
 	2: "warlock",
 }
 
-var scoredLostSectors = []string{"K1", "Concealed", "E15", "Perdition", "2A", "Veles", "Quarry", "Scavenger's", "XII", "Empty Tank", "Drowned", "Starlight", "Aphelion"}
+var scoredLostSectors = []string{"K1", "Concealed", "E15", "Perdition", "2A", "Veles", "Quarry", "Scavenger's", "XII", "Drowned", "Starlight", "Aphelion"}
+var chosenBattlegrounds = []string{"Hailstone", "Oracle", "Behemoth", "Foothold"}
 
 var raidProgressionMap = map[string][]string{
 	// "gos": {}, // Unimplemented in milestone

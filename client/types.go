@@ -12,14 +12,15 @@ type storageStruct struct {
 	RefreshExpiresIn int64  `json:"refresh_expires_in"`
 	BungieMSID       string `json:"membership_id"`
 
-	ActualMSID  string
-	MSType      int64
-	DisplayName string
-	SteamID64   string
-	RefreshAt   int64
-	ReAuthAt    int64
+	ActualMSID string
+	MSType     int32
+	BungieName string
+	BungieCode string
+	SteamID64  string
+	RefreshAt  int64
+	ReAuthAt   int64
 
-	// Custom settings
+	// Settings
 	OrbitText      string `json:"orbitText"`
 	AutoUpdate     bool   `json:"autoUpdate"`
 	Prereleases    bool   `json:"prereleases"`
@@ -86,10 +87,11 @@ type lPResponse struct {
 }
 
 type lPProfile struct {
-	MembershipTypes []int64 `json:"applicableMembershipTypes"`
-	MembershipType  int64   `json:"membershipType"`
-	MembershipID    string  `json:"membershipId"`
-	DisplayName     string  `json:"displayName"`
+	MembershipTypes             []int32 `json:"applicableMembershipTypes"`
+	MembershipType              int32   `json:"membershipType"`
+	MembershipID                string  `json:"membershipId"`
+	BungieGlobalDisplayName     string  `json:"bungieGlobalDisplayName"`
+	BungieGlobalDisplayNameCode int16   `json:"bungieGlobalDisplayNameCode"`
 }
 
 // DisplayProperties used for most Manifest structs
@@ -171,7 +173,7 @@ type activityDefinition struct {
 // }
 
 // Manifest: DestinyActivityModeDefinition
-type currentActivityModeDefinition struct {
+type activityModeDefinition struct {
 	DP globalDisplayProperties `json:"displayProperties"`
 	// IsTeamBased           bool   		`json:"isTeamBased"`
 	// Tier                  int64  		`json:"tier"`

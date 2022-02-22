@@ -70,7 +70,7 @@ func startWebServer() {
 				return
 			}
 
-			d.Name = storage.DisplayName
+			d.Name = storage.BungieName + "#" + storage.BungieCode
 			d.OrbitText = storage.OrbitText
 			d.AutoUpdate = storage.AutoUpdate
 			d.Prereleases = storage.Prereleases
