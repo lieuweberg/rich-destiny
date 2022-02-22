@@ -83,6 +83,9 @@
             border-radius: 10px;
         }
     }
+    >:nth-child(7) { // Logs
+        grid-column: 1 / 5;
+    }
 
     @include isMobile() {
         >div {
@@ -124,6 +127,34 @@ input {
     &[type=submit] {
         font-size: 1em;
     }
+}
+
+select {
+    width: 200px;
+    padding: 5px;
+    color: white;
+    background-color: #545454;
+    border-radius: 5px;
+    outline: none;
+
+    option:nth-child(even) {
+        background-color: #444;
+    }
+    option:nth-child(odd) {
+        background-color: #333;
+    }
+}
+
+pre {
+    max-height: 700px;
+    padding: 5px;
+
+    white-space: pre-wrap;
+    overflow-y: auto;
+
+    color: #eeeeee;
+    background-color: black;
+    border-radius: 5px;
 }
 
 .__react_component_tooltip {

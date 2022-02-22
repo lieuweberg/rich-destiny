@@ -149,12 +149,12 @@ export default function() {
                             update={setSetting} text="Whether to update to the latest releases of
                             rich-destiny automatically. If unticked, you can use the Update button below." />
 
-                        <CheckboxInput name="Prereleases ⚠️" json="prereleases" value={settings.prereleases}
-                            update={setSetting} text="Enables prereleases. This option is ⚠️IRREVERSIBLE⚠️. You
-                            are fairly expected to report any errors in the support server, however that is of
-                            course optional. This option will grant access to early releases that include new
-                            features that may possibly not work well. Turning off prereleases will update to a
-                            stable NEWER release, and not downgrade." /> {requiresVersion("v0.2.5-1")}
+                        <CheckboxInput name="Beta ⚠️" json="prereleases" value={settings.prereleases}
+                            update={setSetting} text="Enables betas. This option will grant access to early
+                            releases that include new features that may possibly not work well. This option is
+                            ⚠️IRREVERSIBLE⚠️. You are fairly expected to report any errors in the support
+                            server, however that is of course optional. Turning off betas will update to a
+                            stable NEWER release, and not an older release." /> {requiresVersion("v0.2.5-1")}
                     </div>
 
                     <h4>Launch Game button</h4>
@@ -244,8 +244,20 @@ export default function() {
                         href="https://twitter.com/richdestinyapp">Loading @richdestinyapp tweets...</a>
                 </div>
             </div>
+
+            <div className="boxed">
+                <div>
+                    <h2>Logs</h2>
+                    <select name="Log file" id="log-select">
+                        <option value="latest">Latest</option>
+                    </select>
+                </div>
+                <pre id="log">
+                    Install rich-destiny to see logs...
+                </pre>
+            </div>
         </div>
-        <ReactTooltip effect="solid" backgroundColor="#18191C"/>
+        <ReactTooltip effect="solid" backgroundColor="#18191C" />
     </>
 }
 
