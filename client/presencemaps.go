@@ -38,6 +38,7 @@ var classImageMap = map[int64]string{
 
 var scoredLostSectors = []string{"K1", "Concealed", "E15", "Perdition", "2A", "Veles", "Quarry", "Scavenger's", "XII", "Drowned", "Starlight", "Aphelion"}
 var chosenBattlegrounds = []string{"Hailstone", "Oracle", "Behemoth", "Foothold"}
+var witchQueenMissions = []string{"Arrival", "Investigation", "Ghosts", "Communion", "Mirror", "Cunning", "Last Chance", "Ritual"}
 
 var raidProgressionMap = map[string][]string{
 	// "gos": {}, // Unimplemented in milestone

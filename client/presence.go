@@ -289,6 +289,15 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
+		case activityMode.DP.Name == "Story":
+			newActivity.Details = "Story - " + place.DP.Name
+			newActivity.State = activity.DP.Name
+			for _, m := range witchQueenMissions {
+				if strings.HasPrefix(activity.DP.Name, "The "+m) {
+					newActivity.LargeImage = "thewitchqueen"
+					return
+				}
+			}
 		case activityMode.DP.Name == "Dares of Eternity":
 			newActivity.Details = activityMode.DP.Name
 			newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
