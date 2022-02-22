@@ -209,6 +209,8 @@ func transformPlace(place *placeDefinition, activity *activityDefinition) {
 		}
 	case "Rathmore Chaos, Europa":
 		place.DP.Name = "Europa"
+	case "Court of Savathûn, Throne World":
+		place.DP.Name = "Savathûn's Throne World"
 	}
 }
 
