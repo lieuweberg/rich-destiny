@@ -6,12 +6,23 @@ import (
 )
 
 func TestGetNewReleases(t *testing.T) {
-	updatedVersion = "v0.2.2"
+	// Modify these values as appropriate
+	version = "v0.2.6"
+	updatedVersion = "v0.2.6"
+	want := 0
+	storage = &storageStruct{
+		Prereleases: false,
+	}
+
 	got, _ := getNewReleases()
 
-	log.Println("Don't worry if this is incorrect. You'll have to change the version number manually to test it.")
-	if len(got) != 2 {
-		t.Errorf("getNewReleases was incorrect, got: %d, want %d, struct: %+v", len(got), 2, got)
+	for _, r := range got {
+		log.Print(r.Name)
+	}
+
+	log.Println("Don't worry if this is incorrect. You'll have to change the version number and 'want' manually to test it.")
+	if len(got) != want {
+		t.Errorf("getNewReleases was incorrect, got: %d, want %d, struct: %+v", len(got), want, got)
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	update "github.com/inconshreveable/go-update"
@@ -92,6 +93,16 @@ func getNewReleases() (releases releasesFromGithub, err error) {
 }
 
 func filterReleases(releases releasesFromGithub) releasesFromGithub {
+	// Remove all the latest prereleases up to a normal release since they shouldn't be downloaded if prereleases are disabled
+	if !storage.Prereleases {
+		for i, r := range releases {
+			if !r.Prerelease {
+				releases = releases[i:]
+				break
+			}
+		}
+	}
+	// Get all the new releases (except the ones filtered away above)
 	for i, r := range releases {
 		if !r.Draft && (storage.Prereleases || !r.Prerelease) {
 			if semver.Compare(r.Name, updatedVersion) != 1 {
@@ -103,7 +114,7 @@ func filterReleases(releases releasesFromGithub) releasesFromGithub {
 	return []releaseElement{}
 }
 
-func updateWithOldSavePath(release releaseElement, path string) error {
+func updateWithOldSavePath(release releaseElement, oldPath string) error {
 	assetType := "patch"
 	if !tryPatches {
 		assetType = "exe"
@@ -126,7 +137,7 @@ func updateWithOldSavePath(release releaseElement, path string) error {
 
 			opts := update.Options{
 				Checksum:    checksum,
-				OldSavePath: path,
+				OldSavePath: filepath.Join(currentDirectory, oldPath),
 			}
 			if tryPatches {
 				opts.Patcher = update.NewBSDiffPatcher()
