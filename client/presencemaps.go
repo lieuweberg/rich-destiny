@@ -1,7 +1,7 @@
 package main
 
 // Maps collective name (large images) to []ActivityModeHash
-var largeImageMap = map[string][]int32{
+var commonLargeImageActivityModes = map[string][]int32{
 	"control": {-1270265980, -1095868816, -621632665, 1340118533}, // Private Matches Control, Control, Control: Quickplay, Control: Competitive
 	// Survival, Competitive PvP, Showdown, Momentum, Quickplay PvP, Salvage, Breakthrough, Clash: Competitive, Elimination, Rumble,
 	"crucible": {-2055718213, -1808243978, -1748182994, -1381428397, -869856616, -390342404, -261966967, -242891787, -216527492, 157639802,
@@ -15,7 +15,7 @@ var largeImageMap = map[string][]int32{
 	// Iron Banner Control, Iron Banner Clash, Iron Banner Supremacy, Iron Banner Salvage, Iron Banner
 	"ironbanner": {-1451282428, -815750908, -82084646, 1317961215, 1826469369},
 	// "menagerie": {400075666}, // The Menagerie
-	"nightmarehunt": {332181804}, // Nightmare Hunt
+	"shadowkeep": {332181804}, // Nightmare Hunt
 	// Private Matches Rumble, - Survival, - Supremacy, - Mayhem, -, - Countdown, - Clash
 	"privatecrucible": {-1741423138, -514207857, -432922534, 116827562, 122250361, 152599670, 575409284},
 	"raid":            {2043403989}, // Raid
@@ -30,7 +30,7 @@ var largeImageMap = map[string][]int32{
 }
 
 // Maps classID to class name
-var classImageMap = map[int64]string{
+var classImages = map[int64]string{
 	0: "titan",
 	1: "hunter",
 	2: "warlock",
@@ -38,7 +38,11 @@ var classImageMap = map[int64]string{
 
 var scoredLostSectors = []string{"K1", "Concealed", "E15", "Perdition", "2A", "Veles", "Quarry", "Scavenger's", "XII", "Drowned", "Starlight", "Aphelion"}
 var chosenBattlegrounds = []string{"Hailstone", "Oracle", "Behemoth", "Foothold"}
-var witchQueenMissions = []string{"Arrival", "Investigation", "Ghosts", "Communion", "Mirror", "Cunning", "Last Chance", "Ritual"}
+var storyMissions = map[string][]string{
+	"shadowkeep":    {"A Mysterious Disturbance", "In Search of Answers", "Ghosts of Our Past", "In the Deep", "Beyond"},
+	"beyondlight":   {"Darkness's Doorstep", "The New Kell", "Rising Resistance", "The Warrior", "The Technocrat", "The Kell of Darkness", "Sabotaging Salvation", "The Aftermath"},
+	"thewitchqueen": {"The Arrival", "The Investigation", "The Ghosts", "The Communion", "The Mirror", "The Cunning", "The Last Chance", "The Ritual"},
+}
 
 var raidProgressionMap = map[string][]string{
 	// "gos": {}, // Unimplemented in milestone

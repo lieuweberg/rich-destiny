@@ -166,7 +166,7 @@ func updatePresence() {
 				transformActivity(id, activityHash, activityModeHash, activity, activityMode, place, &newActivity)
 			}
 
-			class := classImageMap[ca.Response.Characters.Data[id].ClassType]
+			class := classImages[ca.Response.Characters.Data[id].ClassType]
 			newActivity.SmallImage = class
 			newActivity.SmallText = strings.Title(fmt.Sprintf("%s - %d", class, ca.Response.Characters.Data[id].Light))
 			break
@@ -294,10 +294,12 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 		case activityMode.DP.Name == "Story":
 			newActivity.Details = "Story - " + place.DP.Name
 			newActivity.State = activity.DP.Name
-			for _, m := range witchQueenMissions {
-				if strings.HasPrefix(activity.DP.Name, "The "+m) {
-					newActivity.LargeImage = "thewitchqueen"
-					return
+			for campaign, missions := range storyMissions {
+				for _, m := range missions {
+					if strings.HasPrefix(activity.DP.Name, m) {
+						newActivity.LargeImage = campaign
+						return
+					}
 				}
 			}
 		case activityMode.DP.Name == "Dares of Eternity":
@@ -339,7 +341,7 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 			// Story - The Moon | Nightmare Hunt: name: difficulty
 			newActivity.Details = "Nightmare Hunt - " + place.DP.Name
 			newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
-			newActivity.LargeImage = "nightmarehunt"
+			newActivity.LargeImage = "shadowkeep"
 		case activity.DP.Name == "Last City: Eliksni Quarter":
 			newActivity.Details = "Eliksni Quarter - The Last City"
 			newActivity.LargeImage = "storypvecoopheroic"
@@ -414,7 +416,7 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 		newActivity.LargeText = "richdestiny.app " + version
 
 		if activityModeHash != 0 && newActivity.LargeImage == "destinylogo" {
-			for image, hashes := range largeImageMap {
+			for image, hashes := range commonLargeImageActivityModes {
 				for _, h := range hashes {
 					if activityModeHash == h {
 						newActivity.LargeImage = image
