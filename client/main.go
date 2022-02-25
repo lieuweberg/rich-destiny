@@ -50,13 +50,17 @@ func (p *program) Start(s service.Service) (err error) {
 func (p *program) Stop(s service.Service) (err error) {
 	log.Print("OS termination received")
 	db.Close()
-
+	log.Print("Database closed")
 	if manifest != nil {
 		manifest.Close()
+		log.Print("Manifest closed")
 	}
+	log.Print("Definitions didn't exist, didn't close")
 	if quitPresenceTicker != nil {
 		quitPresenceTicker <- true
+		log.Print("Presence loop stopped")
 	}
+	log.Print("Presence loop wasn't running, didn't stop")
 
 	server.Close()
 	log.Print("Gracefully exited, bye bye")
