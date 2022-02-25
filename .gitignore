@@ -15,5 +15,5 @@ versioninfo.json
 
 # web
 node_modules
-.cache
+.parcel-cache
 dist

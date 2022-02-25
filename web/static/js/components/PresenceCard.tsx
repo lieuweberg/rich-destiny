@@ -2,6 +2,9 @@ import React from "react";
 
 import "../../css/components/PresenceCard.scss";
 
+// @ts-expect-error
+import images from "../../images/presence/*.webp";
+
 export type PresenceCardProps = {
     description:    string
     state?:         string
@@ -55,10 +58,8 @@ export default function({largeImage, description, initialTime, state, smallImage
         </div>
         <div className="presence">
             <div className="images">
-                <img width="60px" height="60px" className="large-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
-                    + imageIdMap[largeImage] + ".png"} draggable="false" alt=""/>
-                <img width="20px" height="20px" className="small-image" src={"https://cdn.discordapp.com/app-assets/726090012877258762/"
-                    + imageIdMap[smallImage] + ".png"} draggable="false" alt=""/>
+                <img width="60px" height="60px" className="large-image" src={images[largeImage]} draggable="false" alt=""/>
+                <img width="20px" height="20px" className="small-image" src={images[smallImage]} draggable="false" alt=""/>
             </div>
             <div className="text">
                 <p className="game">Destiny 2</p>
@@ -74,35 +75,4 @@ export default function({largeImage, description, initialTime, state, smallImage
 function fmtTime(t: number): string {
     if (t < 10) return "0" + t;
     return t.toString();
-}
-
-const imageIdMap = {
-    control: "726487437026656398",
-    crucible: "726487437744013322",
-    destinylogo: "726090605373161523",
-    doubles: "726487438788395101",
-    dungeon: "726487437265862688",
-    explore: "726487438419165248",
-    forge: "726487439010431126",
-    gambit: "726487439211888731",
-    hauntedforest: "763440501092384820",
-    hunter: "726487437572046860",
-    ironbanner: "726487439325003887",
-    lostsector: "838469802300801065",
-    menagerie: "726487439048441857",
-    nightmarehunt: "726487439060762664",
-    privatecrucible: "726487438834532353",
-    raid: "726487439408889896",
-    reckoning: "726487439073607762",
-    seasonchosen: "880068145346408498",
-    seasonlost: "880066686999490631",
-    seasonsplicer: "880068145501577256",
-    socialall: "726487439102967890",
-    storypvecoopheroic: "726487439438381086",
-    strikes: "726487439157362708",
-    thenine: "726487438402256967",
-    titan: "726487437492224011",
-    trialsofosiris: "726487439220408360",
-    vexoffensive: "726487438062780497",
-    warlock: "726487437978763304"
 }

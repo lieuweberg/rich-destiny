@@ -1,11 +1,12 @@
 {
+  "browserslist": "> 0.5%, last 2 versions, not dead, not < 0.2%",
   "scripts": {
-    "start": "parcel index.html",
-    "build": "rm -rf ./dist && parcel build index.html"
+    "start": "parcel index.html favicon.ico",
+    "build": "rm -rf ./dist && parcel build index.html favicon.ico"
   },
   "dependencies": {
-    "axios": "^0.21.1",
-    "marked": "^1.2.8",
+    "axios": "^0.26.0",
+    "marked": "^4.0.12",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
@@ -14,16 +15,16 @@
     "semver": "^7.3.4"
   },
   "devDependencies": {
+    "@parcel/config-default": "^2.3.2",
+    "@parcel/resolver-glob": "^2.3.2",
+    "@parcel/transformer-sass": "^2.3.2",
+    "@parcel/transformer-typescript-tsc": "^2.3.2",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.7",
     "@types/react-tooltip": "^4.2.4",
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
-    "cssnano": "^4.1.10",
-    "parcel": "^1.12.4",
-    "sass": "^1.32.5",
+    "parcel": "^2.3.2",
+    "process": "^0.11.10",
     "typescript": "^4.1.3"
   }
 }

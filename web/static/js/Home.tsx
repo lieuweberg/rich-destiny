@@ -163,7 +163,7 @@ const examplePresences = [
     {i:"lostsector",d:"Lost Sector - Europa",s:"Perdition: Master",t:"11:50"},
     {i:"ironbanner",d:"Iron Banner - The Crucible",s:"Midtown",t:"03:27"},
     {i:"strikes",d:"Normal Strikes - The Tangled Shore",s:"Broodhold",t:"13:01"},
-    {i:"nightmarehunt",d:"Nightmare Hunt - The Moon",s:"Insanity: Legend",t:"08:32"},
+    {i:"shadowkeep",d:"Nightmare Hunt - The Moon",s:"Insanity: Legend",t:"08:32"},
     {i:"trialsofosiris",d:"Trials of Osiris - The Crucible",s:"Convergence",t:"04:50"},
     {i:"raid",d:"Vault of Glass - Venus",s:"Atheon, Time's Conflux (5/5)",t:"1:37:12"}
 ];
