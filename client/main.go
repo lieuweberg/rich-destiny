@@ -54,13 +54,15 @@ func (p *program) Stop(s service.Service) (err error) {
 	if manifest != nil {
 		manifest.Close()
 		log.Print("Manifest closed")
+	} else {
+		log.Print("Definitions didn't exist, didn't close")
 	}
-	log.Print("Definitions didn't exist, didn't close")
 	if quitPresenceTicker != nil {
 		quitPresenceTicker <- true
 		log.Print("Presence loop stopped")
+	} else {
+		log.Print("Presence loop wasn't running, didn't stop")
 	}
-	log.Print("Presence loop wasn't running, didn't stop")
 
 	server.Close()
 	log.Print("Gracefully exited, bye bye")
