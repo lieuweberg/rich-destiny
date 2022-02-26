@@ -22,6 +22,7 @@ func initPresence() {
 			if err := recover(); err != nil {
 				log.Print("PANIC!\n", err)
 			}
+			quitPresenceTicker = nil
 		}()
 
 		for {
@@ -234,17 +235,6 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 		// case strings.HasPrefix(activity.DP.Name, "Override:"):
 		// 	newActivity.Details = strings.Replace(activity.DP.Name, ": ", " - ", 1)
 		// 	newActivity.LargeImage = "seasonsplicer"
-		case strings.HasPrefix(activity.DP.Name, "Battleground:"):
-			newActivity.Details = "Battleground - " + place.DP.Name
-			name := strings.Split(activity.DP.Name, ": ")[1]
-			newActivity.State = name
-			for _, n := range chosenBattlegrounds {
-				if name == n {
-					newActivity.LargeImage = "seasonchosen"
-					return
-				}
-			}
-			newActivity.LargeImage = "seasonrisen"
 		case strings.HasPrefix(activity.DP.Name, "Vault of Glass"):
 			newActivity.Details = "Raid - Venus"
 			newActivity.State = activity.DP.Name
@@ -264,6 +254,11 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 			newActivity.State = activity.DP.Name
 			newActivity.LargeImage = "raid"
 			// getActivityPhases(id, "gos", activityHash, &newActivity)
+		// As of TWQ, these don't seem to be launcable from the director, only the Vanguard Ops playlist, but keeping this here anyway
+		case strings.HasPrefix(activity.DP.Name, "Battleground:"):
+			newActivity.Details = "Battleground - " + place.DP.Name
+			newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
+			newActivity.LargeImage = "seasonchosen"
 		default:
 			newActivity.Details = "In Orbit"
 			if storage.OrbitText != "" {
@@ -291,21 +286,15 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
-		case activityMode.DP.Name == "Story":
-			newActivity.Details = "Story - " + place.DP.Name
-			newActivity.State = activity.DP.Name
-			for campaign, missions := range storyMissions {
-				for _, m := range missions {
-					if strings.HasPrefix(activity.DP.Name, m) {
-						newActivity.LargeImage = campaign
-						return
-					}
-				}
-			}
 		case strings.HasPrefix(activity.DP.Name, "The Wellspring:"):
 			newActivity.Details = "The Wellspring - " + place.DP.Name
 			newActivity.State = strings.SplitN(activity.DP.Name, ": ", 2)[1]
 			newActivity.LargeImage = "wellspring"
+		case strings.Contains(activity.DP.Name, "PsiOps Battleground"):
+			s := strings.Split(activity.DP.Name, ": ")
+			newActivity.Details = s[0]
+			newActivity.State = s[1]
+			newActivity.LargeImage = "seasonrisen"
 		case activityMode.DP.Name == "Dares of Eternity":
 			newActivity.Details = activityMode.DP.Name
 			newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
@@ -349,6 +338,18 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 		case activity.DP.Name == "Last City: Eliksni Quarter":
 			newActivity.Details = "Eliksni Quarter - The Last City"
 			newActivity.LargeImage = "storypvecoopheroic"
+		// Keep this case at the very bottom
+		case activityMode.DP.Name == "Story":
+			newActivity.Details = "Story - " + place.DP.Name
+			newActivity.State = activity.DP.Name
+			for campaign, missions := range storyMissions {
+				for _, m := range missions {
+					if strings.HasPrefix(activity.DP.Name, m) {
+						newActivity.LargeImage = campaign
+						return
+					}
+				}
+			}
 		default:
 			if activityMode.DP.Name == "Scored Nightfall Strikes" {
 				// Scored lost sectors are seen as scored nightfall strikes
