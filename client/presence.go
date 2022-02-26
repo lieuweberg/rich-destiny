@@ -302,6 +302,10 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 					}
 				}
 			}
+		case strings.HasPrefix(activity.DP.Name, "The Wellspring:"):
+			newActivity.Details = "The Wellspring - " + place.DP.Name
+			newActivity.State = strings.SplitN(activity.DP.Name, ": ", 2)[1]
+			newActivity.LargeImage = "wellspring"
 		case activityMode.DP.Name == "Dares of Eternity":
 			newActivity.Details = activityMode.DP.Name
 			newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
