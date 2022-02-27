@@ -57,7 +57,7 @@ func requestAccessToken(code string, refresh bool) (err error) {
 		return
 	}
 
-	if refresh == true {
+	if refresh {
 		log.Print("Refreshed access token")
 	} else {
 		log.Print("Successfully authorised")

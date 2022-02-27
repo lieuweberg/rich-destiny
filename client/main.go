@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -174,11 +176,35 @@ func (p *program) run() {
 
 	startWebServer()
 
-	// Wait for a decent computer to have booted, no internet connection means trouble
-	// TODO: Way better way of handling internet connection status; this is pretty terrible
-	time.Sleep(10 * time.Second)
-
-	debugText = ""
+	debugText = "Waiting for internet connection..."
+	c := &http.Client{
+		Timeout: 3 * time.Second,
+	}
+	var dnsError bool
+	var errCount int
+	for {
+		_, err = c.Get("https://www.bungie.net/Platform/GlobalAlerts/")
+		if err != nil {
+			var e *net.DNSError
+			if errors.As(err, &e) {
+				if !dnsError {
+					log.Printf("DNS error trying to check internet/bungie connection. You can probably ignore this if you don't have internet "+
+						"(e.g. no such host error). Muting further DNS errors: %s", err)
+					dnsError = true
+				}
+			} else {
+				if errCount <= 3 {
+					log.Printf("Error trying to check internet/bungie connection: %s", err)
+				}
+				errCount++
+			}
+			time.Sleep(10 * time.Second)
+		} else {
+			debugText = ""
+			log.Printf("Internet/Bungie connection seems ok! Errors: %d", errCount)
+			break
+		}
+	}
 
 	// Kinda useless since browser tabs cannot be opened from a service, but leaving it in
 	if _, err = getStorage(); err != nil {

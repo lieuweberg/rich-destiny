@@ -79,21 +79,21 @@ func initPresence() {
 }
 
 func updatePresence() {
-	var ca *profileDef
-	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/?components=204,200", storage.MSType, storage.ActualMSID), &ca)
-	if err != nil || ca.ErrorStatus != "Success" {
-		if err == nil {
-			if ca.ErrorStatus == "SystemDisabled" {
-				setActivity(richgo.Activity{
-					LargeImage: "destinylogo",
-					Details:    "Waiting for maintenance to end",
-				}, time.Now(), 0)
-				return
-			}
-			log.Println(ca.ErrorStatus, ca.Message)
-		} else {
-			log.Print(err)
+	var profile *profileDef
+	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/?components=204,200", storage.MSType, storage.ActualMSID), &profile)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	if profile.ErrorStatus != "Success" {
+		if profile.ErrorStatus == "SystemDisabled" {
+			setActivity(richgo.Activity{
+				LargeImage: "destinylogo",
+				Details:    "Waiting for maintenance to end",
+			}, time.Now(), 0)
+			return
 		}
+		log.Println(profile.ErrorStatus, profile.Message)
 		return
 	}
 
@@ -105,7 +105,7 @@ func updatePresence() {
 	var dateActivityStarted time.Time
 
 	isLaunching := true
-	for id, d := range ca.Response.CharacterActivities.Data {
+	for id, d := range profile.Response.CharacterActivities.Data {
 		if d.CurrentActivityHash != 0 {
 			if t, err := time.Parse(time.RFC3339, d.DateActivityStarted); err == nil {
 				if t.Unix() > dateActivityStarted.Unix() {
@@ -167,9 +167,9 @@ func updatePresence() {
 				transformActivity(id, activityHash, activityModeHash, activity, activityMode, place, &newActivity)
 			}
 
-			class := classImages[ca.Response.Characters.Data[id].ClassType]
+			class := classImages[profile.Response.Characters.Data[id].ClassType]
 			newActivity.SmallImage = class
-			newActivity.SmallText = strings.Title(fmt.Sprintf("%s - %d", class, ca.Response.Characters.Data[id].Light))
+			newActivity.SmallText = strings.Title(fmt.Sprintf("%s - %d", class, profile.Response.Characters.Data[id].Light))
 			break
 		}
 	}
