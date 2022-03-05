@@ -86,7 +86,7 @@ func updatePresence() {
 		return
 	}
 	if profile.ErrorStatus != "Success" {
-		if profile.ErrorStatus == "SystemDisabled" {
+		if profile.ErrorStatus == "SystemDisabled" || profile.ErrorStatus == "DestinyThrottledByGameServer" {
 			setActivity(richgo.Activity{
 				LargeImage: "destinylogo",
 				Details:    "Waiting for maintenance to end",
@@ -220,6 +220,11 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 	// We're gonna have to rely only on activity. https://github.com/Bungie-net/api/issues/910, scroll down for all my comments and edits
 	if activityMode == nil {
 		switch {
+		case strings.Contains(activity.DP.Name, "PsiOps Battleground"):
+			s := strings.Split(activity.DP.Name, ": ")
+			newActivity.Details = s[0]
+			newActivity.State = s[1]
+			newActivity.LargeImage = "seasonrisen"
 		case strings.HasPrefix(activity.DP.Name, "Grasp of Avarice"):
 			newActivity.Details = "Dungeon - The Cosmodrome"
 			newActivity.State = activity.DP.Name
