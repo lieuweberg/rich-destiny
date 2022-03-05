@@ -36,7 +36,7 @@ var classImages = map[int64]string{
 	2: "warlock",
 }
 
-var scoredLostSectors = []string{"K1", "Concealed", "E15", "Perdition", "2A", "Veles", "Quarry", "Scavenger's", "XII", "Drowned", "Starlight", "Aphelion"}
+var scoredLostSectors = []string{"K1", "Concealed", "E15", "Perdition", "2A", "Veles", "Quarry", "Scavenger's", "XII", "Drowned", "Starlight", "Aphelion", "Metamorphosis", "Sepulcher", "Extraction"}
 var storyMissions = map[string][]string{
 	"shadowkeep":    {"A Mysterious Disturbance", "In Search of Answers", "Ghosts of Our Past", "In the Deep", "Beyond"},
 	"beyondlight":   {"Darkness's Doorstep", "The New Kell", "Rising Resistance", "The Warrior", "The Technocrat", "The Kell of Darkness", "Sabotaging Salvation", "The Aftermath"},
