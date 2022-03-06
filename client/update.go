@@ -40,7 +40,7 @@ func attemptApplicationUpdate() (string, error) {
 	}
 
 	if len(releases) == 0 {
-		return "", fmt.Errorf("No newer version found.")
+		return "", fmt.Errorf("No newer version found")
 	}
 
 	if tryPatches {

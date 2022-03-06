@@ -131,17 +131,17 @@ type profileDefCharInfo struct {
 	ClassType int64 `json:"classType"`
 }
 
-// /User/GetCredentialTypesForTargetAccount/{ActualMSID}/
-type credentialsTargetAccount struct {
-	Response    []ctaResponse `json:"Response"`
-	ErrorCode   int64         `json:"ErrorCode"`
-	ErrorStatus string        `json:"ErrorStatus"`
-}
+// // /User/GetCredentialTypesForTargetAccount/{ActualMSID}/
+// type credentialsTargetAccount struct {
+// 	Response    []ctaResponse `json:"Response"`
+// 	ErrorCode   int64         `json:"ErrorCode"`
+// 	ErrorStatus string        `json:"ErrorStatus"`
+// }
 
-type ctaResponse struct {
-	CredentialType     int64  `json:"credentialType"`
-	CredentialAsString string `json:"credentialAsString"`
-}
+// type ctaResponse struct {
+// 	CredentialType     int64  `json:"credentialType"`
+// 	CredentialAsString string `json:"credentialAsString"`
+// }
 
 // Manifest: DestinyActivityDefinition
 type activityDefinition struct {
