@@ -220,6 +220,10 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 	// We're gonna have to rely only on activity. https://github.com/Bungie-net/api/issues/910, scroll down for all my comments and edits
 	if activityMode == nil {
 		switch {
+		case strings.Contains(activity.DP.Name, "Vow of the Disciple"):
+			newActivity.Details = "Raid - " + place.DP.Name
+			newActivity.State = activity.DP.Name
+			newActivity.LargeImage = "raid"
 		case strings.Contains(activity.DP.Name, "PsiOps Battleground"):
 			s := strings.Split(activity.DP.Name, ": ")
 			newActivity.Details = s[0]
