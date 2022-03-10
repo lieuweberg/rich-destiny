@@ -387,9 +387,11 @@ func getActivityPhases(charID, shortName string, activityHash int32, newActivity
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/Character/%s?components=202", storage.MSType, storage.ActualMSID, charID), &p)
 	if err != nil {
 		log.Print(err)
+		return
 	}
 	if p.ErrorStatus != "Success" {
 		log.Println(p.ErrorStatus, p.Message)
+		return
 	}
 
 	for _, m := range p.Response.Progressions.Data.Milestones {
