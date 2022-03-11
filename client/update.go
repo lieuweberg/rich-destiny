@@ -104,7 +104,8 @@ func filterReleases(releases releasesFromGithub) releasesFromGithub {
 	}
 	// Get all the new releases (except the ones filtered away above)
 	for i, r := range releases {
-		if !r.Draft && (storage.Prereleases || !r.Prerelease) {
+		if !r.Draft {
+			// Should return where the version was the same, no prerelease checks since they were already filtered away before
 			if semver.Compare(r.Name, updatedVersion) != 1 {
 				return releases[:i]
 			}
