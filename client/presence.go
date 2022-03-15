@@ -101,86 +101,83 @@ func updatePresence() {
 		LargeImage: "destinylogo",
 	}
 
-	var activityModeHash int32
 	var dateActivityStarted time.Time
+	var characterID string
+	var c profileDefCharacter
 
-	isLaunching := true
 	for id, d := range profile.Response.CharacterActivities.Data {
 		if d.CurrentActivityHash != 0 {
 			if t, err := time.Parse(time.RFC3339, d.DateActivityStarted); err == nil {
 				if t.Unix() > dateActivityStarted.Unix() {
 					dateActivityStarted = t
+					characterID = id
+					c = d
 					newActivity = richgo.Activity{
 						LargeImage: "destinylogo",
 					}
-				} else {
-					continue
 				}
 			}
-
-			if isLaunching {
-				isLaunching = false
-			}
-
-			var (
-				activity     *activityDefinition
-				place        *placeDefinition
-				activityMode *activityModeDefinition
-			)
-
-			activityHash, err := getFromTableByHash("DestinyActivityDefinition", d.CurrentActivityHash, &activity)
-			// Something is terribly wrong :(
-			if activity == nil {
-				if err != nil {
-					log.Printf("Error getting activity %d from definitions: %s", activityHash, err)
-				}
-
-				newActivity.Details = "???"
-			} else {
-				placeHash, err := getFromTableByHash("DestinyPlaceDefinition", activity.PlaceHash, &place)
-				if place == nil {
-					if err != nil {
-						log.Printf("Error getting place %d from definitions: %s", placeHash, err)
-					}
-
-					place = &placeDefinition{
-						DP: globalDisplayProperties{
-							Name: "???",
-						},
-					}
-				} else {
-					transformPlace(place, activity)
-				}
-
-				activityModeHash, err = getFromTableByHash("DestinyActivityModeDefinition", d.CurrentActivityModeHash, &activityMode)
-
-				if activityMode == nil {
-					if err != nil {
-						log.Printf("Error getting activityMode %d from definitions: %s", activityModeHash, err)
-					}
-
-					debugText = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
-				} else {
-					debugText = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
-				}
-
-				transformActivity(id, activityHash, activityModeHash, activity, activityMode, place, &newActivity)
-			}
-
-			class := classImages[profile.Response.Characters.Data[id].ClassType]
-			newActivity.SmallImage = class
-			newActivity.SmallText = strings.Title(fmt.Sprintf("%s - %d", class, profile.Response.Characters.Data[id].Light))
-			break
 		}
 	}
 
-	// This is outside of the loop. If no characters have a current activity other than 0, it indicates the game is launching
-	if isLaunching {
-		newActivity.Details = "Launching the game..."
-		setActivity(newActivity, time.Now(), 0)
-	} else {
+	if characterID != "" {
+		var (
+			activity         *activityDefinition
+			place            *placeDefinition
+			activityMode     *activityModeDefinition
+			activityModeHash int32
+		)
+
+		activityHash, err := getFromTableByHash("DestinyActivityDefinition", c.CurrentActivityHash, &activity)
+		// Something is terribly wrong :(
+		if activity == nil {
+			if err != nil {
+				log.Printf("Error getting activity %d from definitions: %s", activityHash, err)
+			}
+
+			newActivity.Details = "???"
+		} else {
+			placeHash, err := getFromTableByHash("DestinyPlaceDefinition", activity.PlaceHash, &place)
+			if place == nil {
+				if err != nil {
+					log.Printf("Error getting place %d from definitions: %s", placeHash, err)
+				}
+
+				place = &placeDefinition{
+					DP: globalDisplayProperties{
+						Name: "???",
+					},
+				}
+			} else {
+				transformPlace(place, activity)
+			}
+
+			activityModeHash, err = getFromTableByHash("DestinyActivityModeDefinition", c.CurrentActivityModeHash, &activityMode)
+
+			if activityMode == nil {
+				if err != nil {
+					log.Printf("Error getting activityMode %d from definitions: %s", activityModeHash, err)
+				}
+
+				debugText = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
+			} else {
+				debugText = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
+			}
+
+			transformActivity(characterID, activityHash, activityModeHash, activity, activityMode, place, &newActivity)
+		}
+
+		characterInfo := profile.Response.Characters.Data[characterID]
+		class := classImages[characterInfo.ClassType]
+		newActivity.SmallImage = class
+		newActivity.SmallText = strings.Title(fmt.Sprintf("%s - %d", class, characterInfo.Light))
+
 		setActivity(newActivity, dateActivityStarted, activityModeHash)
+		return
 	}
+
+	newActivity.Details = "Launching the game..."
+	setActivity(newActivity, time.Now(), 0)
 }
 
 // getFromTableByHash retrieves an object from the database by hash. ErrNoRows is not returned.
