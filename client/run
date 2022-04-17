@@ -1,0 +1,2 @@
+go build -o rich-destiny-dev.exe .
+./rich-destiny-dev.exe -dev $1

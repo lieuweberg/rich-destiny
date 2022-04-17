@@ -3,11 +3,13 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"syscall"
@@ -20,9 +22,14 @@ import (
 )
 
 var (
-	// Injected by the go linker
+	// Injected by the go linker or when flagDev is true
 	version string
 
+	// Command line flags
+	flagDaemon bool
+	flagDev    bool
+
+	// Other
 	s                service.Service
 	db               *sql.DB
 	manifest         *sql.DB
@@ -42,32 +49,20 @@ var (
 	debugText           string
 )
 
+func init() {
+	flag.BoolVar(&flagDaemon, "daemon", false, "run the program, not the install sequence")
+	flag.BoolVar(&flagDev, "dev", false, "don't free the console and don't create a log file")
+}
+
 type program struct{}
 
 func (p *program) Start(s service.Service) (err error) {
-	go p.run()
+	go startApplication()
 	return
 }
 
 func (p *program) Stop(s service.Service) (err error) {
-	log.Print("OS termination received")
-	db.Close()
-	log.Print("Database closed")
-	if manifest != nil {
-		manifest.Close()
-		log.Print("Manifest closed")
-	} else {
-		log.Print("Definitions didn't exist, didn't close")
-	}
-	if quitPresenceTicker != nil {
-		quitPresenceTicker <- true
-		log.Print("Presence loop stopped")
-	} else {
-		log.Print("Presence loop wasn't running, didn't stop")
-	}
-
-	server.Close()
-	log.Print("Gracefully exited, bye bye")
+	stopApplication()
 	return
 }
 
@@ -86,33 +81,10 @@ func createService() {
 	}
 }
 
-func successfullyStartService() (success bool, err error) {
-	for i := 0; i <= 10; i++ {
-		if i == 0 || i == 5 {
-			err = s.Start()
-			if err != nil {
-				return
-			}
-		}
-		_, err = http.Get("http://localhost:35893")
-		if err != nil {
-			time.Sleep(3 * time.Second)
-		} else {
-			success = true
-			break
-		}
-	}
-
-	if !success {
-		fmt.Println(" It seems rich-destiny didn't want to start at all..." +
-			"Try seeing if there is any information in the logs folder where rich-destiny was installed or head to the support server for help ( https://discord.gg/UNU4UXp ).")
-		return
-	}
-
-	return
-}
-
 func main() {
+	// Here and not in init due to testing package erroring when this is run in init
+	flag.Parse()
+
 	var err error
 	exe, err = os.Executable()
 	if err != nil {
@@ -121,7 +93,27 @@ func main() {
 	currentDirectory = filepath.Dir(exe)
 
 	if service.Interactive() {
-		installProgram()
+		if flagDaemon {
+			if !flagDev {
+				// https://docs.microsoft.com/en-us/windows/console/freeconsole
+				r1, _, err := syscall.Syscall(syscall.MustLoadDLL("kernel32").MustFindProc("FreeConsole").Addr(), 0, 0, 0, 0)
+				if r1 == 0 {
+					log.Printf("Couldn't free console. This is probably important and should be sent in the support server ( https://discord.gg/UNU4UXp ): %s", err)
+				}
+			} else {
+				version = "dev"
+			}
+
+			startApplication()
+
+			sc := make(chan os.Signal, 1)
+			signal.Notify(sc, syscall.SIGTERM, syscall.SIGINT, os.Interrupt, os.Kill)
+
+			<-sc
+			stopApplication()
+		} else {
+			installProgram()
+		}
 	} else {
 		createService()
 		err = s.Run()
@@ -131,37 +123,43 @@ func main() {
 	}
 }
 
-func (p *program) run() {
+func startApplication() {
 	debugText = "Starting up..."
 
-	if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
-		err = os.Mkdir(makePath("logs"), os.ModePerm)
-		if err != nil {
-			// Logs are voided. Return as the application is probably lacking permissions.
-			log.Printf("Couldn't create logs directory: %s", err)
-			return
-		}
-	}
-
-	y, m, d := time.Now().Date()
-	h, min, sec := time.Now().Clock()
-	logFile, err := os.Create(makePath(fmt.Sprintf("logs/%d-%d-%d %dh%dm%ds.log", y, m, d, h, min, sec)))
-	if err != nil {
-		log.Printf("Couldn't create log file: %s", err)
-	} else {
-		log.SetOutput(logFile)
-
-		if runtime.GOOS == "windows" {
-			stdErrorHandle := syscall.STD_ERROR_HANDLE
-			r0, _, e1 := syscall.Syscall(syscall.MustLoadDLL("kernel32").MustFindProc("SetStdHandle").Addr(),
-				2, uintptr(stdErrorHandle), logFile.Fd(), 0)
-			if r0 == 0 {
-				log.Printf("Couldn't set stderr handle: %d", e1)
+	if !flagDev {
+		if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
+			err = os.Mkdir(makePath("logs"), os.ModePerm)
+			if err != nil {
+				// Logs are voided. Return as the application is probably lacking permissions.
+				log.Printf("Couldn't create logs directory: %s", err)
+				return
 			}
 		}
+
+		y, m, d := time.Now().Date()
+		h, min, sec := time.Now().Clock()
+		logFile, err := os.Create(makePath(fmt.Sprintf("logs/%d-%d-%d %dh%dm%ds.log", y, m, d, h, min, sec)))
+		if err != nil {
+			log.Printf("Couldn't create log file: %s", err)
+		} else {
+			log.SetOutput(logFile)
+
+			if runtime.GOOS == "windows" {
+				stdErrorHandle := syscall.STD_ERROR_HANDLE
+				// https://docs.microsoft.com/en-us/windows/console/setstdhandle
+				r1, _, err := syscall.Syscall(syscall.MustLoadDLL("kernel32").MustFindProc("SetStdHandle").Addr(), 2, uintptr(stdErrorHandle), logFile.Fd(), 0)
+				if r1 == 0 {
+					log.Printf("Couldn't set stderr handle: %d", err)
+				}
+			}
+		}
+	} else {
+		version = "dev"
 	}
+
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
+	var err error
 	db, err = sql.Open("sqlite3", makePath("storage.db"))
 	if err != nil {
 		log.Printf("Error opening storage.db: %s", err)
@@ -221,6 +219,27 @@ func (p *program) run() {
 	}
 
 	getDefinitions()
+}
+
+func stopApplication() {
+	log.Print("OS termination received")
+	db.Close()
+	log.Print("Database closed")
+	if manifest != nil {
+		manifest.Close()
+		log.Print("Manifest closed")
+	} else {
+		log.Print("Definitions didn't exist, didn't close")
+	}
+	if quitPresenceTicker != nil {
+		quitPresenceTicker <- true
+		log.Print("Presence loop stopped")
+	} else {
+		log.Print("Presence loop wasn't running, didn't stop")
+	}
+
+	server.Close()
+	log.Print("Gracefully exited, bye bye")
 }
 
 func makePath(e string) string {
