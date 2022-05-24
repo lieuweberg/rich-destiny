@@ -10,16 +10,15 @@
     pointer-events: none;
 }
 
-#cp-hiveghost {
-    top: 650px;
+#cp-decoration-left {
+    top: 350px;
     right: min(5%, 100px); // flipped, so left is right and right is left
     width: 300px;
 }
 
-#cp-voidbuddy {
-    top: 200px;
-    left: 8%;
-    width: 350px;
+#cp-decoration-right {
+    top: 100px;
+    left: 0;
     filter: drop-shadow(rgba(0, 0, 0, 0.5) -10px 10px 5px);
 }
 

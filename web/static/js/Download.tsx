@@ -8,7 +8,7 @@ import "../css/download.scss";
 import useMemoryState from "./MemoryState";
 
 // @ts-expect-error
-import hiveghost from "../images/hiveghost.webp";
+import decoration from "../images/s17-nightmare2.webp";
 
 interface GitHubRelease {
     name:           string;
@@ -105,7 +105,7 @@ export default function() {
     }
     
     return <>
-        <img id="hiveghost" className="sidebar-decoration" src={hiveghost} alt="" />
+        <img id="dl-decoration" className="sidebar-decoration" src={decoration} alt="" />
 
         <div className="generic-text">
             <h1>Download</h1>
