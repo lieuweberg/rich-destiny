@@ -5,11 +5,17 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
-	"github.com/kardianos/service"
+	"github.com/go-ole/go-ole"
+	"github.com/go-ole/go-ole/oleutil"
+	"github.com/mitchellh/go-ps"
+	"golang.org/x/sys/windows"
 )
 
 // My epic hacked-together install prompt that totally works 100% of the time 99% of the time.
@@ -23,68 +29,63 @@ func installProgram() {
 		version, "\n\n\n")
 	log.SetFlags(log.Lshortfile)
 
-	// This works because it deletes/starts/detects by name. Path does not matter, except when installing.
-	createService()
-	status, err := s.Status()
-	if err != nil && !errors.Is(err, service.ErrNotInstalled) {
-		log.Printf("Error trying to detect service status: %s", err)
+	var isAlreadyRunning bool
+	pl, _ := ps.Processes()
+	for _, p := range pl {
+		if p.Executable() == "rich-destiny.exe" && p.Pid() != os.Getpid() {
+			isAlreadyRunning = true
+			break
+		}
 	}
 
-	if status == service.StatusRunning {
-		fmt.Println(" rich-destiny is already installed and running. Open the control panel at:  https://richdestiny.app/cp")
+	startupShortcutPath, err := getStartupShortcutPath()
+	if err != nil {
+		log.Printf("Couldn't get startup folder path: %s", err)
 		return
-	} else if status == service.StatusStopped {
+	}
+
+	if isAlreadyRunning {
+		fmt.Println(" rich-destiny is already running. Open the control panel at:  https://richdestiny.app/cp")
+		return
+	} else if _, err = os.Stat(startupShortcutPath); err == nil {
 		fmt.Println(" rich-destiny is already installed but not running. Attempting to start it...")
-		started, err := successfullyStartService()
+
+		shortcut, err := getShortcutIDispatch(startupShortcutPath)
 		if err != nil {
-			if err.Error() != "The system cannot find the file specified." {
-				fmt.Printf(" An error occured, but rich-destiny doesn't recognise it: %s\n\n"+
-					"Is this similar or does this translate to \"The system cannot find the file specified.\"?", err)
-				for {
-					fmt.Print("\n Choose: [Yes/No]: ")
-					r, err := readUserInput()
-					if err != nil {
-						log.Printf(" Unable to read your input...: %s", err)
-						return
-					}
-					if strings.Contains(r, "y") {
-						break
-					} else if strings.Contains(r, "n") {
-						fmt.Println(" Okay. If you need help, please join the support server!  https://discord.gg/UNU4UXp")
-						return
-					} else {
-						fmt.Println(" Invalid response.")
-					}
-				}
-			}
-			fmt.Println(" Windows can't find the file where you installed rich-destiny previously.\n\n Do you want to uninstall the original location so you can reinstall here?")
-			for {
-				fmt.Print("\n Choose: [Yes/No]: ")
-				r, err := readUserInput()
-				if err != nil {
-					log.Printf(" Unable to read your input...: %s", err)
-					return
-				}
-				if strings.Contains(r, "y") {
-					err = s.Uninstall()
-					if err != nil {
-						log.Printf("Error trying to uninstall the service: %s", err)
-					}
-					fmt.Print("\n Uninstalled. Starting new installation now.\n\n")
-					break
-				} else if strings.Contains(r, "n") {
-					fmt.Println(" Okay. If you need help, please join the support server!  https://discord.gg/UNU4UXp")
-					return
-				} else {
-					fmt.Println(" Invalid response.")
-				}
-			}
-		} else if started {
-			fmt.Println(" rich-destiny was successfully started! Find the control panel at:  https://richdestiny.app/cp")
-			return
-		} else { // it didn't start, but that message was already printed so just return here
+			log.Printf("Couldn't get shortcut at path %s despite the file existing: %s", startupShortcutPath, err)
 			return
 		}
+
+		variant, err := shortcut.GetProperty("TargetPath")
+		if err != nil {
+			log.Printf("Couldn't get TargetPath property of shortcut %s: %s", startupShortcutPath, err)
+			return
+		}
+		targetPath := variant.ToString()
+		shortcut.Release()
+
+		if _, err = os.Stat(targetPath); err == nil {
+			started, err := successfullyStartDaemon(targetPath)
+			if err != nil {
+				log.Printf("Error trying to start daemon at path %s: %s", targetPath, err)
+			} else if started {
+				fmt.Println(" rich-destiny was successfully started! Find the control panel at:  https://richdestiny.app/cp")
+				return
+			} else { // it didn't start, but that message was already printed so just return here
+				return
+			}
+		} else {
+			if os.IsNotExist(err) {
+				// Second argument adds a fresh empty new line :)
+				fmt.Println(" A rich-destiny startup shortcut exists but the target file was not found. You will now be guided through the setup again.", "")
+			} else {
+				log.Printf("Error checking if file %s exists: %s", targetPath, err)
+				return
+			}
+		}
+	} else if !os.IsNotExist(err) {
+		log.Printf("Error checking if file %s exists: %s", startupShortcutPath, err)
+		return
 	}
 
 	fmt.Println(" Welcome to the rich-destiny setup!")
@@ -92,7 +93,9 @@ func installProgram() {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Printf("Could not get home directory...: %s", err)
+		return
 	}
+
 	var downloadDir bool
 	if currentDirectory == filepath.Join(home, "Downloads") {
 		downloadDir = true
@@ -174,16 +177,11 @@ func installProgram() {
 		}
 	}
 
-	createService()
-	err = s.Install()
-	if err != nil {
-		log.Printf("Error adding rich-destiny to the service manager: %s", err)
-		return
-	}
+	makeShortcut(startupShortcutPath)
 
 	fmt.Println(" Done! Waiting for rich-destiny to start...")
 
-	started, err := successfullyStartService()
+	started, err := successfullyStartDaemon(exe)
 	if err != nil {
 		log.Printf("Error trying to start rich-destiny: %s", err)
 		return
@@ -191,8 +189,124 @@ func installProgram() {
 		return
 	}
 
-	fmt.Println(" Done! Opening a browser tab to log in with Bungie.net. Setup is now complete and you can close this window.")
+	fmt.Println(" Done! Opening a browser tab to log in with Bungie.net. Setup is now complete and you can close this window.\n\n   ♥ Thanks for using rich-destiny! ♥")
 	openOauthTab()
+}
+
+func getStartupShortcutPath() (string, error) {
+	startupFolderPath, err := windows.KnownFolderPath(windows.FOLDERID_Startup, 0)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(startupFolderPath, "rich-destiny.lnk"), nil
+}
+
+// https://stackoverflow.com/a/41886180/10530600
+func getShortcutIDispatch(path string) (*ole.IDispatch, error) {
+	ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED|ole.COINIT_SPEED_OVER_MEMORY)
+	oleShellObject, err := oleutil.CreateObject("WScript.Shell")
+	if err != nil {
+		return nil, err
+	}
+	defer oleShellObject.Release()
+	wshShell, err := oleShellObject.QueryInterface(ole.IID_IDispatch)
+	if err != nil {
+		return nil, err
+	}
+	defer wshShell.Release()
+	shortcut, err := oleutil.CallMethod(wshShell, "CreateShortcut", path)
+	if err != nil {
+		return nil, err
+	}
+	return shortcut.ToIDispatch(), nil
+}
+
+// successfullyStartDaemon starts the rich-destiny exe in daemon mode.
+// path should be the path of the executable. This function adds -daemon as an argument.
+func successfullyStartDaemon(path string) (success bool, err error) {
+	var cmd *exec.Cmd
+
+	for i := 0; i <= 10; i++ {
+		if i == 0 || i == 5 {
+			// First kill the process that was started at i == 0 in case it exists
+			if i == 5 {
+				if cmd.Process != nil {
+					err = cmd.Process.Kill()
+					if err != nil {
+						return
+					}
+				}
+			}
+
+			cmd = exec.Command(path, "-daemon")
+			err = cmd.Start()
+			if err != nil {
+				return
+			}
+
+			if cmd.Process == nil {
+				return false, errors.New("Failed to start rich-destiny via shortcut")
+			}
+		}
+		_, err = http.Get("http://localhost:35893")
+		if err != nil {
+			time.Sleep(3 * time.Second)
+		} else {
+			success = true
+			break
+		}
+	}
+
+	if !success {
+		fmt.Println(" It seems rich-destiny didn't want to start at all..." +
+			"Try seeing if there is any information in the logs folder where rich-destiny was installed or head to the support server for help ( https://discord.gg/UNU4UXp ).")
+		return
+	}
+
+	err = cmd.Process.Release()
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func makeShortcut(path string) error {
+	shortcut, err := getShortcutIDispatch(path)
+	if err != nil {
+		return err
+	}
+
+	// Load             Method
+	// Save             Method
+	// Arguments        Property   string
+	// Description      Property   string
+	// FullName         Property   string
+	// Hotkey           Property   string
+	// IconLocation     Property   string
+	// RelativePath     Property   string
+	// TargetPath       Property   string
+	// WindowStyle      Property   int    7=minimised, 3 or 0(?)=maximised, 4=normal
+	// WorkingDirectory Property
+	properties := map[string]interface{}{
+		"Arguments":   "-daemon",
+		"TargetPath":  exe,
+		"WindowStyle": 7,
+	}
+	for p, v := range properties {
+		_, err = shortcut.PutProperty(p, v)
+		if err != nil {
+			return fmt.Errorf("Failed putting property %s with value %v on shortcut: %s", p, v, err)
+		}
+	}
+
+	_, err = shortcut.CallMethod("Save")
+	if err != nil {
+		return fmt.Errorf("Failed to call Save method on shortcut: %s", err)
+	}
+
+	shortcut.Release()
+	return nil
 }
 
 func readUserInput() (string, error) {

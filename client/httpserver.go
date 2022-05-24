@@ -7,8 +7,11 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
+	"syscall"
 	"time"
 
+	"github.com/kardianos/service"
 	richgo "github.com/lieuweberg/rich-go/client"
 )
 
@@ -65,6 +68,10 @@ func startWebServer() {
 				Presence: previousActivity,
 			}
 
+			if debugText != "" {
+				d.Debug = debugText
+			}
+
 			if storage == nil {
 				returnStructAsJSON(res, d)
 				return
@@ -91,7 +98,6 @@ func startWebServer() {
 				status += fmt.Sprintf(" | %s", previousActivity.SmallText)
 			}
 			d.Status = status
-			d.Debug = debugText
 			returnStructAsJSON(res, d)
 		case "save":
 			if storage == nil {
@@ -139,17 +145,32 @@ func startWebServer() {
 				fmt.Fprintf(res, "Update installed successfully; will be applied next startup (or restart rich-destiny from the Services manager). New version: %s", newVersion)
 			}
 		case "uninstall":
-			err := s.Uninstall()
-			if err != nil {
-				res.WriteHeader(http.StatusInternalServerError)
-				fmt.Fprintf(res, "Error trying to uninstall: %s", err)
-				return
-			}
-			err = s.Stop()
-			if err != nil {
-				res.WriteHeader(http.StatusInternalServerError)
-				fmt.Fprintf(res, "Error trying to stop service: %s", err)
-				return
+			if service.Interactive() {
+				err := s.Uninstall()
+				if err != nil {
+					res.WriteHeader(http.StatusInternalServerError)
+					fmt.Fprintf(res, "Error trying to uninstall: %s", err)
+					return
+				}
+				err = s.Stop()
+				if err != nil {
+					res.WriteHeader(http.StatusInternalServerError)
+					fmt.Fprintf(res, "Error trying to stop service: %s", err)
+					return
+				}
+			} else {
+				startupShortcutPath, err := getStartupShortcutPath()
+				if err != nil {
+					res.WriteHeader(http.StatusInternalServerError)
+					fmt.Fprintf(res, "Error trying to get shortcut path: %s", err)
+					return
+				}
+				err = os.Remove(startupShortcutPath)
+				if err != nil && !os.IsNotExist(err) {
+					res.WriteHeader(http.StatusInternalServerError)
+					fmt.Fprintf(res, "Failed removing shortcut file, but it does exist: %s", err)
+				}
+				exitChannel <- syscall.SIGTERM
 			}
 		case "reconnect":
 			if previousActivity.Details != "" {
@@ -166,14 +187,25 @@ func startWebServer() {
 			}
 
 			fmt.Fprint(res, "Successfully reconnected.")
-			// case "restart":
-			// 	err := s.Restart()
-			// 	if err != nil {
-			// 		res.WriteHeader(http.StatusInternalServerError)
-			// 		fmt.Fprintf(res, "Error trying to restart: %s", err)
-			// 	}
+		case "restart":
+			go func() {
+				err := server.Close()
+				if err != nil {
+					log.Printf("Error while shutting http server down: %s", err)
+				}
 
-			// 	fmt.Fprintf(res, "OK")
+				started, err := successfullyStartDaemon(exe)
+				if err != nil {
+					log.Printf("Error trying to start daemon at path %s: %s", exe, err)
+				} else if started {
+					exitChannel <- syscall.SIGTERM
+					return
+				} else { // it didn't start, but that message was already printed so just return here
+					// restart the web server since the new application didn't launch and we closed it earlier to free up the port
+					startWebServer()
+					return
+				}
+			}()
 		}
 	})
 

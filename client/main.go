@@ -36,6 +36,7 @@ var (
 	server           = &http.Server{Addr: "localhost:35893", Handler: nil}
 	currentDirectory string
 	exe              string
+	exitChannel      chan os.Signal
 
 	storage *storageStruct
 	// Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
@@ -106,10 +107,10 @@ func main() {
 
 			startApplication()
 
-			sc := make(chan os.Signal, 1)
-			signal.Notify(sc, syscall.SIGTERM, syscall.SIGINT, os.Interrupt, os.Kill)
+			exitChannel = make(chan os.Signal, 1)
+			signal.Notify(exitChannel, syscall.SIGTERM, syscall.SIGINT, os.Interrupt, os.Kill)
 
-			<-sc
+			<-exitChannel
 			stopApplication()
 		} else {
 			installProgram()
