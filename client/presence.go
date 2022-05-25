@@ -217,6 +217,12 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 	// We're gonna have to rely only on activity. https://github.com/Bungie-net/api/issues/910, scroll down for all my comments and edits
 	if activityMode == nil {
 		switch {
+		case activity.DP.Name == "Castellum: CASTELLUM":
+			fallthrough
+		case activity.DP.Name == "Nightmare Containment: CONTAINMENT":
+			newActivity.Details = "Explore - " + place.DP.Name
+			// newActivity.State = strings.SplitN(activity.DP.Name, ": ", 2)[0]
+			newActivity.LargeImage = "seasonhaunted"
 		case strings.Contains(activity.DP.Name, "Vow of the Disciple"):
 			newActivity.Details = "Raid - " + place.DP.Name
 			newActivity.State = activity.DP.Name
@@ -292,6 +298,10 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
+		case strings.HasPrefix(activity.DP.Name, "Sever - "):
+			newActivity.Details = "Sever - " + place.DP.Name
+			newActivity.State = strings.SplitN(activity.DP.Name, " - ", 2)[1]
+			newActivity.LargeImage = "seasonhaunted"
 		case strings.HasPrefix(activity.DP.Name, "The Wellspring:"):
 			newActivity.Details = "The Wellspring - " + place.DP.Name
 			newActivity.State = strings.SplitN(activity.DP.Name, ": ", 2)[1]
