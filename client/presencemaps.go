@@ -36,7 +36,15 @@ var classImages = map[int64]string{
 	2: "warlock",
 }
 
-var scoredLostSectors = []string{"K1", "Concealed", "E15", "Perdition", "2A", "Veles", "Quarry", "Scavenger's", "XII", "Drowned", "Starlight", "Aphelion", "Metamorphosis", "Sepulcher", "Extraction"}
+var scoredLostSectors = []string{
+	"K1",                            // The Moon
+	"Concealed", "E15", "Perdition", // Europa
+	"2A", "Veles", "Quarry", // The Cosmodrome
+	"Scavenger's", "XII", // EDZ
+	"Drowned", "Starlight", "Aphelion", // Dreaming City
+	"Metamorphosis", "Sepulcher", "Extraction", // Savathûn's Throne World
+	"Conflux", // Nessus
+}
 var storyMissions = map[string][]string{
 	"shadowkeep":    {"A Mysterious Disturbance", "In Search of Answers", "Ghosts of Our Past", "In the Deep", "Beyond"},
 	"beyondlight":   {"Darkness's Doorstep", "The New Kell", "Rising Resistance", "The Warrior", "The Technocrat", "The Kell of Darkness", "Sabotaging Salvation", "The Aftermath"},
