@@ -1,32 +1,41 @@
 package main
 
-// Maps collective name (large images) to []ActivityModeHash
-var commonLargeImageActivityModes = map[string][]int32{
-	"control": {-1270265980, -1095868816, -621632665, 1340118533}, // Private Matches Control, Control, Control: Quickplay, Control: Competitive
-	// Survival, Competitive PvP, Showdown, Momentum, Quickplay PvP, Salvage, Breakthrough, Clash: Competitive, Elimination, Rumble,
-	"crucible": {-2055718213, -1808243978, -1748182994, -1381428397, -869856616, -390342404, -261966967, -242891787, -216527492, 157639802,
-		// Clash: Quickplay, Supremaxy, Crucible, Mayhem, Team Scorched, Countdown, Clash, Scorched, Lockdown
-		244324567, 910991990, 1164760504, 1264443021, 1372032677, 1505888634, 1585787840, 1668923154, 2096553452},
-	// "doubles": {-473465279, 946648766, 1703282980}, // Doubles, Crimson Doubles, All Doubles
-	"dungeon": {608898761},  // Dungeon
-	"explore": {-797199657}, // Explore
-	// "forge": {803838459}, // Forge, doesn't really work though but oh well
-	"gambit": {1418469392, 1848252830}, // Gambit Prime, Gambit
-	// Iron Banner Control, Iron Banner Clash, Iron Banner Supremacy, Iron Banner Salvage, Iron Banner
-	"ironbanner": {-1451282428, -815750908, -82084646, 1317961215, 1826469369},
-	// "menagerie": {400075666}, // The Menagerie
-	"shadowkeep": {332181804}, // Nightmare Hunt
-	// Private Matches Rumble, - Survival, - Supremacy, - Mayhem, -, - Countdown, - Clash
-	"privatecrucible": {-1741423138, -514207857, -432922534, 116827562, 122250361, 152599670, 575409284},
-	"raid":            {2043403989}, // Raid
-	// "reckoning": {-400492470}, // The Reckoning
-	"socialall":          {748895195, 1589650888},                          // All (idk what this is but sure), Social
-	"storypvecoopheroic": {-1845790942, 175275639, 1164760493, 1686739444}, // Competitive Co-Op, Heroic Adventure, PvE, Story
-	// Strikes, Nightfall Strikes, Normal Strikes, Scored Prestige Nightfall, Scored Nightfall Strikes, Prestige Nightfall
-	"strikes": {-1900351293, -505945566, -184361721, 532484583, 547513715, 1350109474},
-	// "thenine": {-2031201205, 470484296, 1370326378}, // Trials Of The Nine Countdown, - Survival, -
-	"trialsofosiris": {-1975465249, 1673724806}, // The Sundial, Trials Of Osiris
-	// "vexoffensive": {1963485238}, // Vex Offensive
+// Empty ones need to be kept!
+var largeImageActivityModes = map[string][]string{
+	"anniversary": {"Dares of Eternity"},
+	"beyondlight": {"Empire Hunt"},
+	"control":     {"Control: Competitive", "Control: Quickplay"},
+	"crucible": {"Rift", "Quickplay PvP", "Salvage", "Supremacy", "Mayhem", "Team Scorched", "Scorched", "Survival", "Competitive Co-Op",
+		"Breakthrough", "Competitive PvP", "Momentum", "Zone Control", "Clash: Competitive", "Countdown", "Showdown", "Elimination",
+		"Rumble", "Clash", "Lockdown", "Momentum Control", "The Crucible", "Classic Mix"},
+	"destinylogo":        {},
+	"doubles":            {"All Doubles"},
+	"dungeon":            {},
+	"explore":            {},
+	"forge":              {"Forge Ignition"},
+	"gambit":             {},
+	"hauntedforest":      {},
+	"ironbanner":         {},
+	"lostsector":         {},
+	"menagerie":          {"The Menagerie"},
+	"nightmarehunt":      {},
+	"privatecrucible":    {"Private Matches"},
+	"raid":               {},
+	"reckoning":          {"The Reckoning"},
+	"seasonchosen":       {},
+	"seasonhaunted":      {},
+	"seasonlost":         {},
+	"seasonrisen":        {},
+	"seasonsplicer":      {},
+	"shadowkeep":         {},
+	"socialall":          {"Social", "All"},
+	"storypvecoopheroic": {"Heroic Adventure", "Offensive", "Story", "PvE"},
+	"strikes":            {"Scored Prestige Nightfall", "Scored Nightfall Strikes", "Nightfall Strikes", "Prestige Nightfall", "Strike", "Vanguard Op", "Nightfall"},
+	"thenine":            {"Trials of the Nine", "Trials of the Nine Countdown", "Trials of the Nine Survival"},
+	"thewitchqueen":      {},
+	"trialsofosiris":     {"The Sundial", "Lighthouse Simulation"},
+	"vexoffensive":       {},
+	"wellspring":         {},
 }
 
 // Maps classID to class name
