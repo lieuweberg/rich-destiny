@@ -227,6 +227,7 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 			newActivity.Details = "Raid - " + place.DP.Name
 			newActivity.State = activity.DP.Name
 			newActivity.LargeImage = "raid"
+			getActivityPhases(charID, "votd", activityHash, newActivity)
 		case strings.Contains(activity.DP.Name, "PsiOps Battleground"):
 			s := strings.Split(activity.DP.Name, ": ")
 			newActivity.Details = s[0]
@@ -265,7 +266,7 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 			newActivity.Details = "Raid - Black Garden"
 			newActivity.State = activity.DP.Name
 			newActivity.LargeImage = "raid"
-			// getActivityPhases(id, "gos", activityHash, &newActivity)
+			getActivityPhases(charID, "gos", activityHash, newActivity)
 		// As of TWQ, these don't seem to be launcable from the director, only the Vanguard Ops playlist, but keeping this here anyway
 		case strings.HasPrefix(activity.DP.Name, "Battleground:"):
 			newActivity.Details = "Battleground - " + place.DP.Name

@@ -44,9 +44,9 @@ var storyMissions = map[string][]string{
 }
 
 var raidProgressionMap = map[string][]string{
-	// "gos": {}, // Unimplemented phases in milestone
-	// "votd": {}, // Unimplemented phases in milestone
-	"dsc": {"Desolation / Crypt Security", "Atraks-1, Fallen Exo", "The Descent", "Taniks, The Abomination"},                           // 4
-	"lw":  {"Kalli, The Corrupted", "Shuro Chi, The Corrupted", "Morgeth, The Spirekeeper", "The Vault", "Riven of a Thousand Voices"}, // 5
-	"vog": {"Raise the Spire / Confluxes", "The Oracles", "The Templar", "The Gatekeeper", "Atheon, Time's Conflux"},                   // 5
+	"gos":  {"Embrace", "Undergrowth", "The Consecrated Mind", "The Sanctified Mind"},                                                   // 4
+	"votd": {"Acquisition", "Collection", "Exhibition", "Dominion"},                                                                     // 4
+	"dsc":  {"Desolation / Crypt Security", "Atraks-1, Fallen Exo", "The Descent", "Taniks, The Abomination"},                           // 4
+	"lw":   {"Kalli, The Corrupted", "Shuro Chi, The Corrupted", "Morgeth, The Spirekeeper", "The Vault", "Riven of a Thousand Voices"}, // 5
+	"vog":  {"Raise the Spire / Confluxes", "The Oracles", "The Templar", "The Gatekeeper", "Atheon, Time's Conflux"},                   // 5
 }
