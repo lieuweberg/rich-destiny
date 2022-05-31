@@ -62,8 +62,8 @@ type releaseAsset struct {
 // /Destiny2/Manifest
 type manifestData struct {
 	Response        manifestResponse `json:"Response"`
-	ErrorCode       int64            `json:"ErrorCode"`
-	ThrottleSeconds int64            `json:"ThrottleSeconds"`
+	ErrorCode       int32            `json:"ErrorCode"`
+	ThrottleSeconds int32            `json:"ThrottleSeconds"`
 	ErrorStatus     string           `json:"ErrorStatus"`
 	Message         string           `json:"Message"`
 }
@@ -118,8 +118,8 @@ type profileDefActivities struct {
 
 type profileDefCharacter struct {
 	DateActivityStarted     string `json:"dateActivityStarted"`
-	CurrentActivityHash     int64  `json:"currentActivityHash"`
-	CurrentActivityModeHash int64  `json:"currentActivityModeHash"`
+	CurrentActivityHash     uint32 `json:"currentActivityHash"`
+	CurrentActivityModeHash uint32 `json:"currentActivityModeHash"`
 }
 
 type profileDefCharacters struct {
@@ -127,8 +127,8 @@ type profileDefCharacters struct {
 }
 
 type profileDefCharInfo struct {
-	Light     int64 `json:"light"`
-	ClassType int64 `json:"classType"`
+	Light     int32 `json:"light"`
+	ClassType int32 `json:"classType"`
 }
 
 // // /User/GetCredentialTypesForTargetAccount/{ActualMSID}/
@@ -146,12 +146,11 @@ type profileDefCharInfo struct {
 // Manifest: DestinyActivityDefinition
 type activityDefinition struct {
 	DP globalDisplayProperties `json:"displayProperties"`
-	// ActivityLevel             int64              	`json:"activityLevel"`
-	// ActivityLightLevel        int64              	`json:"activityLightLevel"`
-	DestinationHash  int64 `json:"destinationHash"`
-	PlaceHash        int64 `json:"placeHash"`
-	ActivityTypeHash int64 `json:"activityTypeHash"`
-	// Tier                      int64              	`json:"tier"`
+	// ActivityLightLevel        int32              	`json:"activityLightLevel"`
+	DestinationHash  uint32 `json:"destinationHash"`
+	PlaceHash        uint32 `json:"placeHash"`
+	ActivityTypeHash uint32 `json:"activityTypeHash"`
+	// Tier                      int32              	`json:"tier"`
 	// IsPlaylist                bool               	`json:"isPlaylist"`
 	// Matchmaking               caDefMatchmaking   	`json:"matchmaking"`
 	// IsPVP                     bool               	`json:"isPvP"`
@@ -159,16 +158,16 @@ type activityDefinition struct {
 }
 
 // type caDefLocationMap struct {
-// 	LocationHash     int64  `json:"locationHash"`
+// 	LocationHash     uint32  `json:"locationHash"`
 // 	ActivationSource string `json:"activationSource"`
-// 	ActivityHash     int64  `json:"activityHash"`
+// 	ActivityHash     uint32  `json:"activityHash"`
 // }
 
 // type caDefMatchmaking struct {
 // 	IsMatchmade          bool  `json:"isMatchmade"`
-// 	MinParty             int64 `json:"minParty"`
-// 	MaxParty             int64 `json:"maxParty"`
-// 	MaxPlayers           int64 `json:"maxPlayers"`
+// 	MinParty             int32 `json:"minParty"`
+// 	MaxParty             int32 `json:"maxParty"`
+// 	MaxPlayers           int32 `json:"maxPlayers"`
 // 	RequiresGuardianOath bool  `json:"requiresGuardianOath"`
 // }
 
@@ -176,7 +175,6 @@ type activityDefinition struct {
 type activityModeDefinition struct {
 	DP globalDisplayProperties `json:"displayProperties"`
 	// IsTeamBased           bool   		`json:"isTeamBased"`
-	// Tier                  int64  		`json:"tier"`
 }
 
 // Manifest: DestinyPlaceDefinition
@@ -208,7 +206,7 @@ type progressionsMilestone struct {
 }
 
 type progressionsActivity struct {
-	ActivityHash int64                `json:"activityHash"`
+	ActivityHash uint32               `json:"activityHash"`
 	Phases       *[]progressionsPhase `json:"phases"`
 }
 

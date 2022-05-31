@@ -90,7 +90,7 @@ func updatePresence() {
 			setActivity(richgo.Activity{
 				LargeImage: "destinylogo",
 				Details:    "Waiting for maintenance to end",
-			}, time.Now(), 0)
+			}, time.Now(), nil)
 			return
 		}
 		log.Println(profile.ErrorStatus, profile.Message)
@@ -154,14 +154,21 @@ func updatePresence() {
 
 			activityModeHash, err = getFromTableByHash("DestinyActivityModeDefinition", c.CurrentActivityModeHash, &activityMode)
 
+			debugText = fmt.Sprintf("A%d, M%d, P%d", activityHash, activityModeHash, placeHash)
+
 			if activityMode == nil {
 				if err != nil {
 					log.Printf("Error getting activityMode %d from definitions: %s", activityModeHash, err)
 				}
 
-				debugText = fmt.Sprintf("%d, %d", activityHash, activityModeHash)
-			} else {
-				debugText = fmt.Sprintf("%d, %d, %d", activityHash, activityModeHash, placeHash)
+				activityTypeHash, err := getFromTableByHash("DestinyActivityTypeDefinition", activity.ActivityTypeHash, &activityMode)
+				if activityMode == nil {
+					if err != nil {
+						log.Printf("Error getting activityType %d from definitions: %s", activityTypeHash, err)
+					}
+				}
+
+				debugText += fmt.Sprintf(", T%d", activityTypeHash)
 			}
 
 			transformActivity(characterID, activityHash, activityModeHash, activity, activityMode, place, &newActivity)
@@ -172,18 +179,17 @@ func updatePresence() {
 		newActivity.SmallImage = class
 		newActivity.SmallText = strings.Title(fmt.Sprintf("%s - %d", class, characterInfo.Light))
 
-		setActivity(newActivity, dateActivityStarted, activityModeHash)
+		setActivity(newActivity, dateActivityStarted, activityMode)
 		return
 	}
 
 	newActivity.Details = "Launching the game..."
-	setActivity(newActivity, time.Now(), 0)
+	setActivity(newActivity, time.Now(), nil)
 }
 
 // getFromTableByHash retrieves an object from the database by hash. ErrNoRows is not returned.
-func getFromTableByHash(table string, hash int64, v interface{}) (newHash int32, err error) {
-	u := uint32(hash)
-	newHash = int32(u)
+func getFromTableByHash(table string, hash uint32, v interface{}) (newHash int32, err error) {
+	newHash = int32(hash)
 	var d string
 	err = manifest.QueryRow(fmt.Sprintf("SELECT json FROM %s WHERE id=$1", table), newHash).Scan(&d)
 	if err != nil {
@@ -215,63 +221,8 @@ func transformPlace(place *placeDefinition, activity *activityDefinition) {
 // transformActivity changes the activity based on a set of prewritten overrides in case activities are badly represented
 func transformActivity(charID string, activityHash, activityModeHash int32, activity *activityDefinition, activityMode *activityModeDefinition, place *placeDefinition, newActivity *richgo.Activity) {
 	// We're gonna have to rely only on activity. https://github.com/Bungie-net/api/issues/910, scroll down for all my comments and edits
-	if activityMode == nil {
+	if activityMode == nil || activityMode.DP.Name == "" {
 		switch {
-		case activity.DP.Name == "Castellum: CASTELLUM":
-			fallthrough
-		case activity.DP.Name == "Nightmare Containment: CONTAINMENT":
-			newActivity.Details = "Explore - " + place.DP.Name
-			// newActivity.State = strings.SplitN(activity.DP.Name, ": ", 2)[0]
-			newActivity.LargeImage = "seasonhaunted"
-		case strings.Contains(activity.DP.Name, "Vow of the Disciple"):
-			newActivity.Details = "Raid - " + place.DP.Name
-			newActivity.State = activity.DP.Name
-			newActivity.LargeImage = "raid"
-			getActivityPhases(charID, "votd", activityHash, newActivity)
-		case strings.Contains(activity.DP.Name, "PsiOps Battleground"):
-			s := strings.Split(activity.DP.Name, ": ")
-			newActivity.Details = s[0]
-			newActivity.State = s[1]
-			newActivity.LargeImage = "seasonrisen"
-		case strings.HasPrefix(activity.DP.Name, "Grasp of Avarice"):
-			newActivity.Details = "Dungeon - The Cosmodrome"
-			newActivity.State = activity.DP.Name
-			newActivity.LargeImage = "dungeon"
-		// case strings.HasPrefix(activity.DP.Name, "Astral Alignment"):
-		// 	newActivity.Details = "Astral Alignment - " + place.DP.Name
-		// 	newActivity.State = "Difficulty: " + strings.Split(activity.DP.Name, ": ")[1]
-		// 	newActivity.LargeImage = "seasonlost"
-		// case strings.HasPrefix(activity.DP.Name, "Expunge:"):
-		// 	newActivity.Details = "Expunge - " + place.DP.Name
-		// 	newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
-		// 	newActivity.LargeImage = "seasonsplicer"
-		// case strings.HasPrefix(activity.DP.Name, "Override:"):
-		// 	newActivity.Details = strings.Replace(activity.DP.Name, ": ", " - ", 1)
-		// 	newActivity.LargeImage = "seasonsplicer"
-		case strings.HasPrefix(activity.DP.Name, "Vault of Glass"):
-			newActivity.Details = "Raid - Venus"
-			newActivity.State = activity.DP.Name
-			newActivity.LargeImage = "raid"
-			getActivityPhases(charID, "vog", activityHash, newActivity)
-		case activity.DP.Name == "Deep Stone Crypt":
-			newActivity.Details = "Raid - Europa"
-			newActivity.State = activity.DP.Name
-			newActivity.LargeImage = "raid"
-			getActivityPhases(charID, "dsc", activityHash, newActivity)
-		case activity.DP.Name == "Prophecy":
-			newActivity.Details = "Dungeon - IX Realms"
-			newActivity.State = activity.DP.Name
-			newActivity.LargeImage = "dungeon"
-		case activity.DP.Name == "Garden of Salvation":
-			newActivity.Details = "Raid - Black Garden"
-			newActivity.State = activity.DP.Name
-			newActivity.LargeImage = "raid"
-			getActivityPhases(charID, "gos", activityHash, newActivity)
-		// As of TWQ, these don't seem to be launcable from the director, only the Vanguard Ops playlist, but keeping this here anyway
-		case strings.HasPrefix(activity.DP.Name, "Battleground:"):
-			newActivity.Details = "Battleground - " + place.DP.Name
-			newActivity.State = strings.Split(activity.DP.Name, ": ")[1]
-			newActivity.LargeImage = "seasonchosen"
 		default:
 			newActivity.Details = "In Orbit"
 			if storage.OrbitText != "" {
@@ -342,19 +293,30 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 			newActivity.Details = "Dungeon - The Dreaming City"
 			newActivity.State = activity.DP.Name
 			newActivity.LargeImage = "dungeon"
-		case activityMode.DP.Name == "Raid" && place.DP.Name == "The Dreaming City":
+		case activity.DP.Name == "Prophecy":
+			// Change from Earth to IX Realms
+			newActivity.Details = "Dungeon - IX Realms"
+			newActivity.State = activity.DP.Name
+		case strings.HasPrefix(activity.DP.Name, "Grasp of Avarice"):
+			// Change from Earth to The Cosmodrome
+			newActivity.Details = "Dungeon - The Cosmodrome"
+			newActivity.State = activity.DP.Name
+		case strings.HasPrefix(activity.DP.Name, "Last Wish"):
 			// Remove Level: XX from the state
 			newActivity.Details = "Raid - The Dreaming City"
 			newActivity.State = "Last Wish"
-			getActivityPhases(charID, "lw", activityHash, newActivity)
+		case strings.HasPrefix(activity.DP.Name, "Garden of Salvation"):
+			// Change from Moon to Black Garden
+			newActivity.Details = "Raid - Black Garden"
+			newActivity.State = activity.DP.Name
 		case activity.ActivityTypeHash == 332181804:
 			// Story - The Moon | Nightmare Hunt: name: difficulty
 			newActivity.Details = "Nightmare Hunt - " + place.DP.Name
 			newActivity.State = strings.SplitN(activity.DP.Name, ":", 2)[1]
 			newActivity.LargeImage = "shadowkeep"
-		case activity.DP.Name == "Last City: Eliksni Quarter":
-			newActivity.Details = "Eliksni Quarter - The Last City"
-			newActivity.LargeImage = "storypvecoopheroic"
+		// case activity.DP.Name == "Last City: Eliksni Quarter":
+		// 	newActivity.Details = "Eliksni Quarter - The Last City"
+		// 	newActivity.LargeImage = "storypvecoopheroic"
 		// Keep this case at the very bottom
 		case activityMode.DP.Name == "Story":
 			newActivity.Details = "Story - " + place.DP.Name
@@ -387,10 +349,15 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.State = activity.DP.Name
 			}
 		}
+
+		if activityMode.DP.Name == "Raid" {
+			raidName := strings.SplitN(activity.DP.Name, ": ", 2)[0]
+			getActivityPhases(charID, raidName, activityHash, newActivity)
+		}
 	}
 }
 
-func getActivityPhases(charID, shortName string, activityHash int32, newActivity *richgo.Activity) {
+func getActivityPhases(charID, phasesMapKey string, activityHash int32, newActivity *richgo.Activity) {
 	var p progressions
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/Character/%s?components=202", storage.MSType, storage.ActualMSID, charID), &p)
 	if err != nil {
@@ -404,12 +371,12 @@ func getActivityPhases(charID, shortName string, activityHash int32, newActivity
 
 	for _, m := range p.Response.Progressions.Data.Milestones {
 		for _, a := range m.Activities {
-			if a.ActivityHash == int64(activityHash) {
+			if a.ActivityHash == uint32(activityHash) {
 				if a.Phases != nil {
 					for i, phase := range *a.Phases {
 						if !phase.Complete {
 							newActivity.Details = fmt.Sprintf("%s - %s", newActivity.State, strings.SplitN(newActivity.Details, " - ", 2)[1])
-							newActivity.State = fmt.Sprintf("%s (%d/%d)", raidProgressionMap[shortName][i], i+1, len(raidProgressionMap[shortName]))
+							newActivity.State = fmt.Sprintf("%s (%d/%d)", raidProgressionMap[phasesMapKey][i], i+1, len(raidProgressionMap[phasesMapKey]))
 							return
 						}
 					}
@@ -420,7 +387,7 @@ func getActivityPhases(charID, shortName string, activityHash int32, newActivity
 }
 
 // setActivity sets the rich presence status
-func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int32) {
+func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activityModeDefinition) {
 	// Condition that decides whether to update the presence or not
 	if previousActivity.Details != newActivity.Details ||
 		previousActivity.State != newActivity.State ||
@@ -439,18 +406,8 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 		}
 		newActivity.LargeText = "richdestiny.app " + version
 
-		if activityModeHash != 0 && newActivity.LargeImage == "destinylogo" {
-			for image, hashes := range commonLargeImageActivityModes {
-				for _, h := range hashes {
-					if activityModeHash == h {
-						newActivity.LargeImage = image
-						break
-					}
-				}
-				if newActivity.LargeImage != "destinylogo" {
-					break
-				}
-			}
+		if activityMode != nil && newActivity.LargeImage == "destinylogo" {
+			newActivity.LargeImage = getLargeImage(activityMode.DP.Name)
 		}
 
 		if storage.JoinGameButton {
@@ -471,4 +428,34 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityModeHash int
 		}
 		log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newActivity.SmallText)
 	}
+}
+
+func getLargeImage(name string) string {
+	if strings.HasPrefix(name, "Private Matches") {
+		return "privatecrucible"
+	}
+
+	if strings.HasPrefix(name, "Iron Banner") {
+		return "ironbanner"
+	}
+
+	condensedName := strings.ToLower(strings.ReplaceAll(name, " ", ""))
+	var isOneInherently bool
+	for image, modes := range largeImageActivityModes {
+		if condensedName == image {
+			isOneInherently = true
+		}
+
+		for _, m := range modes {
+			if m == name {
+				return image
+			}
+		}
+	}
+
+	if isOneInherently {
+		return condensedName
+	}
+
+	return "destinylogo"
 }
