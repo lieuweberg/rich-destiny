@@ -214,7 +214,7 @@ export default function() {
 
             <div className="boxed">
                 <h2>Guardian,</h2>
-                <p>It is the beginning of the end... Yet in these final moments, I thank you for using rich-destiny.</p>
+                <p>We will not cower in fear of Nightmares. We will rise to meet the enemy and confront our darkest fears. I believe in you :)</p>
             </div>
 
             <div className="boxed">
