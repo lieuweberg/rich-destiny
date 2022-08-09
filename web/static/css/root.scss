@@ -33,11 +33,10 @@ body {
     margin: 0;
     padding: 0;
 
-    background: no-repeat radial-gradient(ellipse 150% 100vh at 100% 0%, #306a53 10%, #174b36 30%, #1e1e1e),
-    #1e1e1e;
+    background: no-repeat $background-gradient, #1e1e1e;
 
     @include isMobile() {
-        background: no-repeat radial-gradient(ellipse 150% 100vh at 100% 0%, #174b36, #1e1e1e), #1e1e1e;
+        background: no-repeat $background-gradient-mobile, #1e1e1e;
     }
 }
 
@@ -209,7 +208,7 @@ p, h1, h2, h3, h4, a, li, label, input[type=submit], .__react_component_tooltip 
 h1, h2, h3, h4 {
     font-family: 'Montserrat', 'Segoe UI', Geneva, Verdana, sans-serif;
     color: transparent;
-    background-image: linear-gradient(to right, #95c788, #3daf00);
+    background-image: $header-gradient;
     background-clip: text;
     -webkit-background-clip: text;
 }

@@ -10,9 +10,9 @@ import "../css/controlPanel.scss";
 import useMemoryState from "./MemoryState";
 
 // @ts-expect-error
-import hiveghost from "../images/hiveghost.webp";
+import decorationLeft from "../images/s17-nightmare2.webp";
 // @ts-expect-error
-import voidbuddy from "../images/voidbuddy.webp";
+import decorationRight from "../images/s17-nightmare1.webp";
 
 interface Settings {
     orbitText:      string;
@@ -108,8 +108,8 @@ export default function() {
 
     return <>
         <div className="transform-flip">
-            <img id="cp-hiveghost" className="sidebar-decoration" src={hiveghost} alt="" />
-            <img id="cp-voidbuddy" className="sidebar-decoration" src={voidbuddy} alt="" />
+            <img id="cp-decoration-left" className="sidebar-decoration" src={decorationLeft} alt="" />
+            <img id="cp-decoration-right" className="sidebar-decoration" src={decorationRight} alt="" />
         </div>
 
         <div id="cp" className="generic-text">
@@ -214,8 +214,7 @@ export default function() {
 
             <div className="boxed">
                 <h2>Guardian,</h2>
-                <p>Of all the enemies you've fought, how many saw your Ghost and realized, "Ah! That's why Guardians
-                    are so strong!"</p>
+                <p>We will not cower in fear of Nightmares. We will rise to meet the enemy and confront our darkest fears. I believe in you :)</p>
             </div>
 
             <div className="boxed">

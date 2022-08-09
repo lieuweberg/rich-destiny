@@ -6,7 +6,7 @@ import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
 import "../css/home.scss";
 
 // @ts-expect-error
-import banner from "../images/hero-savathun.webp"
+import hero from "../images/s17-hero.webp"
 
 // @ts-expect-error
 import home1 from "../images/home1.webp";
@@ -49,7 +49,7 @@ export default function() {
 
     return <>
         <div id="hero">
-            <img src={banner} alt="" />
+            <img src={hero} alt="" />
         </div>
 
         <div id="title">
