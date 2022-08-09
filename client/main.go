@@ -37,6 +37,7 @@ var (
 	currentDirectory string
 	exe              string
 	exitChannel      chan os.Signal
+	windowsUsers     []string
 
 	storage *storageStruct
 	// Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
@@ -127,6 +128,8 @@ func main() {
 func startApplication() {
 	debugText = "Starting up..."
 
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
 	if !flagDev {
 		if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
 			err = os.Mkdir(makePath("logs"), os.ModePerm)
@@ -158,7 +161,9 @@ func startApplication() {
 		version = "dev"
 	}
 
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	if !service.Interactive() {
+		tryServicelessTransition()
+	}
 
 	var err error
 	db, err = sql.Open("sqlite3", makePath("storage.db"))

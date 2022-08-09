@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -306,7 +307,60 @@ func makeShortcut(path string) error {
 	}
 
 	shortcut.Release()
+	log.Printf("Shortcut released, path: %s", path)
 	return nil
+}
+
+func makeShortcutForUser(user string) error {
+	path := fmt.Sprintf("C:\\Users\\%s\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup", user)
+
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			err = os.MkdirAll(path, 0777)
+			if err != nil {
+				return fmt.Errorf("Error creating Startup path folder(s): %s", err)
+			}
+		} else {
+			return fmt.Errorf("Error getting Startup folder for %s: %s", user, err)
+		}
+	}
+
+	log.Printf("Path exists for %s, adding shortcut to their Startup folder", user)
+	return makeShortcut(filepath.Join(path, "rich-destiny.lnk"))
+}
+
+func tryServicelessTransition() {
+	usersDirFiles, err := ioutil.ReadDir("C:\\Users")
+	if err != nil {
+		log.Printf("Error reading Users directory for transitioning: %s", err)
+	}
+
+	for _, file := range usersDirFiles {
+		if file.IsDir() {
+			if file.Name() != "Public" && file.Name() != "Default" {
+				if _, err = os.Stat(fmt.Sprintf("C:\\Users\\%s\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs", file.Name())); err != nil {
+					if os.IsNotExist(err) {
+						log.Printf("User %s found, but no Start Menu Programs folder exists", file.Name())
+					} else {
+						log.Printf("Error checking for Start Menu Programs folder for %s: %s", file.Name(), err)
+					}
+				} else {
+					windowsUsers = append(windowsUsers, file.Name())
+				}
+			}
+		}
+	}
+
+	log.Print(windowsUsers)
+
+	if len(windowsUsers) == 1 && err == nil {
+		err = makeShortcutForUser(windowsUsers[0])
+		if err != nil {
+			log.Printf("Error making shortcut for %s: %s", windowsUsers[0], err)
+		} else {
+			s.Uninstall()
+		}
+	}
 }
 
 func readUserInput() (string, error) {
