@@ -11,14 +11,15 @@
 }
 
 #cp-decoration-left {
-    top: 350px;
+    top: 650px;
     right: min(5%, 100px); // flipped, so left is right and right is left
-    width: 300px;
+    width: 350px;
 }
 
 #cp-decoration-right {
     top: 100px;
-    left: 0;
+    left: 6%;
+    width: 400px;
     filter: drop-shadow(rgba(0, 0, 0, 0.5) -10px 10px 5px);
 }
 

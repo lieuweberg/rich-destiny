@@ -6,7 +6,7 @@ import "../css/faq.scss";
 import questions from "../faq-questions.json";
 
 // @ts-expect-error
-import decoration from "../images/s17-nightmare1.webp";
+import decoration from "../images/s18-skiff.webp";
 
 export default function() {
     return <>
