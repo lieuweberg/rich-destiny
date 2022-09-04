@@ -360,6 +360,10 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 }
 
 func getActivityPhases(charID, phasesMapKey string, activityHash int32, newActivity *richgo.Activity) {
+	if _, ok := raidProgressionMap[phasesMapKey]; !ok {
+		return
+	}
+
 	var p progressions
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/Character/%s?components=202", storage.MSType, storage.ActualMSID, charID), &p)
 	if err != nil {
