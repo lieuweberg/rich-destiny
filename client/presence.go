@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -20,7 +21,8 @@ func initPresence() {
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Print("PANIC!\n", err)
+				log.Println("PANIC!\n", err)
+				log.Print(string(debug.Stack()))
 			}
 			quitPresenceTicker = nil
 		}()
