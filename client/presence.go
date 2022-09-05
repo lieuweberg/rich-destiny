@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -20,7 +21,8 @@ func initPresence() {
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Print("PANIC!\n", err)
+				log.Println("PANIC!\n", err)
+				log.Print(string(debug.Stack()))
 			}
 			quitPresenceTicker = nil
 		}()
@@ -358,6 +360,10 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 }
 
 func getActivityPhases(charID, phasesMapKey string, activityHash int32, newActivity *richgo.Activity) {
+	if _, ok := raidProgressionMap[phasesMapKey]; !ok {
+		return
+	}
+
 	var p progressions
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/Character/%s?components=202", storage.MSType, storage.ActualMSID, charID), &p)
 	if err != nil {

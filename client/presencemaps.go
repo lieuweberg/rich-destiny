@@ -62,8 +62,9 @@ var storyMissions = map[string][]string{
 
 var raidProgressionMap = map[string][]string{
 	"Garden of Salvation": {"Embrace", "Undergrowth", "The Consecrated Mind", "The Sanctified Mind"},                                                   // 4
-	"Vow of the Disciple": {"Acquisition", "Collection", "Exhibition", "Dominion"},                                                                     // 4
-	"Deep Stone Crypt":    {"Desolation / Crypt Security", "Atraks-1, Fallen Exo", "The Descent", "Taniks, The Abomination"},                           // 4
 	"Last Wish":           {"Kalli, The Corrupted", "Shuro Chi, The Corrupted", "Morgeth, The Spirekeeper", "The Vault", "Riven of a Thousand Voices"}, // 5
+	"Deep Stone Crypt":    {"Desolation / Crypt Security", "Atraks-1, Fallen Exo", "The Descent", "Taniks, The Abomination"},                           // 4
 	"Vault of Glass":      {"Raise the Spire / Confluxes", "The Oracles", "The Templar", "The Gatekeeper", "Atheon, Time's Conflux"},                   // 5
+	"Vow of the Disciple": {"Acquisition", "Collection", "Exhibition", "Dominion"},                                                                     // 4
+	"King's Fall":         {"Totems", "Warpriest", "Golgoroth", "Daughters of Oryx", "Oryx, The Taken King"},                                           // 5
 }

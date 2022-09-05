@@ -101,7 +101,7 @@ body {
 
 #nav {
     margin: 0 auto 60px;
-    padding-top: 40px;
+    padding: 40px 20px 0;
     max-width: 800px;
 
     font: 500 15px sans-serif;
@@ -149,7 +149,7 @@ body {
     
         label {
             display: block;
-            margin: 0px 20px;
+            margin-left: 20px;
             text-align: right;
             font-size: 20px;
             color: white;
@@ -162,7 +162,9 @@ body {
     
         ul {
             display: none;
-            margin-top: 10px;
+            margin-top: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
         }
         input:checked ~ ul {
             display: flex;
@@ -309,6 +311,7 @@ a:not(#nav a, .button) {
     }
     position: absolute;
     filter: drop-shadow(rgba(0, 0, 0, 0.5) 10px 10px 5px);
+    pointer-events: none;
     animation: hovering 3s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;
 }
 

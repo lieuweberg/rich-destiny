@@ -10,9 +10,9 @@ import "../css/controlPanel.scss";
 import useMemoryState from "./MemoryState";
 
 // @ts-expect-error
-import decorationLeft from "../images/s17-nightmare2.webp";
+import decorationLeft from "../images/s18-skiff.webp";
 // @ts-expect-error
-import decorationRight from "../images/s17-nightmare1.webp";
+import decorationRight from "../images/s18-expedition.webp";
 
 interface Settings {
     orbitText:      string;
@@ -69,8 +69,8 @@ export default function() {
 
     // Clear the interval when switching to another page. This acts as component unmount.
     React.useEffect(() => {
+        let script = document.createElement("script");
         (async () => {
-            let script = document.createElement("script");
             script.src = "https://platform.twitter.com/widgets.js";
             script.onload = () => {
                 // @ts-ignore
@@ -84,7 +84,10 @@ export default function() {
             getData(setData, interval)
         }, 3000)
 
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            document.head.removeChild(script);
+        }
     }, [])
 
     // Update settings when new data comes in
@@ -213,8 +216,8 @@ export default function() {
             </div>
 
             <div className="boxed">
-                <h2>Guardian,</h2>
-                <p>We will not cower in fear of Nightmares. We will rise to meet the enemy and confront our darkest fears. I believe in you :)</p>
+                <h2>Guardian;</h2>
+                <p>We failed to stop Calus, The Witness's arrival is imminent, and a newly awoken threat looms. But, I believe in you :)</p>
             </div>
 
             <div className="boxed">
