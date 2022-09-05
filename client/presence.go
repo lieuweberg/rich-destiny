@@ -252,6 +252,16 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
+		case strings.HasPrefix(activity.DP.Name, "Ketchcrash"):
+			newActivity.Details = "Ketchcrash - " + place.DP.Name
+			s := strings.SplitN(activity.DP.Name, ": ", 2)
+			if len(s) == 2 {
+				newActivity.State = "Difficulty: " + s[1]
+			}
+			newActivity.LargeImage = "seasonplunder"
+		case strings.HasPrefix(activity.DP.Name, "Expedition"):
+			newActivity.Details = "Expedition - " + place.DP.Name
+			newActivity.LargeImage = "seasonplunder"
 		case strings.HasPrefix(activity.DP.Name, "Sever - "):
 			newActivity.Details = "Sever - " + place.DP.Name
 			newActivity.State = strings.SplitN(activity.DP.Name, " - ", 2)[1]
