@@ -165,5 +165,5 @@ const examplePresences = [
     {i:"lostsector",d:"Lost Sector - Europa",s:"Perdition: Master",t:"11:50"},
     {i:"shadowkeep",d:"Nightmare Hunt - The Moon",s:"Insanity: Legend",t:"08:32"},
     {i:"trialsofosiris",d:"Trials of Osiris - The Crucible",s:"Convergence",t:"04:50"},
-    {i:"seasonrisen",d:"PsiOps Battleground",s:"EDZ",t:"07:25"}
+    {i:"seasonplunder",d:"Ketchcrash - Asteroid Belt",s:"Difficulty: Master",t:"07:25"}
 ];
