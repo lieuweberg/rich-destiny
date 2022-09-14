@@ -83,7 +83,7 @@ func setAuth(data []byte) (err error) {
 
 	for _, profile := range lp.Response.Profiles {
 		for _, membershipType := range profile.MembershipTypes {
-			if membershipType == 3 {
+			if membershipType == 3 || membershipType == 6 {
 				storage.BungieName = profile.BungieGlobalDisplayName
 				storage.ActualMSID = profile.MembershipID
 				storage.MSType = profile.MembershipType
