@@ -58,14 +58,16 @@ type releaseAsset struct {
 	Name               string `json:"name"`
 }
 
+type genericErrorResponse struct {
+	ErrorStatus string `json:"ErrorStatus,omitempty"`
+	Message     string `json:"Message,omitempty"`
+}
+
 // API/Manifest structs
 // /Destiny2/Manifest
 type manifestData struct {
-	Response        manifestResponse `json:"Response"`
-	ErrorCode       int32            `json:"ErrorCode"`
-	ThrottleSeconds int32            `json:"ThrottleSeconds"`
-	ErrorStatus     string           `json:"ErrorStatus"`
-	Message         string           `json:"Message"`
+	Response manifestResponse `json:"Response"`
+	genericErrorResponse
 }
 
 type manifestResponse struct {
@@ -78,8 +80,8 @@ type manifestWorldContentPaths struct {
 
 // /Destiny2/254/Profile/{BungieMSID}/LinkedProfiles
 type linkedProfiles struct {
-	Response  lPResponse `json:"Response"`
-	ErrorCode int64      `json:"ErrorCode"`
+	Response lPResponse `json:"Response"`
+	genericErrorResponse
 }
 
 type lPResponse struct {
@@ -102,9 +104,8 @@ type globalDisplayProperties struct {
 
 // /Destiny2/{MSType}/Profile/{ActualMSID}?components=204,200
 type profileDef struct {
-	Response    profileDefReponse `json:"Response"`
-	ErrorStatus string            `json:"ErrorStatus"`
-	Message     string            `json:"Message"`
+	Response profileDefReponse `json:"Response"`
+	genericErrorResponse
 }
 
 type profileDefReponse struct {
@@ -184,9 +185,8 @@ type placeDefinition struct {
 
 // /Destiny2/{MSType}/Profile/{ActualMSID}/Character/{charID}?components=202
 type progressions struct {
-	Response    progressionsResponse `json:"Response"`
-	ErrorStatus string               `json:"ErrorStatus"`
-	Message     string               `json:"Message"`
+	Response progressionsResponse `json:"Response"`
+	genericErrorResponse
 }
 
 type progressionsResponse struct {

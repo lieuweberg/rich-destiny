@@ -71,6 +71,7 @@ func setAuth(data []byte) (err error) {
 	if err != nil {
 		return
 	}
+
 	// Subtracting five to make sure tokens are refreshed on-time, and not used a few milliseconds late
 	storage.RefreshAt = time.Now().Unix() + storage.ExpiresIn - 5
 	storage.ReAuthAt = time.Now().Unix() + storage.RefreshExpiresIn - 5
@@ -78,6 +79,11 @@ func setAuth(data []byte) (err error) {
 	var lp *linkedProfiles
 	err = requestComponents(fmt.Sprintf("/Destiny2/254/Profile/%s/LinkedProfiles/", storage.BungieMSID), &lp)
 	if err != nil {
+		return
+	}
+	if lp.ErrorStatus != "Success" {
+		err = fmt.Errorf("Bungie returned an error status %s when trying to find your profiles, message: %s", lp.ErrorStatus, lp.Message)
+		storage = nil
 		return
 	}
 
