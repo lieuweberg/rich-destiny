@@ -8,7 +8,7 @@ import "../css/download.scss";
 import useMemoryState from "./MemoryState";
 
 // @ts-expect-error
-import decoration from "../images/s18-expedition.webp";
+import decoration from "../images/s19-towerisland.webp";
 
 interface GitHubRelease {
     name:           string;

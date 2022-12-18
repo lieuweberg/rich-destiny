@@ -6,7 +6,7 @@ import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
 import "../css/home.scss";
 
 // @ts-expect-error
-import hero from "../images/s18-hero.webp"
+import hero from "../images/s19-hero.webp"
 
 // @ts-expect-error
 import home1 from "../images/home1.webp";
@@ -165,5 +165,5 @@ const examplePresences = [
     {i:"lostsector",d:"Lost Sector - Europa",s:"Perdition: Master",t:"11:50"},
     {i:"shadowkeep",d:"Nightmare Hunt - The Moon",s:"Insanity: Legend",t:"08:32"},
     {i:"trialsofosiris",d:"Trials of Osiris - The Crucible",s:"Convergence",t:"04:50"},
-    {i:"seasonplunder",d:"Ketchcrash - Asteroid Belt",s:"Difficulty: Master",t:"07:25"}
+    {i:"seasonseraph",d:"Heist Battleground - Mars",s:"Difficulty: Legend",t:"07:25"}
 ];
