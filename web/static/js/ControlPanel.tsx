@@ -10,9 +10,9 @@ import "../css/controlPanel.scss";
 import useMemoryState from "./MemoryState";
 
 // @ts-expect-error
-import decorationLeft from "../images/s18-skiff.webp";
+import decorationLeft from "../images/s19-towerisland.webp";
 // @ts-expect-error
-import decorationRight from "../images/s18-expedition.webp";
+import decorationRight from "../images/s19-engram.webp";
 
 interface Settings {
     orbitText:      string;
