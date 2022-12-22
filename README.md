@@ -10,8 +10,8 @@ If you want to contribute, awesome! For new features, please ask first on the Di
 
 ## Developing 🛠
 Prerequisites:
- - (client/backend) Have at least go 1.15.5. I'm not sure what other versions will work, but I use this.
- - (client) For windows: have git bash.
+ - (client) Have a recent Go 1.x version.
+ - (client) For windows: have git bash. You can also run the commands in the build script manually but I use the bash script :)
  - (web) Have a recent version of Node.js and npm.
 
 Building:
@@ -19,9 +19,10 @@ Building:
   
  - The client:
    - `cd client`
+   - Duplicate the `config.go.example` to `config.go` and fill in the values. For redirect uri, you can use `https://richdestiny.app/login` -- also on the Bungie.net developer portal. It's just a redirect to the localhost redirect.
    - `go get`
    - `./build dev`
-     - You can use `./build v0.0.0` with a valid semver version number, but for development purposes use dev.
+     - You can use `./build vX.Y.Z` with a valid semver version number, but for development purposes use dev. It automatically disables updates and possibly other things in the future.
 
  - The website:
    - `cd web`
