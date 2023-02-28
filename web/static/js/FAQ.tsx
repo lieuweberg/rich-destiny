@@ -5,12 +5,12 @@ import "../css/faq.scss";
 
 import questions from "../faq-questions.json";
 
-// @ts-expect-error
-import decoration from "../images/s19-engram.webp";
+// // @ts-expect-error
+// import decoration from "../images/s19-engram.webp";
 
 export default function() {
     return <>
-        <img id="faq-decoration" className="sidebar-decoration" src={decoration} alt="" />
+        {/* <img id="faq-decoration" className="sidebar-decoration" src={decoration} alt="" /> */}
         <div className="generic-text">
             <h1>Frequently Asked Questions</h1>
             <p>This FAQ functions as an FAQ and troubleshooter in one. Find your question,

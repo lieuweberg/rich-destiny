@@ -9,10 +9,10 @@ import PresenceCard from "./components/PresenceCard";
 import "../css/controlPanel.scss";
 import useMemoryState from "./MemoryState";
 
-// @ts-expect-error
-import decorationLeft from "../images/s19-towerisland.webp";
-// @ts-expect-error
-import decorationRight from "../images/s19-engram.webp";
+// // @ts-expect-error
+// import decorationLeft from "../images/s19-towerisland.webp";
+// // @ts-expect-error
+// import decorationRight from "../images/s19-engram.webp";
 
 interface Settings {
     orbitText:      string;
@@ -110,10 +110,10 @@ export default function() {
     }
 
     return <>
-        <div className="transform-flip">
+        {/* <div className="transform-flip">
             <img id="cp-decoration-left" className="sidebar-decoration" src={decorationLeft} alt="" />
             <img id="cp-decoration-right" className="sidebar-decoration" src={decorationRight} alt="" />
-        </div>
+        </div> */}
 
         <div id="cp" className="generic-text">
             <div className="boxed">
@@ -217,7 +217,7 @@ export default function() {
 
             <div className="boxed">
                 <h2>Guardian;</h2>
-                <p>We failed to stop Calus, The Witness's arrival is imminent, and a newly awoken threat looms. But, I believe in you :)</p>
+                <p>We find ourselves challenged by a strength unmatched by any in recorded history. But, I believe in you :)</p>
             </div>
 
             <div className="boxed">

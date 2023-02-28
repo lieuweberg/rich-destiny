@@ -6,7 +6,7 @@ import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
 import "../css/home.scss";
 
 // @ts-expect-error
-import hero from "../images/s19-hero.webp"
+import hero from "../images/s20-hero.webp"
 
 // @ts-expect-error
 import home1 from "../images/home1.webp";

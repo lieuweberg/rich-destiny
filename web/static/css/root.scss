@@ -33,10 +33,10 @@ body {
     margin: 0;
     padding: 0;
 
-    background: no-repeat $background-gradient, #1e1e1e;
+    background: no-repeat $background-gradient, $base;
 
     @include isMobile() {
-        background: no-repeat $background-gradient-mobile, #1e1e1e;
+        background: no-repeat $background-gradient-mobile, $base;
     }
 }
 
@@ -69,7 +69,11 @@ body {
 }
 
 .Toastify__progress-bar--dark {
-    background-color: $blurple !important;
+    background-color: #689e64 !important;
+}
+
+.Toastify__toast--dark {
+    background-color: #424941 !important;
 }
 
 .__react_component_tooltip.show {
@@ -269,11 +273,11 @@ a:not(#nav a, .button) {
     min-width: 160px;
 
     border-radius: 5px;
-    border: 2px solid $blurple;
+    border: 1px solid #bfbfbf;
     outline: none;
     color: white;
-    background-color: $blurple;
-    box-shadow: 0 0 10px #050505;
+    background-color: $button;
+    // box-shadow: 0 0 10px #050505;
     
     text-align: center;
     line-height: 1rem;

@@ -1,7 +1,8 @@
-$blurple: #6c82cf;
+$button: #2f2f2f;
 $dark-box: #252525;
 $presence: #18191c;
+$base: #0c0c0c;
 
-$header-gradient: linear-gradient(to right, #a8dfe1, #256e97);;
-$background-gradient: radial-gradient(ellipse 150% 100vh at 100% 0%, #4D74A9 10%, #395995 40%, #1e1e1e);
-$background-gradient-mobile: radial-gradient(ellipse 150% 100vh at 100% 0%, #395995, #1e1e1e);
+$header-gradient: linear-gradient(to right, #cd59a4, #b45afd);;
+$background-gradient: radial-gradient(ellipse 150% 100vh at 100% 0%, #272727 10%, #232323 40%, $base);
+$background-gradient-mobile: radial-gradient(ellipse 150% 100vh at 100% 0%, #272727, $base);
