@@ -173,6 +173,9 @@ func getStorage() (s *storageStruct, err error) {
 			return
 		}
 		s, err = getStorage()
+		if err != nil {
+			return nil, err
+		}
 	} else if time.Now().Unix() >= storage.ReAuthAt {
 		log.Print("Your authentication details have expired. Please go to https://rich-destiny.app/cp to Reauthenticate again.")
 		return

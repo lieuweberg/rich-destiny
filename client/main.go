@@ -209,7 +209,7 @@ func (p *program) run() {
 
 	// Kinda useless since browser tabs cannot be opened from a service, but leaving it in
 	if _, err = getStorage(); err != nil {
-		log.Printf("Error getting auth: %s", err)
+		log.Printf("Error getting storage: %s", err)
 	} else {
 		if storage.AutoUpdate {
 			go func() {
