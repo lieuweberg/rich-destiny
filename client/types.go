@@ -78,6 +78,11 @@ type manifestWorldContentPaths struct {
 	En string `json:"en"`
 }
 
+// /app/oauth/token
+type oauthError struct {
+	ErrorDescription string `json:"error_description"`
+}
+
 // /Destiny2/254/Profile/{BungieMSID}/LinkedProfiles
 type linkedProfiles struct {
 	Response lPResponse `json:"Response"`

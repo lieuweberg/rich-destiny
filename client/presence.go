@@ -36,22 +36,22 @@ func initPresence() {
 					if p.Executable() == "destiny2.exe" {
 						exeFound = true
 
-						getStorage()
-						if storage == nil {
-							break
-						}
-
 						if !loggedIn {
 							err := richgo.Login("726090012877258762")
 							if err != nil {
-								log.Print("Couldn't connect to Discord: " + err.Error())
+								logErrorIfNoErrorSpam(fmt.Sprintf("Couldn't connect to Discord: " + err.Error()))
 								break
 							}
 							loggedIn = true
 
-							getDefinitions()
+							err = getDefinitions()
+							if err != nil {
+								setMaintenance()
+								logErrorIfNoErrorSpam(fmt.Sprintf("Failed to get manifest: %s", err))
+								break
+							}
 
-							if storage.AutoUpdate {
+							if storage != nil && storage.AutoUpdate {
 								go func() {
 									// This only runs once when the game has been started, I don't really care whether it displays an error then
 									// even though it's not really an error at all.
@@ -61,6 +61,13 @@ func initPresence() {
 									}
 								}()
 							}
+						}
+
+						_, err := getStorage()
+						if err != nil {
+							setMaintenance()
+							logErrorIfNoErrorSpam(fmt.Sprintf("Error getting storage: %s", err))
+							break
 						}
 
 						updatePresence()
@@ -75,6 +82,7 @@ func initPresence() {
 				}
 			case <-quitPresenceTicker:
 				exeCheckTicker.Stop()
+				errCount = 0
 			}
 		}
 	}()
@@ -84,20 +92,19 @@ func updatePresence() {
 	var profile *profileDef
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/?components=204,200", storage.MSType, storage.ActualMSID), &profile)
 	if err != nil {
-		log.Print(err)
+		logErrorIfNoErrorSpam(fmt.Sprintf("Error requesting profile: %s", err))
 		return
 	}
 	if profile.ErrorStatus != "Success" {
 		if profile.ErrorStatus == "SystemDisabled" || profile.ErrorStatus == "DestinyThrottledByGameServer" {
-			setActivity(richgo.Activity{
-				LargeImage: "destinylogo",
-				Details:    "Waiting for maintenance to end",
-			}, time.Now(), nil)
-			return
+			setMaintenance()
+		} else {
+			logErrorIfNoErrorSpam(fmt.Sprintf("Bungie returned an error status %s when trying to get profile, message: %s", profile.ErrorStatus, profile.Message))
 		}
-		log.Println(profile.ErrorStatus, profile.Message)
 		return
 	}
+
+	errCount = 0
 
 	newActivity := richgo.Activity{
 		LargeImage: "destinylogo",
@@ -383,11 +390,11 @@ func getActivityPhases(charID, phasesMapKey string, activityHash int32, newActiv
 	var p progressions
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/Character/%s?components=202", storage.MSType, storage.ActualMSID, charID), &p)
 	if err != nil {
-		log.Print(err)
+		logErrorIfNoErrorSpam(fmt.Sprintf("Error requesting activity phases: %s", err))
 		return
 	}
 	if p.ErrorStatus != "Success" {
-		log.Println(p.ErrorStatus, p.Message)
+		logErrorIfNoErrorSpam(fmt.Sprintf("Bungie returned an error status %s when trying to get activity phases, message: %s", p.ErrorStatus, p.Message))
 		return
 	}
 
@@ -480,4 +487,11 @@ func getLargeImage(name string) string {
 	}
 
 	return "destinylogo"
+}
+
+func setMaintenance() {
+	setActivity(richgo.Activity{
+		LargeImage: "destinylogo",
+		Details:    "Waiting for maintenance to end",
+	}, time.Now(), nil)
 }
