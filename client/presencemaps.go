@@ -58,6 +58,7 @@ var storyMissions = map[string][]string{
 	"shadowkeep":    {"A Mysterious Disturbance", "In Search of Answers", "Ghosts of Our Past", "In the Deep", "Beyond"},
 	"beyondlight":   {"Darkness's Doorstep", "The New Kell", "Rising Resistance", "The Warrior", "The Technocrat", "The Kell of Darkness", "Sabotaging Salvation", "The Aftermath"},
 	"thewitchqueen": {"The Arrival", "The Investigation", "The Ghosts", "The Communion", "The Mirror", "The Cunning", "The Last Chance", "The Ritual", "Memories of"},
+	"lightfall":     {"First Contact", "Under Siege", "Downfall", "Breakneck", "On the Verge", "No Time Left", "Headlong", "Desperate Measures"},
 }
 
 var raidProgressionMap = map[string][]string{
