@@ -241,7 +241,7 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 	} else {
 		// This part is for things that are incorrectly/unpleasantly formatted.
 		switch {
-		case activity.DP.Name == "H.E.L.M.":
+		case activity.DP.Name == "H.E.L.M." || activity.DP.Name == "The Farm":
 			// Explore - EDZ
 			newActivity.Details = "Social - Earth"
 			newActivity.State = activity.DP.Name
@@ -259,12 +259,16 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
-		case strings.Contains(activity.DP.Name, "Heist Battleground"):
-			newActivity.Details = "Heist Battleground - " + place.DP.Name
+		case strings.Contains(activity.DP.Name, "Defiant Battleground"):
+			if strings.Contains(activity.DP.Name, "Orbital Prison") {
+				newActivity.Details = "Defiant Battleground - Orbital Prison"
+			} else {
+				newActivity.Details = "Defiant Battleground - " + place.DP.Name
+			}
 			if strings.Contains(activity.DP.Name, "Legend") {
 				newActivity.State = "Difficulty: Legend"
 			}
-			newActivity.LargeImage = "seasonseraph"
+			newActivity.LargeImage = "seasondefiance"
 		// case strings.HasPrefix(activity.DP.Name, "Ketchcrash"):
 		// 	newActivity.Details = "Ketchcrash - " + place.DP.Name
 		// 	s := strings.SplitN(activity.DP.Name, ": ", 2)
