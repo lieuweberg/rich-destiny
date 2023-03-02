@@ -158,12 +158,12 @@ const examplePresences = [
     {i:"socialall",d:"Social - Earth",s:"Tower",t:"13:17"},
     {i:"anniversary",d:"Dares of Eternity",s:"Difficulty: Normal",t:"09:08"},
     {i:"strikes",d:"Nightfall: The Ordeal - The Cosmodrome",s:"Difficulty: Master",t:"29:33"},
-    {i:"dungeon",d:"Dungeon - IX Realms",s:"Prophecy",t:"43:22"},
+    {i:"dungeon",d:"Dungeon - Mars",s:"Spire of the Watcher: Normal",t:"43:22"},
     {i:"explore",d:"Explore - The Moon",s:"",t:"06:14"},
     {i:"thewitchqueen",d:"Story - Savathûn's Throne World",s:"The Investigation: Legendary",t:"11:50"},
     {i:"ironbanner",d:"Iron Banner - The Crucible",s:"Midtown",t:"03:27"},
     {i:"lostsector",d:"Lost Sector - Europa",s:"Perdition: Master",t:"11:50"},
-    {i:"shadowkeep",d:"Nightmare Hunt - The Moon",s:"Insanity: Legend",t:"08:32"},
+    {i:"lightfall", d:"Story - Neptune",s:"First Contact: Legendary",t:"08:32"},
     {i:"trialsofosiris",d:"Trials of Osiris - The Crucible",s:"Convergence",t:"04:50"},
-    {i:"seasonseraph",d:"Heist Battleground - Mars",s:"Difficulty: Legend",t:"07:25"}
+    {i:"seasondefiance",d:"Defiant Battleground - EDZ",s:"Difficulty: Legend",t:"07:25"}
 ];
