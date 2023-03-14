@@ -68,4 +68,5 @@ var raidProgressionMap = map[string][]string{
 	"Vault of Glass":      {"Raise the Spire / Confluxes", "The Oracles", "The Templar", "The Gatekeeper", "Atheon, Time's Conflux"},                   // 5
 	"Vow of the Disciple": {"Acquisition", "Collection", "Exhibition", "Dominion"},                                                                     // 4
 	"King's Fall":         {"Totems", "Warpriest", "Golgoroth", "Daughters of Oryx", "Oryx, The Taken King"},                                           // 5
+	"Root of Nightmares":  {"Cataclysm", "Scission", "Macrocosm", "Nezarec"},                                                                           // 4
 }

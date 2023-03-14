@@ -151,7 +151,7 @@ const examplePresences = [
     {i:"wellspring",d:"The Wellspring - Savathûn's Throne World",s:"Defend: Master",t:"08:42"},
     {i:"destinylogo",d:"In Orbit",s:"space 🌌 (customisable)",t:"04:13"},
     {i:"beyondlight",d:"Story - Europa",s:"The New Kell",t:"13:24"},
-    {i:"raid",d:"Last Wish - The Dreaming City",s:"Shuro Chi, The Corrupted (2/5)",t:"02:15:11"},
+    {i:"raid",d:"Root of Nightmares - Essence",s:"Macrocosm (3/4)",t:"02:15:11"},
     {i:"control",d:"Control - The Crucible",s:"Pacifica",t:"05:58"},
     {i:"gambit",d:"Gambit",s:"Emerald Coast",t:"07:26"},
     {i:"crucible",d:"Mayhem - The Crucible",s:"Javelin-4",t:"02:55"},
