@@ -15,7 +15,7 @@ import (
 )
 
 func initPresence() {
-	exeCheckTicker := time.NewTicker(15 * time.Second)
+	exeCheckTicker := time.NewTicker(100 * time.Millisecond)
 	quitPresenceTicker = make(chan bool)
 	loggedIn := false
 	go func() {
@@ -26,6 +26,8 @@ func initPresence() {
 			}
 			quitPresenceTicker = nil
 		}()
+
+		firstTime := true
 
 		for {
 			select {
@@ -83,6 +85,12 @@ func initPresence() {
 			case <-quitPresenceTicker:
 				exeCheckTicker.Stop()
 				errCount = 0
+			}
+
+			if firstTime {
+				firstTime = false
+				exeCheckTicker.Stop()
+				exeCheckTicker.Reset(15 * time.Second)
 			}
 		}
 	}()
