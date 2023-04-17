@@ -380,6 +380,10 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 					}
 				}
 				// It was not a lost sector
+				if strings.Contains(activity.DP.Name, "Nightfall Grandmaster") {
+					newActivity.Details = "Grandmaster Nightfall - " + place.DP.Name
+					newActivity.State = strings.SplitN(activity.DP.Name, ": ", 2)[1]
+				} else {
 				newActivity.Details = "Nightfall: The Ordeal - " + place.DP.Name
 				a := strings.Split(activity.DP.Name, ": ")
 				newActivity.State = "Difficulty: " + a[len(a)-1]
