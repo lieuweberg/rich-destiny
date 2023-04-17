@@ -52,7 +52,8 @@ var scoredLostSectors = []string{
 	"Scavenger's", "XII", // EDZ
 	"Drowned", "Starlight", "Aphelion", // Dreaming City
 	"Metamorphosis", "Sepulcher", "Extraction", // Savathûn's Throne World
-	"Conflux", // Nessus
+	"Conflux",                                             // Nessus
+	"Gilded Precept", "Thrilladrome", "Hydroponics Delta", // Neomuna
 }
 var storyMissions = map[string][]string{
 	"shadowkeep":    {"A Mysterious Disturbance", "In Search of Answers", "Ghosts of Our Past", "In the Deep", "Beyond"},
