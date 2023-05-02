@@ -17,7 +17,6 @@ import (
 func initPresence() {
 	exeCheckTicker := time.NewTicker(100 * time.Millisecond)
 	quitPresenceTicker = make(chan bool)
-	loggedIn := false
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
@@ -28,6 +27,8 @@ func initPresence() {
 		}()
 
 		firstTime := true
+		loggedIn := false
+		definitionsExist := false
 
 		for {
 			select {
@@ -38,6 +39,7 @@ func initPresence() {
 					if p.Executable() == "destiny2.exe" {
 						exeFound = true
 
+						// We require the login every time we are logged out
 						if !loggedIn {
 							err := richgo.Login("726090012877258762")
 							if err != nil {
@@ -45,13 +47,6 @@ func initPresence() {
 								break
 							}
 							loggedIn = true
-
-							err = getDefinitions()
-							if err != nil {
-								setMaintenance()
-								logErrorIfNoErrorSpam(fmt.Sprintf("Failed to get manifest: %s", err))
-								break
-							}
 
 							if storage != nil && storage.AutoUpdate {
 								go func() {
@@ -65,6 +60,18 @@ func initPresence() {
 							}
 						}
 
+						// We require definitions once per login
+						if !definitionsExist {
+							err := getDefinitions()
+							if err != nil {
+								setMaintenance()
+								logErrorIfNoErrorSpam(fmt.Sprintf("Failed to get manifest: %s", err))
+								break
+							}
+							definitionsExist = true
+						}
+
+						// We require storage every iteration
 						_, err := getStorage()
 						if err != nil {
 							setMaintenance()
@@ -462,7 +469,7 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 			newActivity.LargeImage = getLargeImage(activityMode.DP.Name)
 		}
 
-		if storage.JoinGameButton {
+		if storage != nil && storage.JoinGameButton {
 			if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
 				newActivity.Buttons = []*richgo.Button{
 					{
