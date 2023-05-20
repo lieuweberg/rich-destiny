@@ -1,0 +1,161 @@
+@import "mixins.scss";
+@import "colors.scss";
+
+#hero {
+    position: absolute;
+    top: -10px;
+    height: min(100vh, 983px);
+    width: 100%;
+
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+
+    img {
+        position: absolute;
+        right: -1000px;
+        object-fit: contain;
+        min-width: calc(100vw + 10px);
+
+        @include isMobile() {
+            right: -1500px;
+            width: auto;
+            filter: blur(3px);
+        }
+    }
+}
+
+#title {
+    display: grid;
+    margin: 50px 0;
+    justify-items: center;
+    text-align: center;
+
+    text-shadow: black 0px 0px 20px, black 0px 0px 40px;
+
+    h1 {
+        color: white;
+        margin: 0;
+        font-size: 2.4em;
+    }
+
+    div a {
+        &:last-child {
+            margin-left: 50px;
+        }
+    }
+}
+
+#sliders {
+    $numberOfItems: 6;
+    
+    display: grid;
+    grid-auto-flow: row;
+    row-gap: 20px;
+    padding: 30px 0 50px;
+    overflow: hidden;
+
+    & > div {
+        display: grid;
+        grid-auto-flow: column;
+        column-gap: 60px;
+
+        &:hover {
+            animation-play-state: paused;
+        }
+    }
+
+    .slider-item {
+        display: grid;
+        grid-auto-flow: column;
+        column-gap: 60px;
+    }
+
+    .animated-row-1 {
+        animation: 30s linear infinite animate-row-1;
+    }
+
+    $width: (300px + 60px) * -1;
+
+    @keyframes animate-row-1 {
+        from {
+            transform: translateX($width * $numberOfItems);
+        }
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    .animated-row-3 {
+        animation: 40s linear infinite animate-row-3;
+    }
+
+    @keyframes animate-row-3 {
+        from {
+            transform: translateX($width * $numberOfItems);
+        }
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    .animated-row-2 {
+        animation: 50s linear infinite animate-row-2;
+    }
+
+    @keyframes animate-row-2 {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX($width * $numberOfItems);
+        }
+    }
+}
+
+#info-cards {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    background-color: #353535;
+
+    @include isMobile() {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        width: min(25%, 300px);
+        @include isMobile() {
+            width: 300px;
+        }
+        // background-color: #191919;
+        overflow: hidden;
+
+        div:not(.image) {
+            padding: 0px 5px;
+        }
+    }
+
+    .image {
+        border-radius: 5px;
+        background-color: $presence;
+        overflow: hidden;
+
+        img {
+            display: block;
+            margin: 0 auto;
+            height: 150px;
+        }
+    }
+
+    hr {
+        margin: 1em 0.5em;
+        border: 1px solid #404040;
+        
+    }
+
+    h3 {
+        margin: 1rem 0;
+    }
+}

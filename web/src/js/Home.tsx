@@ -6,17 +6,17 @@ import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
 import "../css/home.scss";
 
 // @ts-expect-error
-import hero from "../images/s20-hero.webp"
+import hero from "../../static/images/s20-hero.webp"
 
 // @ts-expect-error
-import home1 from "../images/home1.webp";
+import home1 from "../../static/images/home1.webp";
 // @ts-expect-error
-import home2 from "../images/home2.webp";
+import home2 from "../../static/images/home2.webp";
 // @ts-expect-error
-import home3 from "../images/home3.webp";
+import home3 from "../../static/images/home3.webp";
 
 // @ts-expect-error
-import homeWaves1 from "../images/home-waves1.svg";
+import homeWaves1 from "../../static/images/home-waves1.svg";
 
 export default function() {
     let presences: PresenceCardProps[] = [];

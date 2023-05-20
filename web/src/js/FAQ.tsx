@@ -3,7 +3,7 @@ import { marked } from "marked";
 
 import "../css/faq.scss";
 
-import questions from "../faq-questions.json";
+import questions from "../../static/faq-questions.json";
 
 // // @ts-expect-error
 // import decoration from "../images/s19-engram.webp";
