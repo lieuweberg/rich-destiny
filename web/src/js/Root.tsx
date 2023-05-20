@@ -78,7 +78,7 @@ function Root() {
             <img className="svg-spacer" src={footerWaves} alt="" />
             <div>
                 <div>
-                    <p>2020-2022 &copy; <a href="https://lieuweberg.com" target="_blank"
+                    <p>2020-2023 &copy; <a href="https://lieuweberg.com" target="_blank"
                         rel="noopener noreferrer">lieuwe_berg</a> <br/>
                         Destiny 2 and its related assets belong to Bungie, Inc.</p>
                 </div>
