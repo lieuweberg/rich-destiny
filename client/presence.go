@@ -241,6 +241,8 @@ func transformPlace(place *placeDefinition, activity *activityDefinition) {
 		place.DP.Name = "Savathûn's Throne World"
 	case "Neptune":
 		place.DP.Name = "Neomuna"
+	case "Titan, Moon of Saturn":
+		place.DP.Name = "Titan"
 	}
 }
 
