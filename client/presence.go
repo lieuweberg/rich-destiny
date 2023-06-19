@@ -278,6 +278,13 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
+		case strings.Contains(activity.DP.Name, "Salvage"):
+			newActivity.Details = activity.DP.Name + " - Titan"
+			s := strings.SplitN(activity.DP.Name, ": ", 2)
+			if len(s) == 2 {
+				newActivity.State = "Difficulty: " + s[1]
+			}
+			newActivity.LargeImage = "seasondeep"
 		case strings.Contains(activity.DP.Name, "Defiant Battleground"):
 			if strings.Contains(activity.DP.Name, "Orbital Prison") {
 				newActivity.Details = "Defiant Battleground - Orbital Prison"
