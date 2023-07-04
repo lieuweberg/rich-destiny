@@ -417,12 +417,15 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 			}
 		}
 
-		if activityMode.DP.Name == "Raid" {
+		if activityMode.DP.Name == "Raid" || activityMode.DP.Name == "Dungeon" {
 			split := strings.SplitN(activity.DP.Name, ": ", 2)
 			if len(split) > 1 && split[1] == "Normal" {
 				newActivity.State = split[0]
 			}
-			getActivityPhases(charID, split[0], activityHash, newActivity)
+
+			if activityMode.DP.Name == "Raid" {
+				getActivityPhases(charID, split[0], activityHash, newActivity)
+			}
 		}
 	}
 }
