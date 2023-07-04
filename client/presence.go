@@ -285,6 +285,12 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.State = "Difficulty: " + s[1]
 			}
 			newActivity.LargeImage = "seasondeep"
+		case strings.HasPrefix(activity.DP.Name, "Deep Dives"):
+			newActivity.Details = "Deep Dive - " + place.DP.Name
+			if strings.Contains(activity.DP.Name, "Private") {
+				newActivity.State = "Private"
+			}
+			newActivity.LargeImage = "seasondeep"
 		case strings.Contains(activity.DP.Name, "Defiant Battleground"):
 			if strings.Contains(activity.DP.Name, "Orbital Prison") {
 				newActivity.Details = "Defiant Battleground - Orbital Prison"
