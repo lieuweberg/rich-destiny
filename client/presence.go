@@ -465,6 +465,47 @@ func getActivityPhases(charID, phasesMapKey string, activityHash int32, newActiv
 
 // setActivity sets the rich presence status
 func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activityModeDefinition) {
+
+	if st.IsZero() {
+		st = time.Now()
+	}
+	newActivity.Timestamps = &richgo.Timestamps{
+		Start: &st,
+	}
+	newActivity.LargeText = "richdestiny.app " + version
+
+	if activityMode != nil && newActivity.LargeImage == "destinylogo" {
+		newActivity.LargeImage = getLargeImage(activityMode.DP.Name)
+	}
+
+	if storage != nil && storage.JoinGameButton {
+		if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
+			// todo, check every iteration of the loop, not just when the status is updated. I don't know yet when exactly the url changes.
+			// also use logErrorIfNoErrorSpam to make sure it doesn't keep spamming errors in the log, so it should return the error instead
+			// of printing in the function
+			joinLink := getJoinLink()
+			if joinLink == "" {
+				newActivity.Buttons = []*richgo.Button{
+					{
+						Label: "Launch Game",
+						Url:   "steam://run/1085660/",
+					},
+				}
+			} else {
+				newActivity.Buttons = []*richgo.Button{
+					{
+						Label: "Join Game",
+						Url:   joinLink,
+					},
+				}
+			}
+
+			if (len(previousActivity.Buttons) > 0 && previousActivity.Buttons[0].Url != joinLink) {
+				forcePresenceUpdate = true
+			}
+		}
+	}
+
 	// Condition that decides whether to update the presence or not
 	if previousActivity.Details != newActivity.Details ||
 		previousActivity.State != newActivity.State ||
@@ -475,36 +516,6 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 			forcePresenceUpdate = false
 		}
 
-		if st.IsZero() {
-			st = time.Now()
-		}
-		newActivity.Timestamps = &richgo.Timestamps{
-			Start: &st,
-		}
-		newActivity.LargeText = "richdestiny.app " + version
-
-		if activityMode != nil && newActivity.LargeImage == "destinylogo" {
-			newActivity.LargeImage = getLargeImage(activityMode.DP.Name)
-		}
-
-		if storage != nil && storage.JoinGameButton {
-			if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
-				// todo, check every iteration of the loop, not just when the status is updated. I don't know yet when exactly the url changes.
-				// also use logErrorIfNoErrorSpam to make sure it doesn't keep spamming errors in the log, so it should return the error instead
-				// of printing in the function
-				joinLink := getJoinLink()
-				if joinLink == "" {
-					log.Println("sob")
-				}
-				newActivity.Buttons = []*richgo.Button{
-					{
-						Label: "Join Game",
-						Url:   getJoinLink(),
-					},
-				}
-			}
-		}
-
 		previousActivity = newActivity
 		err := richgo.SetActivity(newActivity)
 		if err != nil {
@@ -512,6 +523,7 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 		}
 		log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newActivity.SmallText)
 	}
+
 }
 
 func getLargeImage(name string) string {

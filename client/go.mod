@@ -9,5 +9,5 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.5
 	github.com/mitchellh/go-ps v1.0.0
 	golang.org/x/mod v0.4.0
-	golang.org/x/sys v0.0.0-20201218084310-7d0127a74742 // indirect
+	golang.org/x/sys v0.0.0-20201218084310-7d0127a74742
 )
