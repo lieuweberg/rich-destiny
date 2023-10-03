@@ -70,4 +70,5 @@ var raidProgressionMap = map[string][]string{
 	"Vow of the Disciple": {"Acquisition", "Collection", "Exhibition", "Dominion"},                                                                     // 4
 	"King's Fall":         {"Totems", "Warpriest", "Golgoroth", "Daughters of Oryx", "Oryx, The Taken King"},                                           // 5
 	"Root of Nightmares":  {"Cataclysm", "Scission", "Macrocosm", "Nezarec"},                                                                           // 4
+	"Crota's End":         {"Abyss", "Oversoul Throne Bridge", "Ir Yût", "Crota, Son of Oryx"},                                                         // 4
 }
