@@ -1,15 +1,20 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"testing"
 )
 
 func TestGetJoinLink(t *testing.T) {
-	got := getJoinLink()
+	got, err := getJoinLink()
 
-	if got == "" {
-		t.Errorf("got empty string")
+	if err != nil {
+		if errors.Is(err, errNoConnectString) {
+			log.Println("connect string is empty")
+		} else {
+			t.Error(err)
+		}
 	} else {
 		log.Println(got)
 	}

@@ -5,8 +5,8 @@ package main
 */
 import "C"
 import (
+	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"unsafe"
 
@@ -14,38 +14,32 @@ import (
 )
 
 var dll *windows.DLL
+var errNoConnectString = errors.New("connection string is empty")
 
-func getJoinLink() string {
+func getJoinLink() (string, error) {
 	dll = windows.MustLoadDLL("steam_api64.dll")
 
 	init, err := callProc("SteamAPI_Init")
 	if err != nil {
-		log.Printf("Error initialising steamapi: %s", err)
-		return ""
+		return "", fmt.Errorf("Error initialising steamapi: %s", err)
 	}
 	if init == 0 {
-		log.Printf("Failed to initialise steamapi")
-		return ""
+		return "", errors.New("Failed to initialise steamapi")
 	}
 
 	steamUser, err := callProc("SteamAPI_SteamUser_v023")
 	if err != nil {
-		fmt.Printf("Failed to call SteamUser proc: %s", err)
-		return ""
+		return "", fmt.Errorf("Failed to call SteamUser proc: %s", err)
 	}
 
 	steamID, err := callProc("SteamAPI_ISteamUser_GetSteamID", uintptr(steamUser))
 	if err != nil {
-		log.Printf("Failed to call GetSteamID proc: %s", err)
-		return ""
+		return "", fmt.Errorf("Failed to call GetSteamID proc: %s", err)
 	}
-
-	log.Printf("SteamID64: %d\n", steamID)
 
 	steamFriends, err := callProc("SteamAPI_SteamFriends_v017")
 	if err != nil {
-		log.Printf("Failed to call SteamFriends proc: %s", err)
-		return ""
+		return "", fmt.Errorf("Failed to call SteamFriends proc: %s", err)
 	}
 
 	arg := "connect"
@@ -53,15 +47,16 @@ func getJoinLink() string {
 
 	r, err := callProc("SteamAPI_ISteamFriends_GetFriendRichPresence", uintptr(steamFriends), steamID, uintptr(cstring))
 	if err != nil {
-		log.Printf("Failed to call GetFriendRichPresence proc: %s", err)
-		return ""
+		return "", fmt.Errorf("Failed to call GetFriendRichPresence proc: %s", err)
 	}
 
 	C.free(cstring)
 	connect := C.GoString((*C.char)(unsafe.Pointer(r)))
+	if connect == "" {
+		return "", errNoConnectString
+	}
 
-	log.Printf("Connect string: %v\n", connect)
-	return fmt.Sprintf("steam://rungame/1085660/%d/%s", steamID, url.PathEscape(connect))
+	return fmt.Sprintf("steam://rungame/1085660/%d/%s", steamID, url.PathEscape(connect)), nil
 }
 
 func callProc(name string, args ...uintptr) (uintptr, error) {
