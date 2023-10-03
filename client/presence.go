@@ -278,6 +278,15 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
+		case strings.HasPrefix(activity.DP.Name, "Savathûn's Spire"):
+			newActivity.Details = "Savathûn's Spire - " + place.DP.Name
+			if strings.Contains(activity.DP.Name, "Legend") {
+				newActivity.State = "Difficulty: Legend"
+			}
+			newActivity.LargeImage = "seasonwitch"
+		case activity.DP.Name == "Altars of Summoning":
+			newActivity.Details = activity.DP.Name + " - " + place.DP.Name
+			newActivity.LargeImage = "seasonwitch"
 		case strings.Contains(activity.DP.Name, "Salvage"):
 			newActivity.Details = activity.DP.Name + " - Titan"
 			s := strings.SplitN(activity.DP.Name, ": ", 2)
