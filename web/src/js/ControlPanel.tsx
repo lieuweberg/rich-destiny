@@ -1,4 +1,5 @@
-import React, { ChangeEvent, FormEvent } from "react";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import axios from "axios";
 import { toast } from "react-toastify";
 import ReactTooltip from "react-tooltip";
@@ -9,10 +10,10 @@ import PresenceCard from "./components/PresenceCard";
 import "../css/controlPanel.scss";
 import useMemoryState from "./MemoryState";
 
-// @ts-expect-error
-import decorationLeft from "../images/s18-skiff.webp";
-// @ts-expect-error
-import decorationRight from "../images/s18-expedition.webp";
+// // @ts-expect-error
+// import decorationLeft from "../images/s19-towerisland.webp";
+// // @ts-expect-error
+// import decorationRight from "../images/s19-engram.webp";
 
 interface Settings {
     orbitText:      string;
@@ -110,10 +111,10 @@ export default function() {
     }
 
     return <>
-        <div className="transform-flip">
+        {/* <div className="transform-flip">
             <img id="cp-decoration-left" className="sidebar-decoration" src={decorationLeft} alt="" />
             <img id="cp-decoration-right" className="sidebar-decoration" src={decorationRight} alt="" />
-        </div>
+        </div> */}
 
         <div id="cp" className="generic-text">
             <div className="boxed">
@@ -130,49 +131,46 @@ export default function() {
                         largeImage={data.presence.LargeImage} smallImage={data.presence.SmallImage}
                         initialTime={data.presence.Timestamps ? data.presence.Timestamps.Start : null}/>
                 </div>
-                <div>
-                    <h4>Orbit presence preview</h4>
-                    <PresenceCard description="In Orbit" state={settings.orbitText} largeImage="destinylogo"/>
-                </div>
+                <p className="motivational-text">Guardian, we find ourselves challenged by a strength unmatched
+                    by any in recorded history. But, I believe in you :)</p>
             </div>
 
             <div className="boxed">
                 <h2>Settings</h2>
                 <form>
-                    <h4>General</h4>
                     <div>
-                        <label>
-                            Orbit state text: <input type="text" id="orbitText" placeholder="empty up here..."
-                                value={settings.orbitText} onChange={e => setSetting("orbitText", e.target.value)} />
-                            &nbsp; <span data-tip="Text to display on the second line of the presence. See
-                            the Orbit presence preview to the left. Leave empty to disable.">&#x1f6c8;</span>
-                        </label> <br/>
+                        <div id="orbit-text-container">
+                            <PresenceCard description="In Orbit" state={settings.orbitText} largeImage="destinylogo"/>
+                            <label>
+                                Orbit state text: <input type="text" id="orbitText" placeholder="empty up here..."
+                                    value={settings.orbitText} onChange={e => setSetting("orbitText", e.target.value)} />
+                            </label>
+                            <p className="info-text">Custom text to display while in orbit. See the 'Orbit presence
+                                preview' to the left. Leave empty to disable.</p>
+                        </div>
 
                         <CheckboxInput name="Auto update" json="autoUpdate" value={settings.autoUpdate}
                             update={setSetting} text="Whether to update to the latest releases of
                             rich-destiny automatically. If unticked, you can use the Update button below." />
 
-                        <CheckboxInput name="Prereleases ⚠️" json="prereleases" value={settings.prereleases}
-                            update={setSetting} text="Enables prereleases. This option is ⚠️IRREVERSIBLE⚠️. You
-                            are fairly expected to report any errors in the support server, however that is of
-                            course optional. This option will grant access to early releases that include new
-                            features that may possibly not work well. Turning off prereleases will update to a
-                            stable NEWER release, and not downgrade." /> {requiresVersion("v0.2.5-1")}
+                        <CheckboxInput name="Prereleases" json="prereleases" value={settings.prereleases}
+                            update={setSetting} text="Enables prereleases/beta versions. Disabling this after
+                            updating will NOT downgrade to an older non-prerelease version." />
+                            {requiresVersion("v0.2.5-1")}
                     </div>
 
                     <h4>Launch Game button</h4>
                     <div>
                         <CheckboxInput name="Enabled" json="joinGameButton" value={settings.joinGameButton}
                             update={setSetting} text="Adds a 'Launch Game' button to your status that
-                            allows anyone (including people without rich-destiny) to launch Destiny 2, simply
-                            by clicking it." /> {requiresVersion("v0.2.1")}
+                            allows anyone to launch Destiny 2." />
+                            {requiresVersion("v0.2.1")}
 
                         <CheckboxInput name="Orbit or social spaces only" json="joinOnlySocial"
-                            value={settings.joinOnlySocial} update={setSetting} text="When ticked, the Launch
-                            Game button will appear only when you're in orbit or social spaces like the Tower.
-                            This feature is still here for backwards compatibility, but isn't really necessary
-                            since the Join Game button was removed." /> {requiresVersion("v0.1.9")}
+                            value={settings.joinOnlySocial} update={setSetting} text="Only show the Launch Game
+                            button when you're in orbit or social spaces." /> {requiresVersion("v0.1.9")}
                     </div>
+                    <br/>
                     <a href="#" className="button" onClick={e => {handleFormSubmit(e, settings)}}>Save Settings</a>
                 </form>
             </div>
@@ -216,11 +214,6 @@ export default function() {
             </div>
 
             <div className="boxed">
-                <h2>Guardian;</h2>
-                <p>We failed to stop Calus, The Witness's arrival is imminent, and a newly awoken threat looms. But, I believe in you :)</p>
-            </div>
-
-            <div className="boxed">
                 <h2>Come hang out</h2>
                 <p>Got feedback, questions or interesting ideas? Need a place to vent out about teleporting Overload
                     Captains, or just be with some friendly people? Or come for the opt-in pings when
@@ -242,7 +235,7 @@ export default function() {
                 <h2>Tweets</h2>
                 <div>
                     <a className="twitter-timeline" data-lang="en" data-dnt="true" data-theme="dark"
-                        data-chrome="noscrollbar nofooter noheader transparent"
+                        data-chrome="noscrollbar nofooter noheader transparent noborders"
                         href="https://twitter.com/richdestinyapp">Loading @richdestinyapp tweets...</a>
                 </div>
             </div>
@@ -255,9 +248,9 @@ function CheckboxInput({name, json, value, update, text}) {
     return <>
         <label>
             {name}: <input type="checkbox" id={json} checked={value}
-            onChange={e => update(json, e.target.checked)} /> &nbsp;
-            <span data-tip={text}>&#x1f6c8;</span>
-        </label> <br/>
+            onChange={e => update(json, e.target.checked)} />
+        </label>
+        <p className="info-text">{text}</p>
     </>
 }
 

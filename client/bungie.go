@@ -21,11 +21,11 @@ import (
 func requestAccessToken(code string, refresh bool) (err error) {
 	data := url.Values{}
 	if refresh {
-		log.Print("Refreshing access token")
+		logInfoIfNoErrorSpam("Refreshing access token")
 		data.Set("grant_type", "refresh_token")
 		data.Set("refresh_token", code)
 	} else {
-		log.Print("Requesting access token with code: " + code)
+		logInfoIfNoErrorSpam("Requesting access token with code: " + code)
 		data.Set("grant_type", "authorization_code")
 		data.Set("code", code)
 	}
@@ -34,27 +34,23 @@ func requestAccessToken(code string, refresh bool) (err error) {
 
 	authReq, err := http.NewRequest("POST", "https://www.bungie.net/platform/app/oauth/token", strings.NewReader(data.Encode()))
 	if err != nil {
-		log.Printf("Trouble making NewRequest to get an access token: %s", err)
-		return
+		return fmt.Errorf("Error making NewRequest to get an access token: %s", err)
 	}
 	authReq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	authRes, err := http.DefaultClient.Do(authReq)
 	if err != nil {
-		log.Printf("http client failed to do request: %s", err)
-		return
+		return fmt.Errorf("Error doing http request: %s", err)
 	}
 	body, err := ioutil.ReadAll(authRes.Body)
 	authRes.Body.Close()
 	if err != nil {
-		log.Printf("Error reading response body: %s", err)
-		return
+		return fmt.Errorf("Error reading response body: %s", err)
 	}
 
 	err = setAuth(body)
 	if err != nil {
-		log.Printf("Error setting auth details: %s", err)
-		return
+		return fmt.Errorf("Error setting auth details: %s", err)
 	}
 
 	if refresh {
@@ -67,10 +63,21 @@ func requestAccessToken(code string, refresh bool) (err error) {
 
 // setAuth sets the auth response from the bungie api (to memory and the database)
 func setAuth(data []byte) (err error) {
+	var errorResponse *oauthError
+	err = json.Unmarshal(data, &errorResponse)
+	if err != nil {
+		return
+	}
+
+	if errorResponse.ErrorDescription != "" {
+		return fmt.Errorf("Error response to the request: %s", errorResponse.ErrorDescription)
+	}
+
 	err = json.Unmarshal(data, &storage)
 	if err != nil {
 		return
 	}
+
 	// Subtracting five to make sure tokens are refreshed on-time, and not used a few milliseconds late
 	storage.RefreshAt = time.Now().Unix() + storage.ExpiresIn - 5
 	storage.ReAuthAt = time.Now().Unix() + storage.RefreshExpiresIn - 5
@@ -78,12 +85,16 @@ func setAuth(data []byte) (err error) {
 	var lp *linkedProfiles
 	err = requestComponents(fmt.Sprintf("/Destiny2/254/Profile/%s/LinkedProfiles/", storage.BungieMSID), &lp)
 	if err != nil {
-		return
+		return fmt.Errorf("Error requesting linked profiles: %s", err)
+	}
+	if lp.ErrorStatus != "Success" {
+		storage = nil
+		return fmt.Errorf("Bungie returned an error status %s when trying to find your profiles, message: %s", lp.ErrorStatus, lp.Message)
 	}
 
 	for _, profile := range lp.Response.Profiles {
 		for _, membershipType := range profile.MembershipTypes {
-			if membershipType == 3 {
+			if membershipType == 3 || membershipType == 6 {
 				storage.BungieName = profile.BungieGlobalDisplayName
 				storage.ActualMSID = profile.MembershipID
 				storage.MSType = profile.MembershipType
@@ -116,9 +127,10 @@ func setAuth(data []byte) (err error) {
 	err = db.QueryRow("SELECT value FROM data WHERE key='storage'").Scan(&dud)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			// Default settings
 			storage.AutoUpdate = true
 		} else {
-			log.Printf("Error trying to query the database: %s", err)
+			logInfoIfNoErrorSpam("Error trying to query the database: " + err.Error())
 		}
 	}
 
@@ -161,11 +173,17 @@ func getStorage() (s *storageStruct, err error) {
 			return
 		}
 		s, err = getStorage()
+		if err != nil {
+			return nil, err
+		}
 	} else if time.Now().Unix() >= storage.ReAuthAt {
 		log.Print("Your authentication details have expired. Please go to https://rich-destiny.app/cp to Reauthenticate again.")
 		return
 	} else if time.Now().Unix() >= storage.RefreshAt {
-		requestAccessToken(storage.RefreshToken, true)
+		err = requestAccessToken(storage.RefreshToken, true)
+		if err != nil {
+			return
+		}
 	}
 
 	return storage, nil

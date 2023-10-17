@@ -7,8 +7,8 @@ import { toast } from "react-toastify";
 import "../css/download.scss";
 import useMemoryState from "./MemoryState";
 
-// @ts-expect-error
-import decoration from "../images/s18-expedition.webp";
+// // @ts-expect-error
+// import decoration from "../images/s19-towerisland.webp";
 
 interface GitHubRelease {
     name:           string;
@@ -105,7 +105,7 @@ export default function() {
     }
     
     return <>
-        <img id="dl-decoration" className="sidebar-decoration" src={decoration} alt="" />
+        {/* <img id="dl-decoration" className="sidebar-decoration" src={decoration} alt="" /> */}
 
         <div className="generic-text">
             <h1>Download</h1>

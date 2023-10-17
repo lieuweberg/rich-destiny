@@ -6,17 +6,17 @@ import PresenceCard, { PresenceCardProps } from "./components/PresenceCard";
 import "../css/home.scss";
 
 // @ts-expect-error
-import hero from "../images/s18-hero.webp"
+import hero from "../../static/images/s20-hero.webp"
 
 // @ts-expect-error
-import home1 from "../images/home1.webp";
+import home1 from "../../static/images/home1.webp";
 // @ts-expect-error
-import home2 from "../images/home2.webp";
+import home2 from "../../static/images/home2.webp";
 // @ts-expect-error
-import home3 from "../images/home3.webp";
+import home3 from "../../static/images/home3.webp";
 
 // @ts-expect-error
-import homeWaves1 from "../images/home-waves1.svg";
+import homeWaves1 from "../../static/images/home-waves1.svg";
 
 export default function() {
     let presences: PresenceCardProps[] = [];
@@ -151,19 +151,19 @@ const examplePresences = [
     {i:"wellspring",d:"The Wellspring - Savathûn's Throne World",s:"Defend: Master",t:"08:42"},
     {i:"destinylogo",d:"In Orbit",s:"space 🌌 (customisable)",t:"04:13"},
     {i:"beyondlight",d:"Story - Europa",s:"The New Kell",t:"13:24"},
-    {i:"raid",d:"Last Wish - The Dreaming City",s:"Shuro Chi, The Corrupted (2/5)",t:"02:15:11"},
+    {i:"raid",d:"Root of Nightmares - Essence",s:"Macrocosm (3/4)",t:"02:15:11"},
     {i:"control",d:"Control - The Crucible",s:"Pacifica",t:"05:58"},
     {i:"gambit",d:"Gambit",s:"Emerald Coast",t:"07:26"},
     {i:"crucible",d:"Mayhem - The Crucible",s:"Javelin-4",t:"02:55"},
     {i:"socialall",d:"Social - Earth",s:"Tower",t:"13:17"},
     {i:"anniversary",d:"Dares of Eternity",s:"Difficulty: Normal",t:"09:08"},
     {i:"strikes",d:"Nightfall: The Ordeal - The Cosmodrome",s:"Difficulty: Master",t:"29:33"},
-    {i:"dungeon",d:"Dungeon - IX Realms",s:"Prophecy",t:"43:22"},
+    {i:"dungeon",d:"Dungeon - Mars",s:"Spire of the Watcher: Normal",t:"43:22"},
     {i:"explore",d:"Explore - The Moon",s:"",t:"06:14"},
     {i:"thewitchqueen",d:"Story - Savathûn's Throne World",s:"The Investigation: Legendary",t:"11:50"},
     {i:"ironbanner",d:"Iron Banner - The Crucible",s:"Midtown",t:"03:27"},
     {i:"lostsector",d:"Lost Sector - Europa",s:"Perdition: Master",t:"11:50"},
-    {i:"shadowkeep",d:"Nightmare Hunt - The Moon",s:"Insanity: Legend",t:"08:32"},
+    {i:"lightfall", d:"Story - Neptune",s:"First Contact: Legendary",t:"08:32"},
     {i:"trialsofosiris",d:"Trials of Osiris - The Crucible",s:"Convergence",t:"04:50"},
-    {i:"seasonplunder",d:"Ketchcrash - Asteroid Belt",s:"Difficulty: Master",t:"07:25"}
+    {i:"seasondefiance",d:"Defiant Battleground - EDZ",s:"Difficulty: Legend",t:"07:25"}
 ];

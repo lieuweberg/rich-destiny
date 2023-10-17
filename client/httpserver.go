@@ -39,7 +39,8 @@ func startWebServer() {
 		err := requestAccessToken(code, false)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(res, "error: 500: %s", err)
+			fmt.Fprintf(res, "Error: 500: %s", err)
+			return
 		}
 
 		res.Header().Set("Content-Type", "text/html")

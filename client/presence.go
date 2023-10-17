@@ -15,9 +15,8 @@ import (
 )
 
 func initPresence() {
-	exeCheckTicker := time.NewTicker(15 * time.Second)
+	exeCheckTicker := time.NewTicker(100 * time.Millisecond)
 	quitPresenceTicker = make(chan bool)
-	loggedIn := false
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
@@ -26,6 +25,10 @@ func initPresence() {
 			}
 			quitPresenceTicker = nil
 		}()
+
+		firstTime := true
+		loggedIn := false
+		definitionsExist := false
 
 		for {
 			select {
@@ -36,22 +39,16 @@ func initPresence() {
 					if p.Executable() == "destiny2.exe" {
 						exeFound = true
 
-						getStorage()
-						if storage == nil {
-							break
-						}
-
+						// We require the login every time we are logged out
 						if !loggedIn {
 							err := richgo.Login("726090012877258762")
 							if err != nil {
-								log.Print("Couldn't connect to Discord: " + err.Error())
+								logErrorIfNoErrorSpam(fmt.Sprintf("Couldn't connect to Discord: " + err.Error()))
 								break
 							}
 							loggedIn = true
 
-							getDefinitions()
-
-							if storage.AutoUpdate {
+							if storage != nil && storage.AutoUpdate {
 								go func() {
 									// This only runs once when the game has been started, I don't really care whether it displays an error then
 									// even though it's not really an error at all.
@@ -61,6 +58,25 @@ func initPresence() {
 									}
 								}()
 							}
+						}
+
+						// We require definitions once per login
+						if !definitionsExist {
+							err := getDefinitions()
+							if err != nil {
+								setMaintenance()
+								logErrorIfNoErrorSpam(fmt.Sprintf("Failed to get manifest: %s", err))
+								break
+							}
+							definitionsExist = true
+						}
+
+						// We require storage every iteration
+						_, err := getStorage()
+						if err != nil {
+							setMaintenance()
+							logErrorIfNoErrorSpam(fmt.Sprintf("Error getting storage: %s", err))
+							break
 						}
 
 						updatePresence()
@@ -75,6 +91,13 @@ func initPresence() {
 				}
 			case <-quitPresenceTicker:
 				exeCheckTicker.Stop()
+				errCount = 0
+			}
+
+			if firstTime {
+				firstTime = false
+				exeCheckTicker.Stop()
+				exeCheckTicker.Reset(15 * time.Second)
 			}
 		}
 	}()
@@ -84,20 +107,19 @@ func updatePresence() {
 	var profile *profileDef
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/?components=204,200", storage.MSType, storage.ActualMSID), &profile)
 	if err != nil {
-		log.Print(err)
+		logErrorIfNoErrorSpam(fmt.Sprintf("Error requesting profile: %s", err))
 		return
 	}
 	if profile.ErrorStatus != "Success" {
 		if profile.ErrorStatus == "SystemDisabled" || profile.ErrorStatus == "DestinyThrottledByGameServer" {
-			setActivity(richgo.Activity{
-				LargeImage: "destinylogo",
-				Details:    "Waiting for maintenance to end",
-			}, time.Now(), nil)
-			return
+			setMaintenance()
+		} else {
+			logErrorIfNoErrorSpam(fmt.Sprintf("Bungie returned an error status %s when trying to get profile, message: %s", profile.ErrorStatus, profile.Message))
 		}
-		log.Println(profile.ErrorStatus, profile.Message)
 		return
 	}
+
+	errCount = 0
 
 	newActivity := richgo.Activity{
 		LargeImage: "destinylogo",
@@ -217,6 +239,10 @@ func transformPlace(place *placeDefinition, activity *activityDefinition) {
 		place.DP.Name = "Europa"
 	case "Court of Savathûn, Throne World":
 		place.DP.Name = "Savathûn's Throne World"
+	case "Neptune":
+		place.DP.Name = "Neomuna"
+	case "Titan, Moon of Saturn":
+		place.DP.Name = "Titan"
 	}
 }
 
@@ -234,7 +260,7 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 	} else {
 		// This part is for things that are incorrectly/unpleasantly formatted.
 		switch {
-		case activity.DP.Name == "H.E.L.M.":
+		case activity.DP.Name == "H.E.L.M." || activity.DP.Name == "The Farm":
 			// Explore - EDZ
 			newActivity.Details = "Social - Earth"
 			newActivity.State = activity.DP.Name
@@ -252,20 +278,52 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
-		case strings.HasPrefix(activity.DP.Name, "Ketchcrash"):
-			newActivity.Details = "Ketchcrash - " + place.DP.Name
+		case strings.HasPrefix(activity.DP.Name, "Savathûn's Spire"):
+			newActivity.Details = "Savathûn's Spire - " + place.DP.Name
+			if strings.Contains(activity.DP.Name, "Legend") {
+				newActivity.State = "Difficulty: Legend"
+			}
+			newActivity.LargeImage = "seasonwitch"
+		case activity.DP.Name == "Altars of Summoning":
+			newActivity.Details = activity.DP.Name + " - " + place.DP.Name
+			newActivity.LargeImage = "seasonwitch"
+		case strings.Contains(activity.DP.Name, "Salvage"):
+			newActivity.Details = activity.DP.Name + " - Titan"
 			s := strings.SplitN(activity.DP.Name, ": ", 2)
 			if len(s) == 2 {
 				newActivity.State = "Difficulty: " + s[1]
 			}
-			newActivity.LargeImage = "seasonplunder"
-		case strings.HasPrefix(activity.DP.Name, "Expedition"):
-			newActivity.Details = "Expedition - " + place.DP.Name
-			newActivity.LargeImage = "seasonplunder"
-		case strings.HasPrefix(activity.DP.Name, "Sever - "):
-			newActivity.Details = "Sever - " + place.DP.Name
-			newActivity.State = strings.SplitN(activity.DP.Name, " - ", 2)[1]
-			newActivity.LargeImage = "seasonhaunted"
+			newActivity.LargeImage = "seasondeep"
+		case strings.HasPrefix(activity.DP.Name, "Deep Dives"):
+			newActivity.Details = "Deep Dive - " + place.DP.Name
+			if strings.Contains(activity.DP.Name, "Private") {
+				newActivity.State = "Private"
+			}
+			newActivity.LargeImage = "seasondeep"
+		case strings.Contains(activity.DP.Name, "Defiant Battleground"):
+			if strings.Contains(activity.DP.Name, "Orbital Prison") {
+				newActivity.Details = "Defiant Battleground - Orbital Prison"
+			} else {
+				newActivity.Details = "Defiant Battleground - " + place.DP.Name
+			}
+			if strings.Contains(activity.DP.Name, "Legend") {
+				newActivity.State = "Difficulty: Legend"
+			}
+			newActivity.LargeImage = "seasondefiance"
+		// case strings.HasPrefix(activity.DP.Name, "Ketchcrash"):
+		// 	newActivity.Details = "Ketchcrash - " + place.DP.Name
+		// 	s := strings.SplitN(activity.DP.Name, ": ", 2)
+		// 	if len(s) == 2 {
+		// 		newActivity.State = "Difficulty: " + s[1]
+		// 	}
+		// 	newActivity.LargeImage = "seasonplunder"
+		// case strings.HasPrefix(activity.DP.Name, "Expedition"):
+		// 	newActivity.Details = "Expedition - " + place.DP.Name
+		// 	newActivity.LargeImage = "seasonplunder"
+		// case strings.HasPrefix(activity.DP.Name, "Sever - "):
+		// 	newActivity.Details = "Sever - " + place.DP.Name
+		// 	newActivity.State = strings.SplitN(activity.DP.Name, " - ", 2)[1]
+		// 	newActivity.LargeImage = "seasonhaunted"
 		case strings.HasPrefix(activity.DP.Name, "The Wellspring:"):
 			newActivity.Details = "The Wellspring - " + place.DP.Name
 			newActivity.State = strings.SplitN(activity.DP.Name, ": ", 2)[1]
@@ -352,19 +410,31 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 						return
 					}
 				}
+
 				// It was not a lost sector
-				newActivity.Details = "Nightfall: The Ordeal - " + place.DP.Name
-				a := strings.Split(activity.DP.Name, ": ")
-				newActivity.State = "Difficulty: " + a[len(a)-1]
+				if strings.Contains(activity.DP.Name, "Nightfall Grandmaster") {
+					newActivity.Details = "Grandmaster Nightfall - " + place.DP.Name
+					newActivity.State = strings.SplitN(activity.DP.Name, ": ", 2)[1]
+				} else {
+					newActivity.Details = "Nightfall - " + place.DP.Name
+					a := strings.Split(activity.DP.Name, ": ")
+					newActivity.State = "Difficulty: " + a[len(a)-1]
+				}
 			} else {
 				newActivity.Details = activityMode.DP.Name + " - " + place.DP.Name
 				newActivity.State = activity.DP.Name
 			}
 		}
 
-		if activityMode.DP.Name == "Raid" {
-			raidName := strings.SplitN(activity.DP.Name, ": ", 2)[0]
-			getActivityPhases(charID, raidName, activityHash, newActivity)
+		if activityMode.DP.Name == "Raid" || activityMode.DP.Name == "Dungeon" {
+			split := strings.SplitN(activity.DP.Name, ": ", 2)
+			if len(split) > 1 && split[1] == "Normal" {
+				newActivity.State = split[0]
+			}
+
+			if activityMode.DP.Name == "Raid" {
+				getActivityPhases(charID, split[0], activityHash, newActivity)
+			}
 		}
 	}
 }
@@ -377,11 +447,11 @@ func getActivityPhases(charID, phasesMapKey string, activityHash int32, newActiv
 	var p progressions
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/Character/%s?components=202", storage.MSType, storage.ActualMSID, charID), &p)
 	if err != nil {
-		log.Print(err)
+		logErrorIfNoErrorSpam(fmt.Sprintf("Error requesting activity phases: %s", err))
 		return
 	}
 	if p.ErrorStatus != "Success" {
-		log.Println(p.ErrorStatus, p.Message)
+		logErrorIfNoErrorSpam(fmt.Sprintf("Bungie returned an error status %s when trying to get activity phases, message: %s", p.ErrorStatus, p.Message))
 		return
 	}
 
@@ -426,7 +496,7 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 			newActivity.LargeImage = getLargeImage(activityMode.DP.Name)
 		}
 
-		if storage.JoinGameButton {
+		if storage != nil && storage.JoinGameButton {
 			if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
 				newActivity.Buttons = []*richgo.Button{
 					{
@@ -474,4 +544,11 @@ func getLargeImage(name string) string {
 	}
 
 	return "destinylogo"
+}
+
+func setMaintenance() {
+	setActivity(richgo.Activity{
+		LargeImage: "destinylogo",
+		Details:    "Waiting for maintenance to end",
+	}, time.Now(), nil)
 }

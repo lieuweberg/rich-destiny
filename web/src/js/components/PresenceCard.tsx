@@ -3,7 +3,7 @@ import React from "react";
 import "../../css/components/PresenceCard.scss";
 
 // @ts-expect-error
-import images from "../../images/presence/*.webp";
+import images from "../../../static/images/presence/*.webp";
 
 export type PresenceCardProps = {
     description:    string

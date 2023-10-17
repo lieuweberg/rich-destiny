@@ -13,12 +13,12 @@
 
     img {
         position: absolute;
-        right: 0;
+        right: -1000px;
         object-fit: contain;
         min-width: calc(100vw + 10px);
 
         @include isMobile() {
-            right: -250px;
+            right: -1500px;
             width: auto;
             filter: blur(3px);
         }
