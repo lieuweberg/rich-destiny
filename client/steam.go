@@ -13,18 +13,26 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-var dll *windows.DLL
+var steamDLL *windows.DLL
 var errNoConnectString = errors.New("connection string is empty")
+var steamInitialised bool
 
 func getJoinLink() (string, error) {
-	dll = windows.MustLoadDLL("steam_api64.dll")
+	if !steamInitialised {
+		var err error
+		steamDLL, err = windows.LoadDLL(makePath("steam_api64.dll"))
+		if err != nil {
+			return "", fmt.Errorf("Error loading steam_api64.dll: %s", err)
+		}
 
-	init, err := callProc("SteamAPI_Init")
-	if err != nil {
-		return "", fmt.Errorf("Error initialising steamapi: %s", err)
-	}
-	if init == 0 {
-		return "", errors.New("Failed to initialise steamapi")
+		init, err := callProc("SteamAPI_Init")
+		if err != nil {
+			return "", fmt.Errorf("Error initialising steamapi: %s", err)
+		}
+		if init == 0 {
+			return "", errors.New("Failed to initialise steamapi")
+		}
+		steamInitialised = true
 	}
 
 	steamUser, err := callProc("SteamAPI_SteamUser_v023")
@@ -60,7 +68,7 @@ func getJoinLink() (string, error) {
 }
 
 func callProc(name string, args ...uintptr) (uintptr, error) {
-	proc, err := dll.FindProc(name)
+	proc, err := steamDLL.FindProc(name)
 	if err != nil {
 		return 0, fmt.Errorf("error getting init proc: %s", err)
 	}
