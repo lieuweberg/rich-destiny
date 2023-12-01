@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"errors"
 	"fmt"
 	"io"
@@ -11,6 +12,9 @@ import (
 
 	"github.com/kardianos/service"
 )
+
+//go:embed steam_api64.dll
+var steamAPIFile []byte
 
 // My epic hacked-together install prompt that totally works 100% of the time 99% of the time.
 func installProgram() {
@@ -157,6 +161,7 @@ func installProgram() {
 				}
 			}
 
+			currentDirectory = filepath.Base(exe)
 			fmt.Println(" Successfully moved.")
 			break
 		} else if strings.Contains(r, "c") {
@@ -178,6 +183,19 @@ func installProgram() {
 	err = s.Install()
 	if err != nil {
 		log.Printf("Error adding rich-destiny to the service manager: %s", err)
+		return
+	}
+
+	fmt.Println(" Done! Copying Steam API files...")
+
+	err = os.WriteFile(makePath("steam_api64.dll"), steamAPIFile, os.ModePerm)
+	if err != nil {
+		log.Printf("Error copying steam_api64.dll from embedded file: %s", err)
+		return
+	}
+	err = os.WriteFile(makePath("steam_appid.txt"), []byte("1085660"), os.ModePerm)
+	if err != nil {
+		log.Printf("Error writing steam_appid.txt file: %s", err)
 		return
 	}
 
