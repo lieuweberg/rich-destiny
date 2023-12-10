@@ -479,13 +479,10 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 
 	if storage != nil && storage.JoinGameButton {
 		if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
-			// todo, check every iteration of the loop, not just when the status is updated. I don't know yet when exactly the url changes.
-			// also use logErrorIfNoErrorSpam to make sure it doesn't keep spamming errors in the log, so it should return the error instead
-			// of printing in the function
 			joinLink, err := getJoinLink()
 			if err != nil {
 				if !errors.Is(err, errNoConnectString) {
-					logErrorIfNoErrorSpam(fmt.Sprintf("error trying to get connection string"))
+					logErrorIfNoErrorSpam("Unknown error trying to get connection string")
 				}
 
 				newActivity.Buttons = []*richgo.Button{

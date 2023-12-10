@@ -188,14 +188,9 @@ func installProgram() {
 
 	fmt.Println(" Done! Copying Steam API files...")
 
-	err = os.WriteFile(makePath("steam_api64.dll"), steamAPIFile, os.ModePerm)
+	err = copyEmbeddedDLL()
 	if err != nil {
-		log.Printf("Error copying steam_api64.dll from embedded file: %s", err)
-		return
-	}
-	err = os.WriteFile(makePath("steam_appid.txt"), []byte("1085660"), os.ModePerm)
-	if err != nil {
-		log.Printf("Error writing steam_appid.txt file: %s", err)
+		log.Printf("Error copying files: %s", err)
 		return
 	}
 
@@ -211,6 +206,20 @@ func installProgram() {
 
 	fmt.Println(" Done! Opening a browser tab to log in with Bungie.net. Setup is now complete and you can close this window.")
 	openOauthTab()
+}
+
+func copyEmbeddedDLL() error {
+	err := os.WriteFile(makePath("steam_api64.dll"), steamAPIFile, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("Error copying steam_api64.dll from embedded file: %s", err)
+	}
+
+	err = os.WriteFile(makePath("steam_appid.txt"), []byte("1085660"), os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("Error writing steam_appid.txt file: %s", err)
+	}
+
+	return nil
 }
 
 func readUserInput() (string, error) {

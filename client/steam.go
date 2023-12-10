@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -19,6 +20,13 @@ var steamInitialised bool
 
 func getJoinLink() (string, error) {
 	if !steamInitialised {
+		if _, err := os.Stat(makePath("steam_api64.dll")); os.IsNotExist(err) {
+			err = copyEmbeddedDLL()
+			if err != nil {
+				return "", fmt.Errorf("Error copying files: %s", err)
+			}
+		}
+
 		var err error
 		steamDLL, err = windows.LoadDLL(makePath("steam_api64.dll"))
 		if err != nil {
