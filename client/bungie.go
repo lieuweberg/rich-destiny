@@ -21,11 +21,11 @@ import (
 func requestAccessToken(code string, refresh bool) (err error) {
 	data := url.Values{}
 	if refresh {
-		logInfoIfNoErrorSpam("Refreshing access token")
+		logInfoIfNoErrorSpam(errorOriginAuth, "Refreshing access token")
 		data.Set("grant_type", "refresh_token")
 		data.Set("refresh_token", code)
 	} else {
-		logInfoIfNoErrorSpam("Requesting access token with code: " + code)
+		logInfoIfNoErrorSpam(errorOriginAuth, "Requesting access token with code: "+code)
 		data.Set("grant_type", "authorization_code")
 		data.Set("code", code)
 	}
@@ -130,7 +130,7 @@ func setAuth(data []byte) (err error) {
 			// Default settings
 			storage.AutoUpdate = true
 		} else {
-			logInfoIfNoErrorSpam("Error trying to query the database: " + err.Error())
+			logInfoIfNoErrorSpam(errorOriginAuth, "Error trying to query the database: "+err.Error())
 		}
 	}
 
