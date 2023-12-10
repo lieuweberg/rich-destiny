@@ -4,17 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/go-ole/go-ole"
 	"github.com/go-ole/go-ole/oleutil"
+	"github.com/kardianos/service"
 	"github.com/mitchellh/go-ps"
 	"golang.org/x/sys/windows"
 )
@@ -46,8 +47,33 @@ func installProgram() {
 	}
 
 	if isAlreadyRunning {
-		fmt.Println(" rich-destiny is already running. Open the control panel at:  https://richdestiny.app/cp")
-		return
+		createService()
+		status, err := s.Status()
+		if err != nil {
+			if !errors.Is(err, service.ErrNotInstalled) {
+				log.Printf("Error getting service status: %s", err)
+				return
+			}
+		}
+
+		if status == service.StatusRunning {
+			fmt.Println(" As of rich-destiny v0.2.15, rich-destiny no longer runs as a Windows service. Please complete the setup again to get rid of the service and move to a standard background process instead.\n\n ** If you choose the Current location, you do NOT have to log in again! **")
+			err = s.Stop()
+			if err != nil {
+				log.Printf("Error trying to stop rich-destiny service: %s", err)
+				return
+			}
+		} else {
+			if status == service.StatusStopped {
+				fmt.Println(" The rich-destiny service is still in the service manager but is redudant, removing...")
+				err = s.Uninstall()
+				if err != nil {
+					log.Printf("Error uninstalling from service manager: %s", err)
+				}
+			}
+			fmt.Println(" rich-destiny is already running. Open the control panel at:  https://richdestiny.app/cp")
+			return
+		}
 	} else if _, err = os.Stat(startupShortcutPath); err == nil {
 		fmt.Println(" rich-destiny is already installed but not running. Attempting to start it...")
 
@@ -168,7 +194,7 @@ func installProgram() {
 				fmt.Println(" Okay, move this program to a different directory manually and run it from there.")
 				return
 			}
-			fmt.Println(" Okay, installing at the current location.")
+			fmt.Println(" Okay, installing at the current location...")
 			break
 		} else if strings.Contains(r, "x") {
 			fmt.Println(" Okay, exiting. If you intend to move this program to another folder, make sure to close this window first.")
@@ -307,7 +333,6 @@ func makeShortcut(path string) error {
 	}
 
 	shortcut.Release()
-	log.Printf("Shortcut released, path: %s", path)
 	return nil
 }
 
@@ -316,9 +341,15 @@ func makeShortcutForUser(user string) error {
 
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
-			err = os.MkdirAll(path, 0777)
-			if err != nil {
-				return fmt.Errorf("Error creating Startup path folder(s): %s", err)
+			if _, err := os.Stat(filepath.Dir(path)); err != nil {
+				if os.IsNotExist(err) {
+					return fmt.Errorf("This user does not seem to exist since their Start Menu\\Programs folder does not exist.")
+				}
+
+				err = os.MkdirAll(path, 0777)
+				if err != nil {
+					return fmt.Errorf("Error creating Startup path folder(s): %s", err)
+				}
 			}
 		} else {
 			return fmt.Errorf("Error getting Startup folder for %s: %s", user, err)
@@ -330,37 +361,57 @@ func makeShortcutForUser(user string) error {
 }
 
 func tryServicelessTransition() {
-	usersDirFiles, err := ioutil.ReadDir("C:\\Users")
+	log.Println("Attempting serviceless transition")
+
+	// usersDirFiles, err := ioutil.ReadDir("C:\\Users")
+	// if err != nil {
+	// 	log.Printf("Error reading Users directory for transitioning: %s", err)
+	// }
+
+	// for _, file := range usersDirFiles {
+	// 	if file.IsDir() {
+	// 		if file.Name() != "Public" && file.Name() != "Default" {
+	// 			if _, err = os.Stat(fmt.Sprintf("C:\\Users\\%s\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs", file.Name())); err != nil {
+	// 				if os.IsNotExist(err) {
+	// 					log.Printf("User %s found, but no Start Menu Programs folder exists", file.Name())
+	// 				} else {
+	// 					log.Printf("Error checking for Start Menu Programs folder for %s: %s", file.Name(), err)
+	// 				}
+	// 			} else {
+	// 				windowsUsers = append(windowsUsers, file.Name())
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// log.Print(windowsUsers)
+
+	// if len(windowsUsers) == 1 && err == nil {
+	// }
+
+	r, err := regexp.Compile(`^[A-Z]:\\Users\\(.*?)\\`)
 	if err != nil {
-		log.Printf("Error reading Users directory for transitioning: %s", err)
+		log.Printf("Error compiling regex: %s", err)
+	}
+	matches := r.FindStringSubmatch(exe)
+	log.Println(matches)
+	if len(matches) < 2 {
+		log.Printf("regex could not find user folder name from path %s", exe)
+		return
 	}
 
-	for _, file := range usersDirFiles {
-		if file.IsDir() {
-			if file.Name() != "Public" && file.Name() != "Default" {
-				if _, err = os.Stat(fmt.Sprintf("C:\\Users\\%s\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs", file.Name())); err != nil {
-					if os.IsNotExist(err) {
-						log.Printf("User %s found, but no Start Menu Programs folder exists", file.Name())
-					} else {
-						log.Printf("Error checking for Start Menu Programs folder for %s: %s", file.Name(), err)
-					}
-				} else {
-					windowsUsers = append(windowsUsers, file.Name())
-				}
-			}
-		}
+	err = makeShortcutForUser(matches[1])
+	if err != nil {
+		log.Printf("Error making shortcut for %s: %s", matches[1], err)
+		return
 	}
 
-	log.Print(windowsUsers)
-
-	if len(windowsUsers) == 1 && err == nil {
-		err = makeShortcutForUser(windowsUsers[0])
-		if err != nil {
-			log.Printf("Error making shortcut for %s: %s", windowsUsers[0], err)
-		} else {
-			s.Uninstall()
-		}
+	err = s.Uninstall()
+	if err != nil {
+		log.Printf("Error uninstalling from service manager: %s", err)
+		return
 	}
+	log.Println("Uninstalled from service manager, serviceless transition complete!")
 }
 
 func readUserInput() (string, error) {
