@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/go-ole/go-ole"
@@ -47,6 +48,16 @@ func installProgram() {
 	}
 
 	if isAlreadyRunning {
+		if !windows.GetCurrentProcessToken().IsElevated() {
+			fmt.Println(" Requesting administrator elevation to check if service still exists...")
+			time.Sleep(3 * time.Second)
+			err = elevate()
+			if err != nil {
+				fmt.Printf("Error elevating process: %s", err)
+			}
+			os.Exit(0)
+		}
+
 		createService()
 		status, err := s.Status()
 		if err != nil {
@@ -57,20 +68,24 @@ func installProgram() {
 		}
 
 		if status == service.StatusRunning {
-			fmt.Println(" As of rich-destiny v0.2.15, rich-destiny no longer runs as a Windows service. Please complete the setup again to get rid of the service and move to a standard background process instead.\n\n ** If you choose the Current location, you do NOT have to log in again! **")
+			fmt.Print(" As of rich-destiny v0.2.15, rich-destiny no longer runs as a Windows service. Please complete the setup again to get rid of the service and move to a standard background process instead.\n\n ** If you choose the Current location, you do NOT have to log in again! **\n\n")
 			err = s.Stop()
 			if err != nil {
 				log.Printf("Error trying to stop rich-destiny service: %s", err)
 				return
 			}
-		} else {
-			if status == service.StatusStopped {
-				fmt.Println(" The rich-destiny service is still in the service manager but is redudant, removing...")
-				err = s.Uninstall()
-				if err != nil {
-					log.Printf("Error uninstalling from service manager: %s", err)
-				}
+		}
+
+		if status == service.StatusStopped || status == service.StatusRunning {
+			fmt.Println(" The rich-destiny service is still in the service manager but is redundant, removing...")
+			err = s.Uninstall()
+			if err != nil && !strings.Contains(err.Error(), "RemoveEventLogSource() failed") {
+				log.Printf("Error uninstalling from service manager: %s", err)
+				return
 			}
+		}
+
+		if status == service.StatusStopped || status == service.StatusUnknown {
 			fmt.Println(" rich-destiny is already running. Open the control panel at:  https://richdestiny.app/cp")
 			return
 		}
@@ -220,6 +235,23 @@ func installProgram() {
 	openOauthTab()
 }
 
+// magic from a gist https://gist.github.com/jerblack/d0eb182cc5a1c1d92d92a4c4fcc416c6
+func elevate() error {
+	verb := "runas"
+	exe, _ := os.Executable()
+	cwd, _ := os.Getwd()
+	args := strings.Join(os.Args[1:], " ")
+
+	verbPtr, _ := syscall.UTF16PtrFromString(verb)
+	exePtr, _ := syscall.UTF16PtrFromString(exe)
+	cwdPtr, _ := syscall.UTF16PtrFromString(cwd)
+	argPtr, _ := syscall.UTF16PtrFromString(args)
+
+	var showCmd int32 = 1
+
+	return windows.ShellExecute(0, verbPtr, exePtr, argPtr, cwdPtr, showCmd)
+}
+
 func getStartupShortcutPath() (string, error) {
 	startupFolderPath, err := windows.KnownFolderPath(windows.FOLDERID_Startup, 0)
 	if err != nil {
@@ -360,7 +392,7 @@ func makeShortcutForUser(user string) error {
 	return makeShortcut(filepath.Join(path, "rich-destiny.lnk"))
 }
 
-func tryServicelessTransition() {
+func tryServicelessTransition() error {
 	log.Println("Attempting serviceless transition")
 
 	// usersDirFiles, err := ioutil.ReadDir("C:\\Users")
@@ -391,27 +423,25 @@ func tryServicelessTransition() {
 
 	r, err := regexp.Compile(`^[A-Z]:\\Users\\(.*?)\\`)
 	if err != nil {
-		log.Printf("Error compiling regex: %s", err)
+		return fmt.Errorf("error compiling regex: %s", err)
 	}
 	matches := r.FindStringSubmatch(exe)
 	log.Println(matches)
 	if len(matches) < 2 {
-		log.Printf("regex could not find user folder name from path %s", exe)
-		return
+		return fmt.Errorf("regex could not find user folder name from path %s", exe)
 	}
 
 	err = makeShortcutForUser(matches[1])
 	if err != nil {
-		log.Printf("Error making shortcut for %s: %s", matches[1], err)
-		return
+		return fmt.Errorf("error making shortcut for %s: %s", matches[1], err)
 	}
 
-	err = s.Uninstall()
-	if err != nil {
-		log.Printf("Error uninstalling from service manager: %s", err)
-		return
-	}
-	log.Println("Uninstalled from service manager, serviceless transition complete!")
+	// err = s.Uninstall()
+	// if err != nil && !strings.Contains(err.Error(), "RemoveEventLogSource() failed") {
+	// 	return fmt.Errorf("error uninstalling from service manager: %s", err)
+	// }
+
+	return nil
 }
 
 func readUserInput() (string, error) {

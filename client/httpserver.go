@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"syscall"
 	"time"
 
@@ -146,9 +147,9 @@ func startWebServer() {
 				fmt.Fprintf(res, "Update installed successfully; will be applied next startup (or restart rich-destiny from the Services manager). New version: %s", newVersion)
 			}
 		case "uninstall":
-			if service.Interactive() {
+			if !service.Interactive() {
 				err := s.Uninstall()
-				if err != nil {
+				if err != nil && !strings.Contains(err.Error(), "RemoveEventLogSource() failed") {
 					res.WriteHeader(http.StatusInternalServerError)
 					fmt.Fprintf(res, "Error trying to uninstall: %s", err)
 					return
