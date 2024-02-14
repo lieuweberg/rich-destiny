@@ -279,6 +279,9 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
+		case strings.HasPrefix(activity.DP.Name, "The Coil"):
+			newActivity.Details = "The Coil" + " - The Dreaming City"
+			newActivity.LargeImage = "seasonwish"
 		case strings.HasPrefix(activity.DP.Name, "Savathûn's Spire"):
 			newActivity.Details = "Savathûn's Spire - " + place.DP.Name
 			if strings.Contains(activity.DP.Name, "Legend") {
@@ -395,6 +398,9 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 			for campaign, missions := range storyMissions {
 				for _, m := range missions {
 					if strings.HasPrefix(activity.DP.Name, m) {
+						if campaign == "seasonwish" {
+							newActivity.Details = "Riven's Lair - The Dreaming City"
+						}
 						newActivity.LargeImage = campaign
 						return
 					}
