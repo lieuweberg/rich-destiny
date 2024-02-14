@@ -276,8 +276,12 @@ func startApplication() {
 
 func stopApplication() {
 	log.Print("OS termination received")
-	db.Close()
-	log.Print("Database closed")
+	if db != nil {
+		db.Close()
+		log.Print("Database closed")
+	} else {
+		log.Print("Storage was not opened, didn't close")
+	}
 	if manifest != nil {
 		manifest.Close()
 		log.Print("Manifest closed")
