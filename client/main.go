@@ -20,6 +20,7 @@ import (
 	"github.com/kardianos/service"
 	richgo "github.com/lieuweberg/rich-go/client"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/mitchellh/go-ps"
 )
 
 var (
@@ -42,6 +43,8 @@ var (
 
 	errCount         int
 	lastErrorMessage string
+
+	veryImportantStatusActive bool
 
 	storage *storageStruct
 	// Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
@@ -166,7 +169,45 @@ func startApplication() {
 	}
 
 	if !service.Interactive() {
-		tryServicelessTransition()
+		err := tryServicelessTransition()
+		if err != nil {
+			log.Printf("Error trying serviceless transition: %s", err)
+		}
+
+		log.Printf("Checking for different running rich-destiny.exe...")
+
+		for i := 0; i < 1; i++ { // TODO: change to i < 18
+			pl, _ := ps.Processes()
+			for _, p := range pl {
+				if p.Executable() == "rich-destiny.exe" && p.Pid() != os.Getpid() {
+					log.Printf("Running rich-destiny instance found, trying to uninstall service")
+					err = s.Uninstall()
+					if err != nil && !strings.Contains(err.Error(), "RemoveEventLogSource() failed") {
+						log.Printf("Error uninstalling service: %s", err)
+						return
+					}
+					err = s.Stop()
+					if err != nil {
+						log.Printf("Error stopping service: %s", err)
+					}
+					return
+				}
+			}
+
+			time.Sleep(10 * time.Second)
+		}
+
+		log.Printf("Can't find running rich-destiny after 180 seconds. Assuming none exists. Starting but will only display very important status message.")
+		setVeryImportantStatus(richgo.Activity{
+			Details: "Please reinstall rich-destiny!",
+			State:   "Your installation is broken.",
+			Buttons: []*richgo.Button{
+				{
+					Label: "More Info (opens in browser)",
+					Url:   "https://richdestiny.app/cp", // TODO: actual link
+				},
+			},
+		})
 	}
 
 	var err error
@@ -291,4 +332,10 @@ func printWithCorrectCaller(msg string) {
 	} else {
 		log.Print(msg)
 	}
+}
+
+func setVeryImportantStatus(a richgo.Activity) {
+	a.LargeImage = "important"
+	setActivity(a, time.Now(), nil)
+	veryImportantStatusActive = true
 }

@@ -104,6 +104,12 @@ func initPresence() {
 }
 
 func updatePresence() {
+	if veryImportantStatusActive {
+		forcePresenceUpdate = true
+		setActivity(previousActivity, *previousActivity.Timestamps.Start, nil)
+		return
+	}
+
 	var profile *profileDef
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/?components=204,200", storage.MSType, storage.ActualMSID), &profile)
 	if err != nil {
@@ -496,7 +502,7 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 			newActivity.LargeImage = getLargeImage(activityMode.DP.Name)
 		}
 
-		if storage != nil && storage.JoinGameButton {
+		if !veryImportantStatusActive && storage != nil && storage.JoinGameButton {
 			if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
 				newActivity.Buttons = []*richgo.Button{
 					{
@@ -512,7 +518,10 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 		if err != nil {
 			log.Print("Error setting activity: " + err.Error())
 		}
-		log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newActivity.SmallText)
+
+		if !veryImportantStatusActive {
+			log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newActivity.SmallText)
+		}
 	}
 }
 
