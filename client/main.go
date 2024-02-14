@@ -41,9 +41,6 @@ var (
 	exitChannel      chan os.Signal
 	windowsUsers     []string
 
-	errCount         int
-	lastErrorMessage string
-
 	veryImportantStatusActive bool
 
 	storage *storageStruct
@@ -241,13 +238,13 @@ func startApplication() {
 					dnsError = true
 				}
 			} else {
-				logErrorIfNoErrorSpam("Error trying to check internet/bungie connection: " + err.Error())
+				logErrorIfNoErrorSpam(errorOriginInternet, "Error trying to check internet/bungie connection: "+err.Error())
 			}
 			time.Sleep(10 * time.Second)
 		} else {
 			debugText = ""
-			log.Printf("Internet/Bungie connection seems ok! Errors: %d", errCount)
-			errCount = 0
+			log.Println("Internet/Bungie connection seems ok!")
+			resolveErrorSpam(errorOriginInternet)
 			break
 		}
 	}
@@ -301,41 +298,6 @@ func stopApplication() {
 
 func makePath(e string) string {
 	return filepath.Join(currentDirectory, e)
-}
-
-func logErrorIfNoErrorSpam(msg string) {
-	if lastErrorMessage != msg {
-		errCount = 0
-	} else {
-		errCount++
-	}
-
-	if errCount < 3 {
-		printWithCorrectCaller(msg)
-	}
-
-	if errCount == 2 {
-		log.Println("Muting further repetitive occurrences of this error.")
-	}
-
-	lastErrorMessage = msg
-}
-
-func logInfoIfNoErrorSpam(msg string) {
-	if errCount < 3 {
-		printWithCorrectCaller(msg)
-	}
-}
-
-func printWithCorrectCaller(msg string) {
-	if _, file, line, ok := runtime.Caller(2); ok {
-		pathSegments := strings.Split(file, "/")
-		log.SetFlags(log.Ldate | log.Ltime)
-		log.Printf("%s:%d: %s", pathSegments[len(pathSegments)-1], line, msg)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	} else {
-		log.Print(msg)
-	}
 }
 
 func setVeryImportantStatus(a richgo.Activity) {

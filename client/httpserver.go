@@ -144,7 +144,11 @@ func startWebServer() {
 				fmt.Fprint(res, err)
 				log.Printf("Error after hitting Update button: %s", err)
 			} else {
-				fmt.Fprintf(res, "Update installed successfully; will be applied next startup (or restart rich-destiny from the Services manager). New version: %s", newVersion)
+				if newVersion != "" {
+					fmt.Fprintf(res, "Update installed successfully; will be applied next startup (or restart rich-destiny from the Services manager). New version: %s", newVersion)
+				} else {
+					fmt.Fprintf(res, "No newer version found.")
+				}
 			}
 		case "uninstall":
 			if !service.Interactive() {
