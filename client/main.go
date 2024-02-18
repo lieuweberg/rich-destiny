@@ -165,48 +165,6 @@ func startApplication() {
 		version = "dev"
 	}
 
-	if !service.Interactive() {
-		err := tryServicelessTransition()
-		if err != nil {
-			log.Printf("Error trying serviceless transition: %s", err)
-		}
-
-		log.Printf("Checking for different running rich-destiny.exe...")
-
-		for i := 0; i < 1; i++ { // TODO: change to i < 18
-			pl, _ := ps.Processes()
-			for _, p := range pl {
-				if p.Executable() == "rich-destiny.exe" && p.Pid() != os.Getpid() {
-					log.Printf("Running rich-destiny instance found, trying to uninstall service")
-					err = s.Uninstall()
-					if err != nil && !strings.Contains(err.Error(), "RemoveEventLogSource() failed") {
-						log.Printf("Error uninstalling service: %s", err)
-						return
-					}
-					err = s.Stop()
-					if err != nil {
-						log.Printf("Error stopping service: %s", err)
-					}
-					return
-				}
-			}
-
-			time.Sleep(10 * time.Second)
-		}
-
-		log.Printf("Can't find running rich-destiny after 180 seconds. Assuming none exists. Starting but will only display very important status message.")
-		setVeryImportantStatus(richgo.Activity{
-			Details: "Please reinstall rich-destiny!",
-			State:   "Your installation is broken.",
-			Buttons: []*richgo.Button{
-				{
-					Label: "More Info (opens in browser)",
-					Url:   "https://richdestiny.app/cp", // TODO: actual link
-				},
-			},
-		})
-	}
-
 	var err error
 	db, err = sql.Open("sqlite3", makePath("storage.db"))
 	if err != nil {
@@ -218,6 +176,61 @@ func startApplication() {
 		value	STRING	NOT NULL
 	)`); err != nil {
 		log.Printf("Error creating storage.db table: %s", err)
+	}
+
+	var lastVersion string
+	err = db.QueryRow("SELECT value FROM data WHERE key='lastVersion'").Scan(&lastVersion)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.Printf("Error querying database for lastVersion: %s", err)
+		}
+	}
+
+	err = storeData("lastVersion", version)
+
+	if !service.Interactive() {
+		err = tryServicelessTransition()
+		if err != nil {
+			log.Printf("Error trying serviceless transition: %s", err)
+		}
+
+		// This is not the first time launching this version, so if previously the transition worked we should now check for that and otherwise notify the user
+		if lastVersion == version {
+			log.Printf("Checking for different running rich-destiny.exe...")
+
+			for i := 0; i < 6*5; i++ { // We check for 5 minutes
+				pl, _ := ps.Processes()
+				for _, p := range pl {
+					if p.Executable() == "rich-destiny.exe" && p.Pid() != os.Getpid() {
+						log.Printf("Running rich-destiny instance found, trying to uninstall service")
+						err = s.Uninstall()
+						if err != nil && !strings.Contains(err.Error(), "RemoveEventLogSource() failed") {
+							log.Printf("Error uninstalling service: %s", err)
+							return
+						}
+						err = s.Stop()
+						if err != nil {
+							log.Printf("Error stopping service: %s", err)
+						}
+						return
+					}
+				}
+
+				time.Sleep(10 * time.Second)
+			}
+
+			log.Printf("Can't find running rich-destiny after 5 minutes. Assuming none exists. Starting but will only display very important status message.")
+			setVeryImportantStatus(richgo.Activity{
+				Details: "Please reinstall rich-destiny!",
+				State:   "Your installation is broken.",
+				Buttons: []*richgo.Button{
+					{
+						Label: "More Info (opens in browser)",
+						Url:   "https://richdestiny.app/cp", // TODO: actual link
+					},
+				},
+			})
+		}
 	}
 
 	startWebServer()
