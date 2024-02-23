@@ -32,6 +32,7 @@ var (
 	flagDev    bool
 
 	// Other
+	logFile          *os.File
 	s                service.Service
 	db               *sql.DB
 	manifest         *sql.DB
@@ -134,6 +135,8 @@ func startApplication() {
 
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
+	var err error
+
 	if !flagDev {
 		if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
 			err = os.Mkdir(makePath("logs"), os.ModePerm)
@@ -146,7 +149,7 @@ func startApplication() {
 
 		y, m, d := time.Now().Date()
 		h, min, sec := time.Now().Clock()
-		logFile, err := os.Create(makePath(fmt.Sprintf("logs/%d-%d-%d %dh%dm%ds.log", y, m, d, h, min, sec)))
+		logFile, err = os.Create(makePath(fmt.Sprintf("logs/%d-%d-%d %dh%dm%ds.log", y, m, d, h, min, sec)))
 		if err != nil {
 			log.Printf("Couldn't create log file: %s", err)
 		} else {
@@ -165,7 +168,6 @@ func startApplication() {
 		version = "dev"
 	}
 
-	var err error
 	db, err = sql.Open("sqlite3", makePath("storage.db"))
 	if err != nil {
 		log.Printf("Error opening storage.db: %s", err)
@@ -307,6 +309,7 @@ func stopApplication() {
 
 	server.Close()
 	log.Print("Gracefully exited, bye bye")
+	logFile.Close()
 }
 
 func makePath(e string) string {
