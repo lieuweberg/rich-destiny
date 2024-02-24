@@ -191,11 +191,6 @@ func startApplication() {
 	err = storeData("lastVersion", version)
 
 	if !service.Interactive() {
-		err = tryServicelessTransition()
-		if err != nil {
-			log.Printf("Error trying serviceless transition: %s", err)
-		}
-
 		// This is not the first time launching this version, so if previously the transition worked we should now check for that and otherwise notify the user
 		if lastVersion == version {
 			log.Printf("Checking for different running rich-destiny.exe...")
@@ -232,6 +227,11 @@ func startApplication() {
 					},
 				},
 			})
+		}
+
+		err = tryServicelessTransition()
+		if err != nil {
+			log.Printf("Error trying serviceless transition: %s", err)
 		}
 	}
 
