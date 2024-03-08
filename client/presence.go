@@ -49,13 +49,19 @@ func initPresence() {
 							loggedIn = true
 							resolveErrorSpam(errorOriginDiscord)
 
-							if storage != nil && storage.AutoUpdate {
-								go func() {
-									_, err := attemptApplicationUpdate()
-									if err != nil {
-										log.Printf("Error trying to update: %s", err)
-									}
-								}()
+							if storage != nil {
+								if storage.AutoUpdate {
+									go func() {
+										_, err := attemptApplicationUpdate()
+										if err != nil {
+											log.Printf("Error trying to update: %s", err)
+										}
+									}()
+								}
+
+								if storage.ReAuthAt != 0 && time.Now().Unix() >= storage.ReAuthAt {
+									openTab("https://richdestiny.app/auth-expired")
+								}
 							}
 						}
 
@@ -78,7 +84,6 @@ func initPresence() {
 							logErrorIfNoErrorSpam(errorOriginAuth, fmt.Sprintf("Error getting storage: %s", err))
 							break
 						}
-						resolveErrorSpam(errorOriginAuth)
 
 						updatePresence()
 						break
@@ -126,6 +131,7 @@ func updatePresence() {
 		return
 	}
 
+	resolveErrorSpam(errorOriginAuth)
 	resolveErrorSpam(errorOriginProfileRequest)
 
 	newActivity := richgo.Activity{

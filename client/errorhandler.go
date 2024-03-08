@@ -34,6 +34,7 @@ func logErrorIfNoErrorSpam(origin errorOrigin, msg string) {
 				}
 
 				if e.amount == 2 {
+					e.amount++
 					log.Println("Muting further repetitive occurrences of this error.")
 				}
 
