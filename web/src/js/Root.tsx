@@ -24,11 +24,11 @@ function Root() {
 
         <div id="nav">
             <Link to="/">
-                <img src={logo} alt="icon" width="40" height="40"/>
+                <img src={logo} alt="icon" width="40" height="40" />
                 &nbsp;&nbsp;rich-destiny
             </Link>
             <label htmlFor="hamburger">&#9776;</label>
-            <input type="checkbox" id="hamburger"/>
+            <input type="checkbox" id="hamburger" />
             <ul onClick={() => (document.getElementById("hamburger") as HTMLInputElement).checked = false}>
                 <li>
                     <Link to="/download">Download</Link>
@@ -41,7 +41,7 @@ function Root() {
                 </li>
                 <li className="float-right">
                     <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
-                    rel="noopener noreferrer">GitHub</a>
+                        rel="noopener noreferrer">GitHub</a>
                 </li>
                 <li className="float-right">
                     <a href="https://discord.gg/UNU4UXp" target="_blank" rel="noopener noreferrer">Discord</a>
@@ -64,6 +64,14 @@ function Root() {
                 <Route path="/cp">
                     <ControlPanel />
                 </Route>
+                <Route path="/auth-expired">
+                    <div className="generic-text">
+                        <h1>Authentication expired</h1>
+                        <p>Your authentication details (refresh token) for rich-destiny have expired. Click the button below to
+                            log in with Bungie again.</p>
+                        <a href="http://localhost:35893/login" className="button" rel="noopener noreferrer">Login with Bungie</a>
+                    </div>
+                </Route>
                 <Route path="*">
                     <div className="generic-text">
                         <h1>404</h1>
@@ -79,7 +87,7 @@ function Root() {
             <div>
                 <div>
                     <p>2020-2023 &copy; <a href="https://lieuweberg.com" target="_blank"
-                        rel="noopener noreferrer">lieuwe_berg</a> <br/>
+                        rel="noopener noreferrer">lieuwe_berg</a> <br />
                         Destiny 2 and its related assets belong to Bungie, Inc.</p>
                 </div>
                 <div>
@@ -102,7 +110,7 @@ function InfoBanner() {
     // If you add a new banner, you may have to uncomment the InfoBanner on the actual page above.
     let bannerID = "1";
     let [dismissed, setDismissed] = useState(localStorage.getItem("bannerDismissed"));
-    useEffect(() => {}, [dismissed]);
+    useEffect(() => { }, [dismissed]);
 
     if (dismissed == bannerID) {
         return null;
