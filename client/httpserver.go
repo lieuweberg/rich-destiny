@@ -67,6 +67,7 @@ func startWebServer() {
 				Version:  version,
 				Debug:    "NA",
 				Status:   "Not logged in",
+				Location: currentDirectory,
 				Presence: previousActivity,
 			}
 

@@ -37,6 +37,7 @@ interface ProgramState extends Settings {
     debug: string;
     version: string;
     name: string;
+    location: string;
     presence: Presence;
 }
 
@@ -56,6 +57,7 @@ const defaultProgramState: ProgramState = {
     debug: "NA",
     version: "vX.Y.Z",
     name: "Not logged in",
+    location: "Some folder...",
     ...defaultSettings,
     presence: {
         Details: "Not playing...",
@@ -130,9 +132,9 @@ export default function () {
                     itself. You can install it in the same (current) location; you do not have to log in with Bungie again.</p>
 
                 <h3>I don't know where I installed rich-destiny :(</h3>
-                <p>If you don't know where you installed rich-destiny, you can also reinstall it completely. You can <Link to="/download">download
-                    a new version here</Link>. It will uninstall the old one, but leave behind the files. Alternatively, check if it is not
-                    installed in <code>C:\Users\&lt;yourname&gt;\rich-destiny\</code>.</p>
+                <p>You installed rich-destiny at:<br />
+                    <code>{data.location}</code><br />
+                    Copy paste this location into file explorer. Read the section above for how to proceed.</p>
 
                 <p>If you need help or have questions, feel free to ask in the Discord server. <a href="https://discord.gg/UNU4UXp" target="_blank"
                     rel="noopener noreferrer"> <img alt="Discord" src="https://img.shields.io/discord/604679605630009384?label=Discord&color=6c82cf" />
@@ -145,7 +147,8 @@ export default function () {
                     <p>Status: {data.status}<br />
                         Logged in as: {data.name}<br />
                         Debug: {data.debug}<br />
-                        Version: {data.version}</p>
+                        Version: {data.version}<br />
+                        Location: <code>{data.location}</code> {requiresVersion("v0.2.16")}</p>
                 </div>
                 <div style={{ marginLeft: "auto" }}>
                     <h4>Current presence preview</h4>
