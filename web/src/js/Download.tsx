@@ -159,11 +159,6 @@ export default function() {
                     'More info' and then 'Run anyway'.</b></p>
                 </li>
                 <li>
-                    <p>Another window will pop up asking for administrator permissions. <b>Click 'Yes'
-                    </b>. This is so rich-destiny can install itself into the service manager, allowing
-                    it to run in the background.</p>
-                </li>
-                <li>
                     <p>A text window will pop up. It will ask where you want to install rich-destiny. Unless
                     you know what you're doing, <b>type 'default' and hit enter</b>. A browser tab
                     will shortly open to log in with Bungie.net.</p>

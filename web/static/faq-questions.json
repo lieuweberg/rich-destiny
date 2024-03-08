@@ -11,12 +11,12 @@
     },
     {
         "q": "How do I restart rich-destiny?",
-        "a": "To restart rich-destiny:\n- restart your computer\n\nOR\n- go to windows search => type Services, hit enter => find rich-destiny => click Restart.\n\nIn case of an update, rich-destiny will have to be restarted twice before the update is applied. Once for downloading, a second for applying.",
+        "a": "To restart rich-destiny:\n- restart your computer.\n\nOR\n- in task manager, end the rich-destiny process.\n- go to where you installed rich-destiny and run the executable, it will start the program again.\n\nThis will be made easier in the future.",
         "id": "restart-rich-destiny"
     },
     {
         "q": "How do I uninstall rich-destiny?",
-        "a": "Press the button labeled 'Uninstall' on the control panel.",
+        "a": "Press the button labeled 'Uninstall' on the control panel. This will not currently remove the files used by rich-destiny.",
         "id": "uninstall-rich-destiny"
     },
     {
@@ -25,7 +25,7 @@
         "id": "will-i-get-banned"
     },
     {
-        "q": "What are all these files rich-destiny is creating?",
+        "q": "What are the files rich-destiny creates?",
         "a": "Files that very likely belong to rich-destiny:\n\n- `storage.db` (stores settings and authentication data)\n- `manifest.db` (a file containing information about all of Destiny's activities, items, quests, etc.)\n- logs folder and any date-named .txt file within (info and errors are saved here. new file for every time rich-destiny is started)\n- `rich-destiny.exe.old` (necessary file when updating to a new version)",
         "id": "what-are-these-files"
     }

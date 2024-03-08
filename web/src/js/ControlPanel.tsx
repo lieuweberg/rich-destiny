@@ -230,8 +230,8 @@ export default function () {
                         doSimpleGetRequest("http://localhost:35893/action?a=uninstall", 0, () => {
                             document.getElementById("uninstall").innerHTML = "Uninstalled :(";
                         });
-                    }} href="#" className="button" id="uninstall" data-tip="Uninstall rich-destiny from the service
-                        manager. Files need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
+                    }} href="#" className="button" id="uninstall" data-tip="Prevent rich-destiny from booting on
+                     startup. Files need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
                 </div>
             </div>
 
