@@ -85,14 +85,14 @@ body {
     NON-PAGE ELEMENTS
    =================== */
 #info-banner {
-    background-color: #174b36;
+    background: linear-gradient(to right, #c9427a, #5f42c9);
     text-align: center;
     font-size: 0.9rem;
     font-weight: 500;
 
     p {
         margin: 0;
-        padding: 2px;
+        padding: 4px;
     }
 
     code {

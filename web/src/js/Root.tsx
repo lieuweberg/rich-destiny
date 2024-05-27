@@ -20,7 +20,7 @@ function Root() {
     return <BrowserRouter>
         <ToastContainer autoClose={10000} />
 
-        {/* <InfoBanner /> */}
+        <InfoBanner />
 
         <div id="nav">
             <Link to="/">
@@ -108,7 +108,7 @@ function InfoBanner() {
     // dismissable across sessions. Yes, it could probably be done better.
     //
     // If you add a new banner, you may have to uncomment the InfoBanner on the actual page above.
-    let bannerID = "1";
+    let bannerID = "2";
     let [dismissed, setDismissed] = useState(localStorage.getItem("bannerDismissed"));
     useEffect(() => { }, [dismissed]);
 
@@ -116,12 +116,14 @@ function InfoBanner() {
         return null;
     } else {
         return (
-            <div id="info-banner" title="Click to dismiss" onClick={() => {
-                localStorage.setItem("bannerDismissed", bannerID);
-                setDismissed(bannerID);
-            }}>
-                <p>rich-destiny has moved to its own cozy place on the internet, <code>richdestiny.app</code>!</p>
-            </div>
+            <a href="https://predict.wastedondestiny.com/" target="_blank">
+                <div id="info-banner" /*title="Click to dismiss" onClick={() => {
+                    localStorage.setItem("bannerDismissed", bannerID);
+                    setDismissed(bannerID);
+                }}*/>
+                    <p>DESTINY 2: THE FINAL SHAPE PREDICTIONS - Special occasion: <i>The Final Shape</i> is almost out! Click here to try and score points by predicting what's to come!</p>
+                </div>
+            </a>
         )
     }
 }
