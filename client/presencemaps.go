@@ -60,6 +60,7 @@ var storyMissions = map[string][]string{
 	"beyondlight":   {"Darkness's Doorstep", "The New Kell", "Rising Resistance", "The Warrior", "The Technocrat", "The Kell of Darkness", "Sabotaging Salvation", "The Aftermath"},
 	"thewitchqueen": {"The Arrival", "The Investigation", "The Ghosts", "The Communion", "The Mirror", "The Cunning", "The Last Chance", "The Ritual", "Memories of"},
 	"lightfall":     {"First Contact", "Under Siege", "Downfall", "Breakneck", "On the Verge", "No Time Left", "Headlong", "Desperate Measures"},
+	"seasonwish":    {"Enthymeme", "Tautology", "Synchysis", "Apophasis", "Polysemy", "Chiasmus"},
 }
 
 var raidProgressionMap = map[string][]string{
@@ -70,4 +71,5 @@ var raidProgressionMap = map[string][]string{
 	"Vow of the Disciple": {"Acquisition", "Collection", "Exhibition", "Dominion"},                                                                     // 4
 	"King's Fall":         {"Totems", "Warpriest", "Golgoroth", "Daughters of Oryx", "Oryx, The Taken King"},                                           // 5
 	"Root of Nightmares":  {"Cataclysm", "Scission", "Macrocosm", "Nezarec"},                                                                           // 4
+	"Crota's End":         {"Abyss", "Oversoul Throne Bridge", "Ir Yût", "Crota, Son of Oryx"},                                                         // 4
 }

@@ -21,11 +21,11 @@ import (
 func requestAccessToken(code string, refresh bool) (err error) {
 	data := url.Values{}
 	if refresh {
-		logInfoIfNoErrorSpam("Refreshing access token")
+		logInfoIfNoErrorSpam(errorOriginAuth, "Refreshing access token")
 		data.Set("grant_type", "refresh_token")
 		data.Set("refresh_token", code)
 	} else {
-		logInfoIfNoErrorSpam("Requesting access token with code: " + code)
+		logInfoIfNoErrorSpam(errorOriginAuth, "Requesting access token with code: "+code)
 		data.Set("grant_type", "authorization_code")
 		data.Set("code", code)
 	}
@@ -130,7 +130,7 @@ func setAuth(data []byte) (err error) {
 			// Default settings
 			storage.AutoUpdate = true
 		} else {
-			logInfoIfNoErrorSpam("Error trying to query the database: " + err.Error())
+			logInfoIfNoErrorSpam(errorOriginAuth, "Error trying to query the database: "+err.Error())
 		}
 	}
 
@@ -177,7 +177,7 @@ func getStorage() (s *storageStruct, err error) {
 			return nil, err
 		}
 	} else if time.Now().Unix() >= storage.ReAuthAt {
-		log.Print("Your authentication details have expired. Please go to https://rich-destiny.app/cp to Reauthenticate again.")
+		logErrorIfNoErrorSpam(errorOriginAuth, "Your authentication details have expired. Please go to https://rich-destiny.app/cp to Reauthenticate again.")
 		return
 	} else if time.Now().Unix() >= storage.RefreshAt {
 		err = requestAccessToken(storage.RefreshToken, true)
@@ -189,13 +189,18 @@ func getStorage() (s *storageStruct, err error) {
 	return storage, nil
 }
 
-// openOauthTab tries to open the browser with the bungie oauth authorisation page.
-// Even though this does not work from within a service, it is used when first launching.
-func openOauthTab() {
-	err := exec.Command("rundll32", "url.dll,FileProtocolHandler", "http://localhost:35893/login").Start()
+// openTab opens a browser tab with the given URL
+func openTab(url string) {
+	err := exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
 	if err != nil {
 		log.Printf("Error executing browser open command: %s", err)
 	}
+}
+
+// openOauthTab tries to open the browser with the bungie oauth authorisation page.
+// It is used when first launching.
+func openOauthTab() {
+	openTab("http://localhost:35893/login")
 }
 
 // requestComponents is a helper function to request an endpoint/component from the bungie api.

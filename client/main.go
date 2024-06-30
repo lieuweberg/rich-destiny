@@ -3,11 +3,13 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -18,21 +20,29 @@ import (
 	"github.com/kardianos/service"
 	richgo "github.com/lieuweberg/rich-go/client"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/mitchellh/go-ps"
 )
 
 var (
-	// Injected by the go linker
+	// Injected by the go linker or when flagDev is true
 	version string
 
+	// Command line flags
+	flagDaemon bool
+	flagDev    bool
+
+	// Other
+	logFile          *os.File
 	s                service.Service
 	db               *sql.DB
 	manifest         *sql.DB
 	server           = &http.Server{Addr: "localhost:35893", Handler: nil}
 	currentDirectory string
 	exe              string
+	exitChannel      chan os.Signal
+	windowsUsers     []string
 
-	errCount         int
-	lastErrorMessage string
+	veryImportantStatusActive bool
 
 	storage *storageStruct
 	// Generally don't use this, use http.DefaultClient. If you want to make a component request, use requestComponents.
@@ -46,32 +56,20 @@ var (
 	debugText           string
 )
 
+func init() {
+	flag.BoolVar(&flagDaemon, "daemon", false, "run the program, not the install sequence")
+	flag.BoolVar(&flagDev, "dev", false, "don't free the console and don't create a log file")
+}
+
 type program struct{}
 
 func (p *program) Start(s service.Service) (err error) {
-	go p.run()
+	go startApplication()
 	return
 }
 
 func (p *program) Stop(s service.Service) (err error) {
-	log.Print("OS termination received")
-	db.Close()
-	log.Print("Database closed")
-	if manifest != nil {
-		manifest.Close()
-		log.Print("Manifest closed")
-	} else {
-		log.Print("Definitions didn't exist, didn't close")
-	}
-	if quitPresenceTicker != nil {
-		quitPresenceTicker <- true
-		log.Print("Presence loop stopped")
-	} else {
-		log.Print("Presence loop wasn't running, didn't stop")
-	}
-
-	server.Close()
-	log.Print("Gracefully exited, bye bye")
+	stopApplication()
 	return
 }
 
@@ -90,33 +88,10 @@ func createService() {
 	}
 }
 
-func successfullyStartService() (success bool, err error) {
-	for i := 0; i <= 10; i++ {
-		if i == 0 || i == 5 {
-			err = s.Start()
-			if err != nil {
-				return
-			}
-		}
-		_, err = http.Get("http://localhost:35893")
-		if err != nil {
-			time.Sleep(3 * time.Second)
-		} else {
-			success = true
-			break
-		}
-	}
-
-	if !success {
-		fmt.Println(" It seems rich-destiny didn't want to start at all..." +
-			"Try seeing if there is any information in the logs folder where rich-destiny was installed or head to the support server for help ( https://discord.gg/UNU4UXp ).")
-		return
-	}
-
-	return
-}
-
 func main() {
+	// Here and not in init due to testing package erroring when this is run in init
+	flag.Parse()
+
 	var err error
 	exe, err = os.Executable()
 	if err != nil {
@@ -125,7 +100,27 @@ func main() {
 	currentDirectory = filepath.Dir(exe)
 
 	if service.Interactive() {
-		installProgram()
+		if flagDaemon {
+			if !flagDev {
+				// https://docs.microsoft.com/en-us/windows/console/freeconsole
+				r1, _, err := syscall.Syscall(syscall.MustLoadDLL("kernel32").MustFindProc("FreeConsole").Addr(), 0, 0, 0, 0)
+				if r1 == 0 {
+					log.Printf("Couldn't free console. This is probably important and should be sent in the support server ( https://discord.gg/UNU4UXp ): %s", err)
+				}
+			} else {
+				version = "dev"
+			}
+
+			startApplication()
+
+			exitChannel = make(chan os.Signal, 1)
+			signal.Notify(exitChannel, syscall.SIGTERM, syscall.SIGINT, os.Interrupt, os.Kill)
+
+			<-exitChannel
+			stopApplication()
+		} else {
+			installProgram()
+		}
 	} else {
 		createService()
 		err = s.Run()
@@ -135,36 +130,43 @@ func main() {
 	}
 }
 
-func (p *program) run() {
+func startApplication() {
 	debugText = "Starting up..."
 
-	if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
-		err = os.Mkdir(makePath("logs"), os.ModePerm)
-		if err != nil {
-			// Logs are voided. Return as the application is probably lacking permissions.
-			log.Printf("Couldn't create logs directory: %s", err)
-			return
-		}
-	}
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	y, m, d := time.Now().Date()
-	h, min, sec := time.Now().Clock()
-	logFile, err := os.Create(makePath(fmt.Sprintf("logs/%d-%d-%d %dh%dm%ds.log", y, m, d, h, min, sec)))
-	if err != nil {
-		log.Printf("Couldn't create log file: %s", err)
-	} else {
-		log.SetOutput(logFile)
+	var err error
 
-		if runtime.GOOS == "windows" {
-			stdErrorHandle := syscall.STD_ERROR_HANDLE
-			r0, _, e1 := syscall.Syscall(syscall.MustLoadDLL("kernel32").MustFindProc("SetStdHandle").Addr(),
-				2, uintptr(stdErrorHandle), logFile.Fd(), 0)
-			if r0 == 0 {
-				log.Printf("Couldn't set stderr handle: %d", e1)
+	if !flagDev {
+		if _, err := os.Stat(makePath("logs")); os.IsNotExist(err) {
+			err = os.Mkdir(makePath("logs"), os.ModePerm)
+			if err != nil {
+				// Logs are voided. Return as the application is probably lacking permissions.
+				log.Printf("Couldn't create logs directory: %s", err)
+				return
 			}
 		}
+
+		y, m, d := time.Now().Date()
+		h, min, sec := time.Now().Clock()
+		logFile, err = os.Create(makePath(fmt.Sprintf("logs/%d-%d-%d %dh%dm%ds.log", y, m, d, h, min, sec)))
+		if err != nil {
+			log.Printf("Couldn't create log file: %s", err)
+		} else {
+			log.SetOutput(logFile)
+
+			if runtime.GOOS == "windows" {
+				stdErrorHandle := syscall.STD_ERROR_HANDLE
+				// https://docs.microsoft.com/en-us/windows/console/setstdhandle
+				r1, _, err := syscall.Syscall(syscall.MustLoadDLL("kernel32").MustFindProc("SetStdHandle").Addr(), 2, uintptr(stdErrorHandle), logFile.Fd(), 0)
+				if r1 == 0 {
+					log.Printf("Couldn't set stderr handle: %d", err)
+				}
+			}
+		}
+	} else {
+		version = "dev"
 	}
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	db, err = sql.Open("sqlite3", makePath("storage.db"))
 	if err != nil {
@@ -176,6 +178,61 @@ func (p *program) run() {
 		value	STRING	NOT NULL
 	)`); err != nil {
 		log.Printf("Error creating storage.db table: %s", err)
+	}
+
+	var lastVersion string
+	err = db.QueryRow("SELECT value FROM data WHERE key='lastVersion'").Scan(&lastVersion)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.Printf("Error querying database for lastVersion: %s", err)
+		}
+	}
+
+	err = storeData("lastVersion", version)
+
+	if !service.Interactive() {
+		// This is not the first time launching this version, so if previously the transition worked we should now check for that and otherwise notify the user
+		if lastVersion == version {
+			log.Printf("Checking for different running rich-destiny.exe...")
+
+			for i := 0; i < 6*5; i++ { // We check for 5 minutes
+				pl, _ := ps.Processes()
+				for _, p := range pl {
+					if p.Executable() == "rich-destiny.exe" && p.Pid() != os.Getpid() {
+						log.Printf("Running rich-destiny instance found, trying to uninstall service")
+						err = s.Uninstall()
+						if err != nil && !strings.Contains(err.Error(), "RemoveEventLogSource() failed") {
+							log.Printf("Error uninstalling service: %s", err)
+							return
+						}
+						err = s.Stop()
+						if err != nil {
+							log.Printf("Error stopping service: %s", err)
+						}
+						return
+					}
+				}
+
+				time.Sleep(10 * time.Second)
+			}
+
+			log.Printf("Can't find running rich-destiny after 5 minutes. Assuming none exists. Starting but will only display very important status message.")
+			setVeryImportantStatus(richgo.Activity{
+				Details: "Please reinstall rich-destiny!",
+				State:   "Your installation is broken.",
+				Buttons: []*richgo.Button{
+					{
+						Label: "More Info (opens in browser)",
+						Url:   "https://richdestiny.app/cp", // TODO: actual link
+					},
+				},
+			})
+		}
+
+		err = tryServicelessTransition()
+		if err != nil {
+			log.Printf("Error trying serviceless transition: %s", err)
+		}
 	}
 
 	startWebServer()
@@ -196,13 +253,13 @@ func (p *program) run() {
 					dnsError = true
 				}
 			} else {
-				logErrorIfNoErrorSpam("Error trying to check internet/bungie connection: " + err.Error())
+				logErrorIfNoErrorSpam(errorOriginInternet, "Error trying to check internet/bungie connection: "+err.Error())
 			}
 			time.Sleep(10 * time.Second)
 		} else {
 			debugText = ""
-			log.Printf("Internet/Bungie connection seems ok! Errors: %d", errCount)
-			errCount = 0
+			log.Println("Internet/Bungie connection seems ok!")
+			resolveErrorSpam(errorOriginInternet)
 			break
 		}
 	}
@@ -229,41 +286,38 @@ func (p *program) run() {
 	initPresence()
 }
 
+func stopApplication() {
+	log.Print("OS termination received")
+	if db != nil {
+		db.Close()
+		log.Print("Database closed")
+	} else {
+		log.Print("Storage was not opened, didn't close")
+	}
+	if manifest != nil {
+		manifest.Close()
+		log.Print("Manifest closed")
+	} else {
+		log.Print("Definitions didn't exist, didn't close")
+	}
+	if quitPresenceTicker != nil {
+		quitPresenceTicker <- true
+		log.Print("Presence loop stopped")
+	} else {
+		log.Print("Presence loop wasn't running, didn't stop")
+	}
+
+	server.Close()
+	log.Print("Gracefully exited, bye bye")
+	logFile.Close()
+}
+
 func makePath(e string) string {
 	return filepath.Join(currentDirectory, e)
 }
 
-func logErrorIfNoErrorSpam(msg string) {
-	if lastErrorMessage != msg {
-		errCount = 0
-	} else {
-		errCount++
-	}
-
-	if errCount < 3 {
-		printWithCorrectCaller(msg)
-	}
-
-	if errCount == 2 {
-		log.Println("Muting further repetitive occurrences of this error.")
-	}
-
-	lastErrorMessage = msg
-}
-
-func logInfoIfNoErrorSpam(msg string) {
-	if errCount < 3 {
-		printWithCorrectCaller(msg)
-	}
-}
-
-func printWithCorrectCaller(msg string) {
-	if _, file, line, ok := runtime.Caller(2); ok {
-		pathSegments := strings.Split(file, "/")
-		log.SetFlags(log.Ldate | log.Ltime)
-		log.Printf("%s:%d: %s", pathSegments[len(pathSegments)-1], line, msg)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	} else {
-		log.Print(msg)
-	}
+func setVeryImportantStatus(a richgo.Activity) {
+	a.LargeImage = "important"
+	setActivity(a, time.Now(), nil)
+	veryImportantStatusActive = true
 }

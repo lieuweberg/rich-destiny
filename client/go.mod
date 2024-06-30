@@ -3,6 +3,7 @@ module github.com/lieuweberg/rich-destiny/client
 go 1.16
 
 require (
+	github.com/go-ole/go-ole v1.2.6
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/kardianos/service v1.1.0
 	github.com/lieuweberg/rich-go v0.0.0-20210618211050-91adb7bc8afe

@@ -43,20 +43,25 @@ func initPresence() {
 						if !loggedIn {
 							err := richgo.Login("726090012877258762")
 							if err != nil {
-								logErrorIfNoErrorSpam(fmt.Sprintf("Couldn't connect to Discord: " + err.Error()))
+								logErrorIfNoErrorSpam(errorOriginDiscord, fmt.Sprintf("Couldn't connect to Discord: %s", err.Error()))
 								break
 							}
 							loggedIn = true
+							resolveErrorSpam(errorOriginDiscord)
 
-							if storage != nil && storage.AutoUpdate {
-								go func() {
-									// This only runs once when the game has been started, I don't really care whether it displays an error then
-									// even though it's not really an error at all.
-									_, err := attemptApplicationUpdate()
-									if err != nil {
-										log.Printf("Error trying to update: %s", err)
-									}
-								}()
+							if storage != nil {
+								if storage.AutoUpdate {
+									go func() {
+										_, err := attemptApplicationUpdate()
+										if err != nil {
+											log.Printf("Error trying to update: %s", err)
+										}
+									}()
+								}
+
+								if storage.ReAuthAt != 0 && time.Now().Unix() >= storage.ReAuthAt {
+									openTab("https://richdestiny.app/auth-expired")
+								}
 							}
 						}
 
@@ -65,17 +70,18 @@ func initPresence() {
 							err := getDefinitions()
 							if err != nil {
 								setMaintenance()
-								logErrorIfNoErrorSpam(fmt.Sprintf("Failed to get manifest: %s", err))
+								logErrorIfNoErrorSpam(errorOriginDefinitions, fmt.Sprintf("Failed to get manifest: %s", err))
 								break
 							}
 							definitionsExist = true
+							resolveErrorSpam(errorOriginDefinitions)
 						}
 
 						// We require storage every iteration
 						_, err := getStorage()
 						if err != nil {
 							setMaintenance()
-							logErrorIfNoErrorSpam(fmt.Sprintf("Error getting storage: %s", err))
+							logErrorIfNoErrorSpam(errorOriginAuth, fmt.Sprintf("Error getting storage: %s", err))
 							break
 						}
 
@@ -83,6 +89,7 @@ func initPresence() {
 						break
 					}
 				}
+
 				if loggedIn && !exeFound {
 					richgo.Logout()
 					log.Print("No longer playing, logged ipc out")
@@ -91,7 +98,6 @@ func initPresence() {
 				}
 			case <-quitPresenceTicker:
 				exeCheckTicker.Stop()
-				errCount = 0
 			}
 
 			if firstTime {
@@ -104,22 +110,29 @@ func initPresence() {
 }
 
 func updatePresence() {
+	if veryImportantStatusActive {
+		forcePresenceUpdate = true
+		setActivity(previousActivity, *previousActivity.Timestamps.Start, nil)
+		return
+	}
+
 	var profile *profileDef
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/?components=204,200", storage.MSType, storage.ActualMSID), &profile)
 	if err != nil {
-		logErrorIfNoErrorSpam(fmt.Sprintf("Error requesting profile: %s", err))
+		logErrorIfNoErrorSpam(errorOriginProfileRequest, fmt.Sprintf("Error requesting profile: %s", err))
 		return
 	}
 	if profile.ErrorStatus != "Success" {
 		if profile.ErrorStatus == "SystemDisabled" || profile.ErrorStatus == "DestinyThrottledByGameServer" {
 			setMaintenance()
 		} else {
-			logErrorIfNoErrorSpam(fmt.Sprintf("Bungie returned an error status %s when trying to get profile, message: %s", profile.ErrorStatus, profile.Message))
+			logErrorIfNoErrorSpam(errorOriginProfileRequest, fmt.Sprintf("Bungie returned an error status %s when trying to get profile, message: %s", profile.ErrorStatus, profile.Message))
 		}
 		return
 	}
 
-	errCount = 0
+	resolveErrorSpam(errorOriginAuth)
+	resolveErrorSpam(errorOriginProfileRequest)
 
 	newActivity := richgo.Activity{
 		LargeImage: "destinylogo",
@@ -278,6 +291,18 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 				newActivity.Details = "Traversing Eternity"
 				newActivity.LargeImage = "anniversary"
 			}
+		case strings.HasPrefix(activity.DP.Name, "The Coil"):
+			newActivity.Details = "The Coil" + " - The Dreaming City"
+			newActivity.LargeImage = "seasonwish"
+		case strings.HasPrefix(activity.DP.Name, "Savathûn's Spire"):
+			newActivity.Details = "Savathûn's Spire - " + place.DP.Name
+			if strings.Contains(activity.DP.Name, "Legend") {
+				newActivity.State = "Difficulty: Legend"
+			}
+			newActivity.LargeImage = "seasonwitch"
+		case activity.DP.Name == "Altars of Summoning":
+			newActivity.Details = activity.DP.Name + " - " + place.DP.Name
+			newActivity.LargeImage = "seasonwitch"
 		case strings.Contains(activity.DP.Name, "Salvage"):
 			newActivity.Details = activity.DP.Name + " - Titan"
 			s := strings.SplitN(activity.DP.Name, ": ", 2)
@@ -385,6 +410,9 @@ func transformActivity(charID string, activityHash, activityModeHash int32, acti
 			for campaign, missions := range storyMissions {
 				for _, m := range missions {
 					if strings.HasPrefix(activity.DP.Name, m) {
+						if campaign == "seasonwish" {
+							newActivity.Details = "Riven's Lair - The Dreaming City"
+						}
 						newActivity.LargeImage = campaign
 						return
 					}
@@ -438,11 +466,11 @@ func getActivityPhases(charID, phasesMapKey string, activityHash int32, newActiv
 	var p progressions
 	err := requestComponents(fmt.Sprintf("/Destiny2/%d/Profile/%s/Character/%s?components=202", storage.MSType, storage.ActualMSID, charID), &p)
 	if err != nil {
-		logErrorIfNoErrorSpam(fmt.Sprintf("Error requesting activity phases: %s", err))
+		logErrorIfNoErrorSpam(errorOriginActivityPhases, fmt.Sprintf("Error requesting activity phases: %s", err))
 		return
 	}
 	if p.ErrorStatus != "Success" {
-		logErrorIfNoErrorSpam(fmt.Sprintf("Bungie returned an error status %s when trying to get activity phases, message: %s", p.ErrorStatus, p.Message))
+		logErrorIfNoErrorSpam(errorOriginActivityPhases, fmt.Sprintf("Bungie returned an error status %s when trying to get activity phases, message: %s", p.ErrorStatus, p.Message))
 		return
 	}
 
@@ -477,12 +505,12 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 		newActivity.LargeImage = getLargeImage(activityMode.DP.Name)
 	}
 
-	if storage != nil && storage.JoinGameButton {
+	if !veryImportantStatusActive && storage != nil && storage.JoinGameButton {
 		if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
 			joinLink, err := getJoinLink()
 			if err != nil {
 				if !errors.Is(err, errNoConnectString) {
-					logErrorIfNoErrorSpam("Unknown error trying to get connection string")
+					logErrorIfNoErrorSpam(errorOriginSteam, "Unknown error trying to get connection string")
 				}
 
 				newActivity.Buttons = []*richgo.Button{
@@ -521,7 +549,10 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 		if err != nil {
 			log.Print("Error setting activity: " + err.Error())
 		}
-		log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newActivity.SmallText)
+
+		if !veryImportantStatusActive {
+			log.Printf("%s | %s | %s", newActivity.Details, newActivity.State, newActivity.SmallText)
+		}
 	}
 
 }

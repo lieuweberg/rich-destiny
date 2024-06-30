@@ -9,6 +9,7 @@ import PresenceCard from "./components/PresenceCard";
 
 import "../css/controlPanel.scss";
 import useMemoryState from "./MemoryState";
+import { Link } from "react-router-dom";
 
 // // @ts-expect-error
 // import decorationLeft from "../images/s19-towerisland.webp";
@@ -16,9 +17,9 @@ import useMemoryState from "./MemoryState";
 // import decorationRight from "../images/s19-engram.webp";
 
 interface Settings {
-    orbitText:      string;
-    autoUpdate:     boolean;
-    prereleases:    boolean;
+    orbitText: string;
+    autoUpdate: boolean;
+    prereleases: boolean;
     joinGameButton: boolean;
     joinOnlySocial: boolean;
 }
@@ -32,22 +33,23 @@ const defaultSettings: Settings = {
 }
 
 interface ProgramState extends Settings {
-    status:         string;
-    debug:          string;
-    version:        string;
-    name:           string;
-    presence:       Presence;
+    status: string;
+    debug: string;
+    version: string;
+    name: string;
+    location: string;
+    presence: Presence;
 }
 
 interface Presence {
-    Details:        string;
-    State:          string;
-    LargeImage:     string;
+    Details: string;
+    State: string;
+    LargeImage: string;
     // LargeText:      string;
-    SmallImage:     string;
+    SmallImage: string;
     // SmallText:      string;
-    Timestamps?:    any;
-    Buttons?:       any;
+    Timestamps?: any;
+    Buttons?: any;
 }
 
 const defaultProgramState: ProgramState = {
@@ -55,6 +57,7 @@ const defaultProgramState: ProgramState = {
     debug: "NA",
     version: "vX.Y.Z",
     name: "Not logged in",
+    location: "Some folder...",
     ...defaultSettings,
     presence: {
         Details: "Not playing...",
@@ -64,7 +67,7 @@ const defaultProgramState: ProgramState = {
     }
 }
 
-export default function() {
+export default function () {
     const [data, setData] = useMemoryState("controlPanelData", defaultProgramState) as [ProgramState, Function];
     const [settings, setSettings] = React.useState<Settings>(defaultSettings);
 
@@ -117,30 +120,52 @@ export default function() {
         </div> */}
 
         <div id="cp" className="generic-text">
-            <div className="boxed">
+            <div id="panel-reinstall" className="boxed" style={{ display: data.presence.Details == "Please reinstall rich-destiny!" ? "" : "none" }}>
+                <h1>Please reinstall rich-destiny!</h1>
+                <p>As of rich-destiny v0.2.15, this program no longer runs as a Windows service. This means that it will have tried to uninstall the service
+                    and register itself as a regular background program instead. This gives rich-destiny more control over itself, allowing some
+                    brand-new features to be made.</p>
+                <p>However, it seems this transition has failed.</p>
+
+                <h3>I know where I installed rich-destiny</h3>
+                <p><b>Please run the rich-destiny executable (rich-destiny.exe) again where you installed it.</b> It will reinstall
+                    itself. You can install it in the same (current) location; you do not have to log in with Bungie again.</p>
+
+                <h3>I don't know where I installed rich-destiny :(</h3>
+                <p>You installed rich-destiny at:<br />
+                    <code>{data.location}</code><br />
+                    Copy paste this location into file explorer. Read the section above for how to proceed.</p>
+
+                <p>If you need help or have questions, feel free to ask in the Discord server. <a href="https://discord.gg/UNU4UXp" target="_blank"
+                    rel="noopener noreferrer"> <img alt="Discord" src="https://img.shields.io/discord/604679605630009384?label=Discord&color=6c82cf" />
+                </a></p>
+            </div>
+
+            <div id="panel-status" className="boxed">
                 <div>
                     <h1>Control Panel</h1>
-                    <p>Status: {data.status}<br/>
-                    Logged in as: {data.name}<br/>
-                    Debug: {data.debug}<br/>
-                    Version: {data.version}</p>
+                    <p>Status: {data.status}<br />
+                        Logged in as: {data.name}<br />
+                        Debug: {data.debug}<br />
+                        Version: {data.version}<br />
+                        Location: <code>{data.location}</code> {requiresVersion("v0.2.16")}</p>
                 </div>
-                <div style={{marginLeft: "auto"}}>
+                <div style={{ marginLeft: "auto" }}>
                     <h4>Current presence preview</h4>
                     <PresenceCard description={data.presence.Details} state={data.presence.State}
                         largeImage={data.presence.LargeImage} smallImage={data.presence.SmallImage}
-                        initialTime={data.presence.Timestamps ? data.presence.Timestamps.Start : null}/>
+                        initialTime={data.presence.Timestamps ? data.presence.Timestamps.Start : null} />
                 </div>
                 <p className="motivational-text">Guardian, we find ourselves challenged by a strength unmatched
                     by any in recorded history. But, I believe in you :)</p>
             </div>
 
-            <div className="boxed">
+            <div id="panel-settings" className="boxed">
                 <h2>Settings</h2>
                 <form>
                     <div>
                         <div id="orbit-text-container">
-                            <PresenceCard description="In Orbit" state={settings.orbitText} largeImage="destinylogo"/>
+                            <PresenceCard description="In Orbit" state={settings.orbitText} largeImage="destinylogo" />
                             <label>
                                 Orbit state text: <input type="text" id="orbitText" placeholder="empty up here..."
                                     value={settings.orbitText} onChange={e => setSetting("orbitText", e.target.value)} />
@@ -156,7 +181,7 @@ export default function() {
                         <CheckboxInput name="Prereleases" json="prereleases" value={settings.prereleases}
                             update={setSetting} text="Enables prereleases/beta versions. Disabling this after
                             updating will NOT downgrade to an older non-prerelease version." />
-                            {requiresVersion("v0.2.5-1")}
+                        {requiresVersion("v0.2.5-1")}
                     </div>
 
                     <h4>Launch Game button</h4>
@@ -164,18 +189,18 @@ export default function() {
                         <CheckboxInput name="Enabled" json="joinGameButton" value={settings.joinGameButton}
                             update={setSetting} text="Adds a 'Launch Game' button to your status that
                             allows anyone to launch Destiny 2." />
-                            {requiresVersion("v0.2.1")}
+                        {requiresVersion("v0.2.1")}
 
                         <CheckboxInput name="Orbit or social spaces only" json="joinOnlySocial"
                             value={settings.joinOnlySocial} update={setSetting} text="Only show the Launch Game
                             button when you're in orbit or social spaces." /> {requiresVersion("v0.1.9")}
                     </div>
-                    <br/>
-                    <a href="#" className="button" onClick={e => {handleFormSubmit(e, settings)}}>Save Settings</a>
+                    <br />
+                    <a href="#" className="button" onClick={e => { handleFormSubmit(e, settings) }}>Save Settings</a>
                 </form>
             </div>
 
-            <div className="boxed">
+            <div id="panel-actions" className="boxed">
                 <h2>Actions</h2>
                 <div id="actions">
                     <a href="http://localhost:35893/login" className="button" target="_blank"
@@ -208,16 +233,25 @@ export default function() {
                         doSimpleGetRequest("http://localhost:35893/action?a=uninstall", 0, () => {
                             document.getElementById("uninstall").innerHTML = "Uninstalled :(";
                         });
-                    }} href="#" className="button" id="uninstall" data-tip="Uninstall rich-destiny from the service
-                        manager. Files need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
+                    }} href="#" className="button" id="uninstall" data-tip="Prevent rich-destiny from booting on
+                     startup. Files need to be removed manually!">Uninstall</a> {requiresVersion("v0.2.1")}
                 </div>
             </div>
 
-            <div className="boxed">
+            <div id="panel-tweets" className="boxed">
+                <h2>Tweets</h2>
+                <div>
+                    <a className="twitter-timeline" data-lang="en" data-dnt="true" data-theme="dark"
+                        data-chrome="noscrollbar nofooter noheader transparent noborders"
+                        href="https://twitter.com/richdestinyapp">Loading @richdestinyapp tweets...</a>
+                </div>
+            </div>
+
+            <div id="panel-links" className="boxed">
                 <h2>Come hang out</h2>
                 <p>Got feedback, questions or interesting ideas? Need a place to vent out about teleporting Overload
                     Captains, or just be with some friendly people? Or come for the opt-in pings when
-                    there's a new release.<br/>Come join the Discord server!</p>
+                    there's a new release.<br />Come join the Discord server!</p>
                 <a href="https://discord.gg/UNU4UXp" target="_blank" rel="noopener noreferrer">
                     <img alt="Discord" src="https://img.shields.io/discord/604679605630009384
                         ?label=Discord&color=6c82cf"/>
@@ -230,25 +264,16 @@ export default function() {
                         ?label=GitHub%20stars&color=6c82cf"></img>
                 </a>
             </div>
-
-            <div className="boxed">
-                <h2>Tweets</h2>
-                <div>
-                    <a className="twitter-timeline" data-lang="en" data-dnt="true" data-theme="dark"
-                        data-chrome="noscrollbar nofooter noheader transparent noborders"
-                        href="https://twitter.com/richdestinyapp">Loading @richdestinyapp tweets...</a>
-                </div>
-            </div>
         </div>
-        <ReactTooltip effect="solid" backgroundColor="#18191C"/>
+        <ReactTooltip effect="solid" backgroundColor="#18191C" />
     </>
 }
 
-function CheckboxInput({name, json, value, update, text}) {
+function CheckboxInput({ name, json, value, update, text }) {
     return <>
         <label>
             {name}: <input type="checkbox" id={json} checked={value}
-            onChange={e => update(json, e.target.checked)} />
+                onChange={e => update(json, e.target.checked)} />
         </label>
         <p className="info-text">{text}</p>
     </>
@@ -285,9 +310,9 @@ function getData(setData: Function, interval: number) {
 function handleFormSubmit(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, settings: Settings) {
     e.preventDefault();
     axios.post("http://localhost:35893/action?a=save", { ...settings }, { timeout: 1000 })
-    .then(res => {
-        toast.dark("Settings saved!")
-    }).catch(err => handleHTTPError(err));
+        .then(res => {
+            toast.dark("Settings saved!")
+        }).catch(err => handleHTTPError(err));
 }
 
 function doSimpleGetRequest(url: string, timeout: number, callback?: Function) {
@@ -296,7 +321,7 @@ function doSimpleGetRequest(url: string, timeout: number, callback?: Function) {
     }).then(res => {
         toast.dark(res.data);
     }).catch(err => handleHTTPError(err))
-    .then(() => {
-        if (callback) callback();
-    })
+        .then(() => {
+            if (callback) callback();
+        })
 }

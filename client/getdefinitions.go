@@ -16,12 +16,12 @@ func getDefinitions() (err error) {
 			var err error
 			manifest, err = sql.Open("sqlite3", makePath("manifest.db"))
 			if err != nil {
-				logInfoIfNoErrorSpam("Error opening manifest.db: " + err.Error())
+				logInfoIfNoErrorSpam(errorOriginDefinitions, "Error opening manifest.db: "+err.Error())
 				return
 			}
-			logInfoIfNoErrorSpam("Using existing manifest")
+			logInfoIfNoErrorSpam(errorOriginDefinitions, "Using existing manifest")
 		} else {
-			logInfoIfNoErrorSpam("No manifest exists and could not download new one. See errors above.")
+			logInfoIfNoErrorSpam(errorOriginDefinitions, "No manifest exists and could not download new one. See errors above.")
 		}
 	}()
 
@@ -39,12 +39,12 @@ func getDefinitions() (err error) {
 	err = db.QueryRow("SELECT value FROM data WHERE key='lastManifestURL'").Scan(&lastDefinitionsURL)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			logInfoIfNoErrorSpam(fmt.Sprintf("Error querying database for lastManifestURL. Obtaining new manifest: %s", err))
+			logInfoIfNoErrorSpam(errorOriginDefinitions, fmt.Sprintf("Error querying database for lastManifestURL. Obtaining new manifest: %s", err))
 		}
 	}
 
 	if manifestRes.Response.MobileWorldContentPaths.En != lastDefinitionsURL {
-		logInfoIfNoErrorSpam("Updating manifest...")
+		logInfoIfNoErrorSpam(errorOriginDefinitions, "Updating manifest...")
 
 		res, err := http.Get("https://www.bungie.net" + manifestRes.Response.MobileWorldContentPaths.En)
 		if err != nil {
@@ -56,7 +56,7 @@ func getDefinitions() (err error) {
 		}
 		_, err = io.Copy(out, res.Body)
 		res.Body.Close()
-		logInfoIfNoErrorSpam("Manifest downloaded, unzipping...")
+		logInfoIfNoErrorSpam(errorOriginDefinitions, "Manifest downloaded, unzipping...")
 
 		z, err := zip.OpenReader(out.Name())
 		out.Close()
@@ -81,13 +81,13 @@ func getDefinitions() (err error) {
 			out.Close()
 		}
 		z.Close()
-		logInfoIfNoErrorSpam("Manifest downloaded and unzipped!")
+		logInfoIfNoErrorSpam(errorOriginDefinitions, "Manifest downloaded and unzipped!")
 
 		err = os.Remove(makePath("manifest.zip"))
 		if err != nil {
 			return fmt.Errorf("Error deleting manifest.zip: %s", err)
 		}
-		logInfoIfNoErrorSpam("Deleted temporary file manifest.zip")
+		logInfoIfNoErrorSpam(errorOriginDefinitions, "Deleted temporary file manifest.zip")
 
 		err = storeData("lastManifestURL", manifestRes.Response.MobileWorldContentPaths.En)
 		if err != nil {

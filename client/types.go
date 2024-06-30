@@ -29,10 +29,11 @@ type storageStruct struct {
 }
 
 type currentProgramStatus struct {
-	Status  string `json:"status"`
-	Debug   string `json:"debug"`
-	Version string `json:"version"`
-	Name    string `json:"name"`
+	Status   string `json:"status"`
+	Debug    string `json:"debug"`
+	Version  string `json:"version"`
+	Name     string `json:"name"`
+	Location string `json:"location"`
 
 	OrbitText      string `json:"orbitText"`
 	AutoUpdate     bool   `json:"autoUpdate"`

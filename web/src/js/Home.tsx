@@ -137,12 +137,12 @@ export default function() {
 
         <div className="generic-text top-padding">
             <h1>What's so special about this?</h1>
-            <p>After <Link to="/download">downloading</Link>, when first run, this program installs itself into the
-            Windows service manager. Every time you now start your computer, this program will
-            be started in the background, do some minimal work and then sit idly, waiting until you start Destiny 2.</p>
-            <p>All alternatives have a built-in UI (User Interface). This adds a lot of
+            <p>After <Link to="/download">downloading</Link>, this program will
+            be started in the background, then sit idly, waiting until you start Destiny 2.</p>
+            <p>All alternatives have a built-in User Interface. This adds a lot of
             overhead while rarely being used. Instead, rich-destiny uses a hosted web-based interface for customising
             settings to keep resource usage, installation size and update size minimal.</p>
+            <p>Additionally, the intention is that you configure the program once and then never touch it again.</p>
         </div>
     </>
 }
