@@ -110,16 +110,15 @@ export default function() {
         <div className="generic-text">
             <h1>Download</h1>
 
-            <p>You can download the latest release here. Source code (in case you want to view that) can be
+            <p>You can download the latest release here. Source code can be
             found in the <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
-            rel="noopener noreferrer">GitHub</a> repo alongside old releases. Clicking the download
-            button here downloads the same file as GitHub releases provides.</p>
+            rel="noopener noreferrer">GitHub repo</a> alongside old releases.</p>
             <p>Installation instructions can be found below. It is recommended
             to fully read these prior to installation.</p>
             <p><b>By clicking the Download button below, you agree to
             the <a href="https://github.com/lieuweberg/rich-destiny/blob/master/LICENSE.md" target="_blank"
-            rel="noopener noreferrer">Terms and Conditions</a></b>, including section 15
-            (Disclaimer of Warranty) and 16 (Limitation of Liability).</p>
+            rel="noopener noreferrer">Terms and Conditions</a></b> (don't worry, it's just the open source license),
+            including section 15 (Disclaimer of Warranty) and 16 (Limitation of Liability).</p>
 
             <div id="download-box" className="boxed">
                 <div>
@@ -159,8 +158,9 @@ export default function() {
                     'More info' and then 'Run anyway'.</b></p>
                 </li>
                 <li>
-                    <p>A text window will pop up. It will ask where you want to install rich-destiny. Unless
-                    you know what you're doing, <b>type 'default' and hit enter</b>. A browser tab
+                    <p>A text window will pop up. It will ask where you want to install rich-destiny.
+                    The location that is guaranteed to work is the default, so <b>type 'default'
+                    and hit enter</b>. A browser tab
                     will shortly open to log in with Bungie.net.</p>
                     <p>That's it. You're done. Head to the <Link to="/cp">control panel</Link> to
                     configure rich-destiny! Enjoy :) If you have any questions, feel free to ask in
