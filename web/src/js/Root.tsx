@@ -20,7 +20,7 @@ function Root() {
     return <BrowserRouter>
         <ToastContainer autoClose={10000} />
 
-        <InfoBanner />
+        {/* <InfoBanner /> */}
 
         <div id="nav">
             <Link to="/">
