@@ -136,7 +136,7 @@ export default function () {
                     <code>{data.location}</code><br />
                     Copy paste this location into file explorer. Read the section above for how to proceed.</p>
 
-                <p>If you need help or have questions, feel free to ask in the Discord server. <a href="https://discord.gg/UNU4UXp" target="_blank"
+                <p>If you need help or have questions, feel free to ask in the Discord server. <a href="https://richdestiny.app/discord" target="_blank"
                     rel="noopener noreferrer"> <img alt="Discord" src="https://img.shields.io/discord/604679605630009384?label=Discord&color=6c82cf" />
                 </a></p>
             </div>
@@ -252,7 +252,7 @@ export default function () {
                 <p>Got feedback, questions or interesting ideas? Need a place to vent out about teleporting Overload
                     Captains, or just be with some friendly people? Or come for the opt-in pings when
                     there's a new release.<br />Come join the Discord server!</p>
-                <a href="https://discord.gg/UNU4UXp" target="_blank" rel="noopener noreferrer">
+                <a href="https://richdestiny.app/discord" target="_blank" rel="noopener noreferrer">
                     <img alt="Discord" src="https://img.shields.io/discord/604679605630009384
                         ?label=Discord&color=6c82cf"/>
                 </a>

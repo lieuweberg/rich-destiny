@@ -164,7 +164,7 @@ export default function() {
                     will shortly open to log in with Bungie.net.</p>
                     <p>That's it. You're done. Head to the <Link to="/cp">control panel</Link> to
                     configure rich-destiny! Enjoy :) If you have any questions, feel free to ask in
-                    the <a href="https://discord.gg/UNU4UXp" target="_blank"
+                    the <a href="https://richdestiny.app/discord" target="_blank"
                     rel="noopener noreferrer">Discord</a> server.</p>
                 </li>
             </ol>

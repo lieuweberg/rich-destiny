@@ -15,7 +15,7 @@ export default function() {
             <h1>Frequently Asked Questions</h1>
             <p>This FAQ functions as an FAQ and troubleshooter in one. Find your question,
                 follow the steps and you likely will arrive at your solution. If no solution
-                works, go to the <a href="https://discord.gg/UNU4UXp" target="_blank"
+                works, go to the <a href="https://richdestiny.app/discord" target="_blank"
                 rel="noopener noreferrer">support server</a>.
             </p>
         </div>

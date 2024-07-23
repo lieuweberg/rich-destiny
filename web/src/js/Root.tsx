@@ -44,7 +44,7 @@ function Root() {
                         rel="noopener noreferrer">GitHub</a>
                 </li>
                 <li className="float-right">
-                    <a href="https://discord.gg/UNU4UXp" target="_blank" rel="noopener noreferrer">Discord</a>
+                    <a href="https://richdestiny.app/discord" target="_blank" rel="noopener noreferrer">Discord</a>
                 </li>
             </ul>
         </div>
@@ -91,7 +91,7 @@ function Root() {
                         Destiny 2 and its related assets belong to Bungie, Inc.</p>
                 </div>
                 <div>
-                    <a href="https://discord.gg/UNU4UXp" target="_blank"
+                    <a href="https://richdestiny.app/discord" target="_blank"
                         rel="noopener noreferrer">Discord</a>
                     <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
                         rel="noopener noreferrer">GitHub</a>
