@@ -27,6 +27,13 @@ func getJoinLink() (string, error) {
 			}
 		}
 
+		if _, err := os.Stat(makePath("steam_appid.txt")); os.IsNotExist(err) {
+			err = copyEmbeddedDLL()
+			if err != nil {
+				return "", fmt.Errorf("Error copying files: %s", err)
+			}
+		}
+
 		var err error
 		steamDLL, err = windows.LoadDLL(makePath("steam_api64.dll"))
 		if err != nil {
