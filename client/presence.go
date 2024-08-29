@@ -94,6 +94,14 @@ func initPresence() {
 					richgo.Logout()
 					log.Print("No longer playing, logged ipc out")
 					loggedIn = false
+
+					err := steamAPIShutdown()
+					if err != nil {
+						log.Println(err)
+					} else {
+						log.Print("Steam API logged out")
+					}
+
 					previousActivity = richgo.Activity{}
 				}
 			case <-quitPresenceTicker:
@@ -526,10 +534,11 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 						Url:   joinLink,
 					},
 				}
-			}
 
-			if len(previousActivity.Buttons) > 0 && previousActivity.Buttons[0].Url != joinLink {
-				forcePresenceUpdate = true
+				if len(previousActivity.Buttons) > 0 && previousActivity.Buttons[0].Url != joinLink {
+					log.Printf("New join link: %s", joinLink)
+					forcePresenceUpdate = true
+				}
 			}
 		}
 	}
@@ -539,7 +548,6 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 		previousActivity.State != newActivity.State ||
 		previousActivity.SmallText != newActivity.SmallText ||
 		forcePresenceUpdate {
-
 		if forcePresenceUpdate {
 			forcePresenceUpdate = false
 		}

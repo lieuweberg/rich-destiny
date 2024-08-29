@@ -82,10 +82,23 @@ func getJoinLink() (string, error) {
 	return fmt.Sprintf("steam://rungame/1085660/%d/%s", steamID, url.PathEscape(connect)), nil
 }
 
+func steamAPIShutdown() error {
+	if steamInitialised {
+		steamInitialised = false
+		steamDLL = nil
+		// _, err := callProc("SteamAPI_Shutdown")
+		// if err != nil {
+		// 	return fmt.Errorf("Steam API shutdown failed: %s", err)
+		// }
+	}
+
+	return nil
+}
+
 func callProc(name string, args ...uintptr) (uintptr, error) {
 	proc, err := steamDLL.FindProc(name)
 	if err != nil {
-		return 0, fmt.Errorf("error getting init proc: %s", err)
+		return 0, fmt.Errorf("error getting proc: %s", err)
 	}
 
 	r, _, err := proc.Call(args...)
