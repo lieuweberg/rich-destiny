@@ -95,13 +95,6 @@ func initPresence() {
 					log.Print("No longer playing, logged ipc out")
 					loggedIn = false
 
-					err := steamAPIShutdown()
-					if err != nil {
-						log.Println(err)
-					} else {
-						log.Print("Steam API logged out")
-					}
-
 					previousActivity = richgo.Activity{}
 				}
 			case <-quitPresenceTicker:
@@ -515,12 +508,10 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 
 	if !veryImportantStatusActive && storage != nil && storage.JoinGameButton {
 		if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
-			joinLink, err := getJoinLink()
-			if err != nil {
-				if !errors.Is(err, errNoConnectString) {
-					logErrorIfNoErrorSpam(errorOriginSteam, "Unknown error trying to get connection string")
-				}
-
+			if joinLinkProcess == false {
+				spawnJoinLinkProcess()
+			}
+			if joinLink == "" {
 				newActivity.Buttons = []*richgo.Button{
 					{
 						Label: "Launch Game",

@@ -28,8 +28,9 @@ var (
 	version string
 
 	// Command line flags
-	flagDaemon bool
-	flagDev    bool
+	flagDaemon   bool
+	flagDev      bool
+	flagJoinLink bool
 
 	// Other
 	logFile          *os.File
@@ -58,6 +59,7 @@ var (
 
 func init() {
 	flag.BoolVar(&flagDaemon, "daemon", false, "run the program, not the install sequence")
+	flag.BoolVar(&flagJoinLink, "joinlink", false, "only connect to steam and output the joinlink")
 	flag.BoolVar(&flagDev, "dev", false, "don't free the console and don't create a log file")
 }
 
@@ -100,7 +102,7 @@ func main() {
 	currentDirectory = filepath.Dir(exe)
 
 	if service.Interactive() {
-		if flagDaemon {
+		if flagDaemon || flagJoinLink {
 			if !flagDev {
 				// https://docs.microsoft.com/en-us/windows/console/freeconsole
 				r1, _, err := syscall.Syscall(syscall.MustLoadDLL("kernel32").MustFindProc("FreeConsole").Addr(), 0, 0, 0, 0)
@@ -111,7 +113,11 @@ func main() {
 				version = "dev"
 			}
 
-			startApplication()
+			if flagDaemon {
+				startApplication()
+			} else if flagJoinLink {
+				startJoinLinkOutput()
+			}
 
 			exitChannel = make(chan os.Signal, 1)
 			signal.Notify(exitChannel, syscall.SIGTERM, syscall.SIGINT, os.Interrupt, os.Kill)
