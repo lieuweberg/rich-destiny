@@ -47,6 +47,7 @@ func logErrorIfNoErrorSpam(origin errorOrigin, msg string) {
 			msg:      msg,
 			lastSeen: time.Now().Unix(),
 		})
+		spamlessErrors[origin] = o
 	} else {
 		spamlessErrors[origin] = []spamlessError{{
 			msg:      msg,
