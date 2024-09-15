@@ -107,7 +107,7 @@ func main() {
 				// https://docs.microsoft.com/en-us/windows/console/freeconsole
 				r1, _, err := syscall.Syscall(syscall.MustLoadDLL("kernel32").MustFindProc("FreeConsole").Addr(), 0, 0, 0, 0)
 				if r1 == 0 {
-					log.Printf("Couldn't free console. This is probably important and should be sent in the support server ( https://discord.gg/UNU4UXp ): %s", err)
+					log.Printf("Couldn't free console. This is probably important and should be sent in the support server ( https://richdestiny.app/discord ): %s", err)
 				}
 			} else {
 				version = "dev"

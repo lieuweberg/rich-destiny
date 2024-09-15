@@ -345,7 +345,7 @@ func successfullyStartDaemon(path string) (success bool, err error) {
 
 	if !success {
 		fmt.Println(" It seems rich-destiny didn't want to start at all..." +
-			"Try seeing if there is any information in the logs folder where rich-destiny was installed or head to the support server for help ( https://discord.gg/UNU4UXp ).")
+			"Try seeing if there is any information in the logs folder where rich-destiny was installed or head to the support server for help ( https://richdestiny.app/discord ).")
 		return
 	}
 
