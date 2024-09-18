@@ -85,6 +85,22 @@ func initPresence() {
 							break
 						}
 
+						// Check if authentication is still valid
+						if storage.ReAuthAt != 0 && time.Now().Unix() >= storage.ReAuthAt {
+							setVeryImportantStatus(richgo.Activity{
+								Details: "Please log in again!",
+								State:   "Your authentication has expired.",
+								Buttons: []*richgo.Button{
+									{
+										Label: "Authenticate",
+										Url:   "https://richdestiny.app/auth-expired",
+									},
+								},
+							})
+						} else if veryImportantStatusActive && previousActivity.Details == "Please log in again!" {
+							veryImportantStatusActive = false
+						}
+
 						updatePresence()
 						break
 					}
