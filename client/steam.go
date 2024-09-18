@@ -9,6 +9,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"os/exec"
@@ -19,16 +20,49 @@ import (
 
 	"github.com/mitchellh/go-ps"
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/registry"
 )
 
 var steamDLL *windows.DLL
 var errNoConnectString = errors.New("connection string is empty")
+var errFailedToInitialiseSteam = errors.New("Failed to initialise steamapi")
 var steamInitialised bool
 
 var joinLink string
 var joinLinkProcess = false
+var maybeNotLaunchingThroughSteam = 0
 
 func spawnJoinLinkProcess() {
+	epicGamesStoreRunning := false
+	pl, _ := ps.Processes()
+	for _, p := range pl {
+		if p.Executable() == "EpicGamesLauncher.exe" {
+			epicGamesStoreRunning = true
+			break
+		}
+	}
+
+	if epicGamesStoreRunning {
+		steamRegistryKey, err := registry.OpenKey(registry.CURRENT_USER, "Software\\Valve\\Steam", registry.QUERY_VALUE)
+		defer steamRegistryKey.Close()
+		if err != nil {
+			logErrorIfNoErrorSpam(errorOriginSteam, "Error opening steam registry key: "+err.Error())
+			return
+		}
+
+		runningAppID, _, err := steamRegistryKey.GetIntegerValue("RunningAppID")
+		if err != nil {
+			logErrorIfNoErrorSpam(errorOriginSteam, "Error reading registry value: "+err.Error())
+			return
+		}
+
+		log.Printf("Found running app ID: %d", runningAppID)
+		if runningAppID != 1085660 {
+			maybeNotLaunchingThroughSteam++
+			return
+		}
+	}
+
 	cmd := exec.Command(exe, "-joinlink", strconv.Itoa(os.Getpid()))
 	stdout, err := cmd.StdoutPipe()
 	err = cmd.Start()
@@ -37,11 +71,15 @@ func spawnJoinLinkProcess() {
 		return
 	}
 	joinLinkProcess = true
+	
 	go func() {
 		outScanner := bufio.NewScanner(stdout)
 		for outScanner.Scan() {
 			s := outScanner.Text()
 			if !strings.HasPrefix(s, "steam://rungame/1085660/") && s != "" {
+				if s == errFailedToInitialiseSteam.Error() {
+					maybeNotLaunchingThroughSteam++
+				}
 				logErrorIfNoErrorSpam(errorOriginSteam, "Unknown (error?) output from JoinLink process: "+s)
 			} else {
 				joinLink = s
@@ -65,7 +103,7 @@ func spawnJoinLinkProcess() {
 }
 
 func startJoinLinkOutput() {
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	parentPID, err := strconv.Atoi(flag.Arg(0))
 	if err != nil {
 		fmt.Println("Could not convert PID argument to int" + err.Error())
@@ -130,7 +168,7 @@ func getJoinLink() (string, error) {
 			return "", fmt.Errorf("Error initialising steamapi: %s", err)
 		}
 		if init == 0 {
-			return "", errors.New("Failed to initialise steamapi")
+			return "", errFailedToInitialiseSteam
 		}
 		steamInitialised = true
 	}

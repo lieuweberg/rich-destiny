@@ -112,6 +112,7 @@ func initPresence() {
 					loggedIn = false
 
 					previousActivity = richgo.Activity{}
+					maybeNotLaunchingThroughSteam = 0
 				}
 			case <-quitPresenceTicker:
 				exeCheckTicker.Stop()
@@ -524,7 +525,7 @@ func setActivity(newActivity richgo.Activity, st time.Time, activityMode *activi
 
 	if !veryImportantStatusActive && storage != nil && storage.JoinGameButton {
 		if !storage.JoinOnlySocial || (newActivity.LargeImage == "socialall" || newActivity.Details == "In Orbit") {
-			if joinLinkProcess == false {
+			if joinLinkProcess == false && maybeNotLaunchingThroughSteam < 3 {
 				spawnJoinLinkProcess()
 			}
 			if joinLink == "" {
