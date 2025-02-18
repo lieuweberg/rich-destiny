@@ -55,6 +55,7 @@ export default function() {
         <div id="title">
             <h1>rich-destiny</h1>
             <p>a discord rich presence tool for destiny 2 (pc)</p>
+            <p>latest update v0.2.17: the join game button returns!</p>
             <div>
                 <Link to="/download">Download</Link>
                 <Link to="/cp">Control Panel</Link>
@@ -94,10 +95,10 @@ export default function() {
                 <div className="image">
                     <img width="300px" height="150px" src={home1} alt="screenshot showing tooltip" />
                 </div>
-                <hr />
+                {/* <hr /> */}
                 <div>
                     <h3>Forge your fireteam</h3>
-                    <p>Anyone playing Destiny 2 on Steam can easily launch the game through your status. <small>(optional)</small></p>
+                    <p>No more sharing join codes: anyone playing on Steam can easily join your fireteam through your status. Perfect for LFG. <small>(optional)</small></p>
                 </div>
             </div>
             {/* <div className="card">
@@ -115,7 +116,7 @@ export default function() {
                 <div className="image">
                     <img width="300px" height="150px" src={home2} alt="screenshot showing tooltip"/>
                 </div>
-                <hr/>
+                {/* <hr/> */}
                 <div>
                     <h3>Make your class proud</h3>
                     <p>Displays current class and power level as a tooltip on the class icon.</p>
@@ -125,7 +126,7 @@ export default function() {
                 <div className="image">
                     <img width="300px" height="150px" src={home3} title="credit: tiberaus" alt="image of errors before arrow, checkmarks after"/>
                 </div>
-                <hr/>
+                {/* <hr/> */}
                 <div>
                     <h3>It just works</h3>
                     <p>Runs in the background with minimal resource overhead. Auto updates by default. Fully self-contained.</p>
@@ -139,10 +140,11 @@ export default function() {
             <h1>What's so special about this?</h1>
             <p>After <Link to="/download">downloading</Link>, this program will
             be started in the background, then sit idly, waiting until you start Destiny 2.</p>
-            <p>All alternatives have a built-in User Interface. This adds a lot of
-            overhead while rarely being used. Instead, rich-destiny uses a hosted web-based interface for customising
-            settings to keep resource usage, installation size and update size minimal.</p>
-            <p>Additionally, the intention is that you configure the program once and then never touch it again.</p>
+            <p>The intention is that you configure the program once and then never touch it again. You won't even notice it's there.
+                There's no website to head to every time or program to manually start. It kind of just works.</p>
+            <p>When you start Destiny 2, rich-destiny will become active: it connects to Discord and interacts with the Bungie API,
+                until you close the game again.</p>
+            <p>Also it shows the encounter of the raid you're in for your first run every week... which is just pretty cool.</p>
         </div>
     </>
 }

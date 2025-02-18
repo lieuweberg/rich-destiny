@@ -184,15 +184,15 @@ export default function () {
                         {requiresVersion("v0.2.5-1")}
                     </div>
 
-                    <h4>Launch Game button</h4>
+                    <h4>Join Game button</h4>
                     <div>
                         <CheckboxInput name="Enabled" json="joinGameButton" value={settings.joinGameButton}
-                            update={setSetting} text="Adds a 'Launch Game' button to your status that
-                            allows anyone to launch Destiny 2." />
+                            update={setSetting} text="Adds a 'Join Game' button to your status that
+                            allows anyone playing Destiny 2 on steam to join your fireteam." />
                         {requiresVersion("v0.2.1")}
 
                         <CheckboxInput name="Orbit or social spaces only" json="joinOnlySocial"
-                            value={settings.joinOnlySocial} update={setSetting} text="Only show the Launch Game
+                            value={settings.joinOnlySocial} update={setSetting} text="Only show the Join Game
                             button when you're in orbit or social spaces." /> {requiresVersion("v0.1.9")}
                     </div>
                     <br />
@@ -248,20 +248,17 @@ export default function () {
             </div>
 
             <div id="panel-links" className="boxed">
-                <h2>Come hang out</h2>
-                <p>Got feedback, questions or interesting ideas? Need a place to vent out about teleporting Overload
-                    Captains, or just be with some friendly people? Or come for the opt-in pings when
-                    there's a new release.<br />Come join the Discord server!</p>
-                <a href="https://richdestiny.app/discord" target="_blank" rel="noopener noreferrer">
-                    <img alt="Discord" src="https://img.shields.io/discord/604679605630009384
-                        ?label=Discord&color=6c82cf"/>
-                </a>
-
-                <h3>Or show some support</h3>
+                <h2>Show some support</h2>
                 <p>By leaving a star on GitHub :)</p>
                 <a href="https://github.com/lieuweberg/rich-destiny" target="_blank" rel="noopener noreferrer">
                     <img alt="GitHub stars" src="https://img.shields.io/github/stars/lieuweberg/rich-destiny
                         ?label=GitHub%20stars&color=6c82cf"></img>
+                </a>
+                <p>Got feedback, questions or interesting ideas? Or come for the opt-in pings when
+                    there's a new release.<br />Come join the Discord server!</p>
+                <a href="https://richdestiny.app/discord" target="_blank" rel="noopener noreferrer">
+                    <img alt="Discord" src="https://img.shields.io/discord/604679605630009384
+                        ?label=Discord&color=6c82cf"/>
                 </a>
             </div>
         </div>
@@ -283,7 +280,7 @@ function handleHTTPError(err) {
     if (err.response) {
         toast.error(<p>{err.response.data}</p>);
     } else if (err.request) {
-        toast.error(<p>rich-destiny could not be reached. Do you have it installed? Is it running?</p>);
+        toast.error(<p>rich-destiny could not be reached. Do you have it installed? Is it running? If it's installed, try disabling your adblock.</p>);
     } else {
         toast.error(<p>Could not make request... <code>${err.message}</code></p>);
     }

@@ -44,6 +44,16 @@
             margin-left: 50px;
         }
     }
+
+    :nth-child(2) {
+        margin-bottom: 0px;
+    }
+
+    :nth-child(3) {        
+        color: #d1d1d1;
+        margin-top: 0px;
+        font-size: 0.9em;
+    }
 }
 
 #sliders {
@@ -117,7 +127,7 @@
     display: flex;
     justify-content: center;
     gap: 50px;
-    background-color: #353535;
+    background-color: #252525;
 
     @include isMobile() {
         flex-direction: column;
@@ -138,6 +148,7 @@
     }
 
     .image {
+        border: 1px solid #383a3f;
         border-radius: 5px;
         background-color: $presence;
         overflow: hidden;

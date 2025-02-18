@@ -148,12 +148,13 @@ export default function() {
         </div>
         <div className="generic-text">
             <h1>Installation</h1>
+            <p>Don't worry, it's really simple.</p>
             <ol id="install-steps">
                 <li>
                     <p>Download rich-destiny by clicking the 'Download {r.version}' button above.</p>
                 </li>
                 <li>
-                    <p>Double click <code>rich-destiny.exe</code>. Windows SmartScreen will pop up saying
+                    <p>Open the downloaded <code>rich-destiny.exe</code>. Windows SmartScreen will pop up saying
                     that the file is from an unknown source and can't be trusted<sup>[1]</sup>. <b>Click
                     'More info' and then 'Run anyway'.</b></p>
                 </li>

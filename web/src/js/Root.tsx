@@ -86,16 +86,19 @@ function Root() {
             <img className="svg-spacer" src={footerWaves} alt="" />
             <div>
                 <div>
-                    <p>2020-2023 &copy; <a href="https://lieuweberg.com" target="_blank"
+                    <p>2020-2025 &copy; <a href="https://lieuweberg.com" target="_blank"
                         rel="noopener noreferrer">lieuwe_berg</a> <br />
-                        Destiny 2 and its related assets belong to Bungie, Inc.</p>
+                        Destiny 2 and its related assets belong to Bungie, Inc. <br />
+                        <small>Also check out: <a href="http://bray.tech" target="_blank" rel="noopener">Braytech</a>
+                        <a href="http://engram.blue" target="_blank" rel="noopener">Blue engram</a>
+                        <a href="http://d2lostsector.report" target="_blank" rel="noopener">D2 Lost Sector Report</a></small></p>
                 </div>
                 <div>
                     <a href="https://richdestiny.app/discord" target="_blank"
                         rel="noopener noreferrer">Discord</a>
                     <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"
                         rel="noopener noreferrer">GitHub</a>
-                    <a href="https://twitter.com/richdestinyapp" target="_blank"
+                    <a href="https://x.com/richdestinyapp" target="_blank"
                         rel="noopener noreferrer">Twitter</a>
                 </div>
             </div>
