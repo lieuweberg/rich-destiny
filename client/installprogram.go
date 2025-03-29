@@ -206,7 +206,7 @@ func installProgram() {
 				}
 			}
 
-			currentDirectory = filepath.Base(exe)
+			currentDirectory = defaultDirectory
 			fmt.Println(" Successfully moved.")
 			break
 		} else if strings.Contains(r, "c") {
