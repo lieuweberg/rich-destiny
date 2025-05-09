@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -44,7 +44,7 @@ func requestAccessToken(code string, refresh bool) (err error) {
 	if err != nil {
 		return fmt.Errorf("Error doing http request: %s", err)
 	}
-	body, err := ioutil.ReadAll(authRes.Body)
+	body, err := io.ReadAll(authRes.Body)
 	authRes.Body.Close()
 	if err != nil {
 		return fmt.Errorf("Error reading response body: %s", err)
@@ -237,7 +237,7 @@ func requestComponents(endpoint string, responseStruct interface{}) (err error) 
 	if err != nil {
 		return
 	}
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
 		return

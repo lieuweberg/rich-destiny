@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -112,7 +112,7 @@ func startWebServer() {
 				return
 			}
 
-			data, err := ioutil.ReadAll(req.Body)
+			data, err := io.ReadAll(req.Body)
 			req.Body.Close()
 			if err != nil {
 				res.WriteHeader(http.StatusInternalServerError)

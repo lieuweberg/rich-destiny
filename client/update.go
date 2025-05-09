@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -81,7 +81,7 @@ func getNewReleases() (releases releasesFromGithub, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error trying to get latest release: %s", err)
 	}
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 
 	err = json.Unmarshal(body, &releases)
