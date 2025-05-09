@@ -36,6 +36,8 @@ func requestAccessToken(code string, refresh bool) (err error) {
 	if err != nil {
 		return fmt.Errorf("Error making NewRequest to get an access token: %s", err)
 	}
+	addUserAgent(authReq)
+
 	authReq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	authRes, err := http.DefaultClient.Do(authReq)
@@ -224,6 +226,8 @@ func requestComponents(endpoint string, responseStruct interface{}) (err error) 
 	if err != nil {
 		return
 	}
+	addUserAgent(req)
+
 	req.Header.Set("X-API-Key", config.APIKey)
 	if endpoint != "/Destiny2/Manifest/" {
 		req.Header.Set("Authorization", "Bearer "+storage.AccessToken)
@@ -241,4 +245,8 @@ func requestComponents(endpoint string, responseStruct interface{}) (err error) 
 	err = json.Unmarshal(body, &responseStruct)
 
 	return
+}
+
+func addUserAgent(req *http.Request) {
+	req.Header.Set("User-Agent", fmt.Sprintf("rich-destiny/%s AppId/%s (+richdestiny.app;@lieuwe_berg)", version, config.ClientID))
 }
