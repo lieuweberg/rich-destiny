@@ -61,7 +61,7 @@ func logErrorIfNoErrorSpam(origin errorOrigin, msg string) {
 func logInfoIfNoErrorSpam(origin errorOrigin, msg string) {
 	if o, ok := spamlessErrors[origin]; ok {
 		for _, e := range o {
-			if e.amount < 3 && time.Now().Unix()-e.lastSeen < 5*60 {
+			if e.amount == 3 && time.Now().Unix()-e.lastSeen < 5*60 {
 				return
 			}
 		}
