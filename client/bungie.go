@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/lieuweberg/rich-go/client"
 )
 
 // requestAccessToken requests an access token from bungie.
@@ -72,6 +74,21 @@ func setAuth(data []byte) (err error) {
 	}
 
 	if errorResponse.ErrorDescription != "" {
+		switch errorResponse.ErrorDescription {
+		case "RefreshTokenNotYetValid":
+			fallthrough
+		case "AccessTokenHasExpired":
+			fallthrough
+		case "AuthorizationCodeInvalid":
+			fallthrough
+		case "AuthorizationRecordExpired":
+			fallthrough
+		case "AuthorizationRecordRevoked":
+			fallthrough
+		case "AuthorizationCodeStale":
+			storage.ReAuthAt = time.Now().Unix()
+			return storeData("storage", storage)
+		}
 		return fmt.Errorf("Error response to the request: %s", errorResponse.ErrorDescription)
 	}
 
@@ -123,6 +140,10 @@ func setAuth(data []byte) (err error) {
 		if storage.ActualMSID != "" {
 			break
 		}
+	}
+
+	if previousActivity.Details == "Your Bungie login has expired." {
+		veryImportantStatusActive = false
 	}
 
 	var dud string
@@ -179,6 +200,14 @@ func getStorage() (s *storageStruct, err error) {
 			return nil, err
 		}
 	} else if time.Now().Unix() >= storage.ReAuthAt {
+		setVeryImportantStatus(client.Activity{
+			Details: "Your Bungie login has expired.",
+			State:   "See richdestiny.app/auth-expired",
+			Buttons: []*client.Button{{
+				Label: "Log in (richdestiny.app)",
+				Url:   "https://richdestiny.app/auth-expired",
+			}},
+		})
 		logErrorIfNoErrorSpam(errorOriginAuth, "Your authentication details have expired. Please go to https://rich-destiny.app/cp to Reauthenticate again.")
 		return
 	} else if time.Now().Unix() >= storage.RefreshAt {

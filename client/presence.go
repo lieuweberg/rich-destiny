@@ -80,7 +80,9 @@ func initPresence() {
 						// We require storage every iteration
 						_, err := getStorage()
 						if err != nil {
-							setMaintenance()
+							if !veryImportantStatusActive {
+								setMaintenance()
+							}
 							logErrorIfNoErrorSpam(errorOriginAuth, fmt.Sprintf("Error getting storage: %s", err))
 							break
 						}
