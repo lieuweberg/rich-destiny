@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 	"unsafe"
 
@@ -30,6 +31,7 @@ var joinLinkProcess = false
 
 func spawnJoinLinkProcess() {
 	cmd := exec.Command(exe, "-joinlink", strconv.Itoa(os.Getpid()))
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	stdout, err := cmd.StdoutPipe()
 	err = cmd.Start()
 	if err != nil {
