@@ -55,7 +55,7 @@ export default function() {
         <div id="title">
             <h1>rich-destiny</h1>
             <p>a discord rich presence tool for destiny 2 (pc)</p>
-            <p>latest update v0.2.17: the join game button returns!</p>
+            <p>latest update v0.2.18: bug and install fixes!</p>
             <div>
                 <Link to="/download">Download</Link>
                 <Link to="/cp">Control Panel</Link>
