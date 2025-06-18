@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 
 	update "github.com/inconshreveable/go-update"
@@ -67,7 +66,7 @@ func attemptApplicationUpdate() (string, error) {
 
 	// We patched twice, so we should remove the .dump file since that's not in active use nor needed in the future
 	if len(releases) > 1 && tryPatches {
-		err = os.Remove("rich-destiny.exe.dump")
+		err = os.Remove(makePath("rich-destiny.exe.dump"))
 		if err != nil {
 			return "", fmt.Errorf("Error removing the .dump file, %s", err)
 		}
@@ -138,7 +137,7 @@ func updateWithOldSavePath(release releaseElement, oldPath string) error {
 
 			opts := update.Options{
 				Checksum:    checksum,
-				OldSavePath: filepath.Join(currentDirectory, oldPath),
+				OldSavePath: makePath(oldPath),
 			}
 			if tryPatches {
 				opts.Patcher = update.NewBSDiffPatcher()
