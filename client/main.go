@@ -104,12 +104,10 @@ func main() {
 	if service.Interactive() {
 		if flagDaemon || flagJoinLink {
 			if !flagDev {
-				if !flagJoinLink {
-					// https://docs.microsoft.com/en-us/windows/console/freeconsole
-					r1, _, err := syscall.SyscallN(syscall.MustLoadDLL("kernel32").MustFindProc("FreeConsole").Addr())
-					if r1 == 0 {
-						log.Printf("Couldn't free console. This is probably important and should be sent in the support server ( https://richdestiny.app/discord ): %s", err)
-					}
+				// https://docs.microsoft.com/en-us/windows/console/freeconsole
+				r1, _, err := syscall.SyscallN(syscall.MustLoadDLL("kernel32").MustFindProc("FreeConsole").Addr())
+				if r1 == 0 {
+					log.Printf("Couldn't free console. This is probably important and should be sent in the support server ( https://richdestiny.app/discord ): %s", err)
 				}
 			} else {
 				version = "dev"
