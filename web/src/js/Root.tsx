@@ -46,6 +46,9 @@ function Root() {
                 <li className="float-right">
                     <a href="https://richdestiny.app/discord" target="_blank" rel="noopener noreferrer">Discord</a>
                 </li>
+                <li className="float-right">
+                    <a className="donate" href="https://ko-fi.com/lieuwe" target="_blank" rel="noopener noreferrer">Donate</a>
+                </li>
             </ul>
         </div>
 
@@ -94,6 +97,8 @@ function Root() {
                         <a href="http://d2lostsector.report" target="_blank" rel="noopener">D2 Lost Sector Report</a></small></p>
                 </div>
                 <div>
+                    <a className="donate" href="https://ko-fi.com/lieuwe" target="_blank"
+                        rel="noopener noreferrer">Donate</a>
                     <a href="https://richdestiny.app/discord" target="_blank"
                         rel="noopener noreferrer">Discord</a>
                     <a href="https://github.com/lieuweberg/rich-destiny" target="_blank"

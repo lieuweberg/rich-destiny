@@ -107,7 +107,7 @@ body {
 #nav {
     margin: 0 auto 60px;
     padding: 40px 20px 0;
-    max-width: 800px;
+    max-width: 1000px;
 
     font: 500 15px sans-serif;
     line-height: 40px;
@@ -353,4 +353,10 @@ a:not(#nav a, .button) {
     100% {
         transform: translateY(0px);
     }
+}
+
+.donate {
+    padding: 4px 6px;
+    border: 2px solid gold !important;
+    border-radius: 5px;
 }
