@@ -86,6 +86,8 @@ func setAuth(data []byte) (err error) {
 		case "AuthorizationRecordRevoked":
 			fallthrough
 		case "AuthorizationCodeStale":
+			fallthrough
+		case "TokenPreviouslyRevoked":
 			storage.ReAuthAt = time.Now().Unix()
 			return storeData("storage", storage)
 		}
